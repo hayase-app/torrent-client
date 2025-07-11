@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "eslint-config-standard-universal/tsconfig.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": false,
+    "rewriteRelativeImportExtensions": false,
+    "outDir": null,
+    "maxNodeModuleJsDepth": 1,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "./*.ts"
+  ]
+}
