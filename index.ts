@@ -15,7 +15,7 @@ import parseTorrent from 'parse-torrent'
 import { hex2bin, arr2hex, text2arr, concat } from 'uint8-util'
 import WebTorrent from 'webtorrent'
 
-import attachments from './attachments.js'
+import attachments from './attachments'
 
 import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, TorrentSettings } from 'native'
 import type { Server } from 'node:http'
