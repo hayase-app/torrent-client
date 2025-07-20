@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import { readFile, writeFile, statfs, unlink, mkdir, readdir } from 'node:fs/promises'
+import { readFile, writeFile, statfs, unlink, mkdir, readdir, access, constants } from 'node:fs/promises'
 import { join } from 'node:path'
 import { exit } from 'node:process'
 import querystring from 'querystring'
@@ -95,6 +95,7 @@ const server = Symbol('server')
 const store = Symbol('store')
 const path = Symbol('path')
 const opts = Symbol('opts')
+const tmp = Symbol('tmp')
 const tracker = new HTTPTracker({}, atob('aHR0cDovL255YWEudHJhY2tlci53Zjo3Nzc3L2Fubm91bmNl'))
 
 class Store {
@@ -169,14 +170,15 @@ export default class TorrentClient {
   [server]: Server;
   [store]: Store;
   [path]: string;
-  [opts]: Record<string, unknown>
+  [opts]: Record<string, unknown>;
+  [tmp]: string
 
   attachments = attachments
 
   streamed = false
   persist = false
 
-  constructor (settings: TorrentSettings & {path: string}, tmp: string) {
+  constructor (settings: TorrentSettings & {path: string}, temp: string) {
     this[opts] = {
       dht: !settings.torrentDHT,
       utPex: !settings.torrentPeX,
@@ -191,13 +193,14 @@ export default class TorrentClient {
     this[client] = new WebTorrent(this[opts])
     this[client].on('error', console.error)
     this[server] = this[client].createServer({}, 'node').listen(0)
-    this[path] = settings.path || tmp
+    this[tmp] = temp
+    this[path] = settings.path || temp
     this[store] = new Store(this[path])
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
   }
 
-  updateSettings (settings: TorrentSettings) {
+  updateSettings (settings: TorrentSettings & { path: string }) {
     this[client].throttleDownload(Math.round(settings.torrentSpeed * megaBitsToBytes))
     this[client].throttleUpload(Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2))
     this[opts] = {
@@ -211,6 +214,8 @@ export default class TorrentClient {
       maxConns: settings.maxConns,
       peerId
     }
+    this[path] = settings.path || this[tmp]
+    this[store] = new Store(this[path])
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
   }
@@ -444,6 +449,14 @@ export default class TorrentClient {
     })
 
     return peers
+  }
+
+  async verifyDirectoryPermissions (path: string) {
+    try {
+      await access(path, constants.R_OK | constants.W_OK)
+    } catch {
+      throw new Error(`Insufficient permissions to access directory: ${path}`)
+    }
   }
 
   _wireProgress (wire: Torrent['wires'][number], torrent: Torrent): number {
