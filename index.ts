@@ -122,7 +122,11 @@ class Store {
   }
 
   async set (key: string, value: TorrentData) {
-    return await writeFile(join(await this.cacheFolder, key), bencode.encode(value))
+    try {
+      return await writeFile(join(await this.cacheFolder, key), bencode.encode(value), { mode: 0o666})
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   async delete (key: string) {
