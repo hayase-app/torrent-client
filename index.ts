@@ -313,14 +313,15 @@ export default class TorrentClient {
   async playTorrent (id: string, mediaID: number, episode: number): Promise<TorrentFile[]> {
     const existing = await this[client].get(id)
 
+    // race condition hell, if some1 added a torrent Z in path A, switched torrents, then changed to path B and played torrent Z again, and that torrent was cached in path B, we want that cache data before its removed by non-existing check
+    const storeData = !existing ? await this[store].get(await this.toInfoHash(id)) : undefined
+
     if (!existing && this[client].torrents[0]) {
       const hash = this[client].torrents[0].infoHash
       // @ts-expect-error bad typedefs
       await this[client].remove(this[client].torrents[0], { destroyStore: !this.persist })
       if (!this.persist) await this[store].delete(hash)
     }
-
-    const storeData = !existing ? await this[store].get(await this.toInfoHash(id)) : undefined
 
     const torrent: Torrent = existing ?? this[client].add(storeData?.torrent ?? id, {
       path: this[path],
@@ -346,13 +347,18 @@ export default class TorrentClient {
       episode
     })
 
-    const savebitfield = () => this[store].set(torrent.infoHash, baseInfo)
+    // store might be updated during the torrent download, but the torrent won't be magically moved, so we want to persist this cached store location
+    const cachedStore = this[store]
+    const savebitfield = () => cachedStore.set(torrent.infoHash, baseInfo)
     const finish = () => {
       savebitfield()
       clearInterval(interval)
     }
 
     const interval = setInterval(savebitfield, 1000 * 20).unref()
+
+    // so the cached() function is populated and can be called instantly after the torrent is added
+    await savebitfield()
 
     torrent.on('done', finish)
     torrent.on('close', finish)
@@ -453,7 +459,7 @@ export default class TorrentClient {
 
   async verifyDirectoryPermissions (path: string) {
     try {
-      await access(path, constants.R_OK | constants.W_OK)
+      await access(path || this[tmp], constants.R_OK | constants.W_OK)
     } catch {
       throw new Error(`Insufficient permissions to access directory: ${path}`)
     }
