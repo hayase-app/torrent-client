@@ -123,7 +123,7 @@ class Store {
 
   async set (key: string, value: TorrentData) {
     try {
-      return await writeFile(join(await this.cacheFolder, key), bencode.encode(value), { mode: 0o666})
+      return await writeFile(join(await this.cacheFolder, key), bencode.encode(value), { mode: 0o666 })
     } catch (e) {
       console.error(e)
     }
@@ -442,7 +442,7 @@ export default class TorrentClient {
 
       return {
         ip: wire.remoteAddress.replace(/^::ffff:/, '') + ':' + wire.remotePort,
-        seeder: progress === 1 || wire.isSeeder,
+        seeder: wire.isSeeder,
         client: `${parsed.client} ${parsed.version ?? '?'}`,
         progress,
         size: {
@@ -501,8 +501,7 @@ export default class TorrentClient {
       lsd: !!torrent.discovery?.lsd?.server,
       pex: !torrent.private,
       nat: !!this[client].natTraversal?._pmpClient && !!this[client].natTraversal?._upnpClient, //! !await this[client].natTraversal?.externalIp(),
-      // @ts-expect-error bad typedef
-      forwarding: !!Object.values(torrent._peers).find(peer => peer.type === 'utpIncoming' || peer.type === 'tcpIncoming'),
+      forwarding: !!torrent._peers.values().find(peer => peer.type === 'utpIncoming' || peer.type === 'tcpIncoming'),
       persisting: !!this.persist,
       streaming: !!torrent._startAsDeselected
     }
