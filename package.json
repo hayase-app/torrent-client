@@ -17,6 +17,6 @@
 		"bittorrent-peerid": "^1.3.6",
 		"matroska-metadata": "^1.0.7",
 		"native": "github:hayase-app/native",
-		"webtorrent": "^2.8.0"
+		"webtorrent": "^2.8.3"
 	}
 }
