@@ -18,8 +18,8 @@ importers:
         specifier: github:hayase-app/native
         version: https://codeload.github.com/hayase-app/native/tar.gz/c7307d5f3fe3cefbd71e139b3b6c30eedba9788e
       webtorrent:
-        specifier: ^2.8.3
-        version: 2.8.3
+        specifier: ^2.8.4
+        version: 2.8.4
     devDependencies:
       '@types/node':
         specifier: ^24.0.13
@@ -1773,8 +1773,8 @@ packages:
     resolution: {integrity: sha512-sOn0bj3/noUdzQX7rvk0jFbBurqWDGGo2ipl+WfgoOe/x3cxbGLk/ZUY+WHCISSlLaIeBumi1X3wxQZnUESExQ==}
     engines: {node: '>=16.0.0'}
 
-  webtorrent@2.8.3:
-    resolution: {integrity: sha512-ST8iVQzhL0iKFMHDs49fGw/saNS56o/0cLKLS80RSVC0czEo/uIUzB1LpJrbZm/NagZ6ozQgv8t0xqDdw5KuaQ==}
+  webtorrent@2.8.4:
+    resolution: {integrity: sha512-OTzeMVa6r9GXzjj428HC5gSi6oRKFEqOpR5cwQ8+GtbYgQz6PF6y3tzqnVFf6xWvnKcoZiabpHud3gx01Cbt2A==}
     engines: {node: '>=16'}
 
   which-boxed-primitive@1.1.1:
@@ -3939,7 +3939,7 @@ snapshots:
       node-datachannel: 0.12.0
       node-domexception: 1.0.0
 
-  webtorrent@2.8.3:
+  webtorrent@2.8.4:
     dependencies:
       '@silentbot1/nat-api': 0.4.8
       '@thaunknown/simple-peer': 10.0.11
