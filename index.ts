@@ -372,6 +372,99 @@ export default class TorrentClient {
     }))
   }
 
+  async rescanTorrents (hashes: string[]) {
+    const tmpclient = new WebTorrent({
+      dht: false,
+      utPex: false,
+      downloadLimit: 0,
+      maxConns: 0,
+      peerId,
+      tracker: {},
+      natUpnp: false,
+      natPmp: false,
+      utp: false
+    })
+
+    const promises: Array<Promise<void>> = []
+
+    const cachedStore = this[store]
+
+    const currentHash = this[client].torrents[0]?.infoHash
+
+    for (const hash of hashes) {
+      if (hash === currentHash) continue
+      promises.push(
+        (async () => {
+          const storeData = await cachedStore.get(hash)
+          if (!storeData) return
+          const torrent = tmpclient.add(storeData.torrent, { path: this[path], announce: [], deselect: true, paused: true })
+
+          await new Promise(resolve => torrent.once('ready', resolve))
+
+          cachedStore.set(torrent.infoHash, structTorrent({
+            // @ts-expect-error bad typedefs
+            info: torrent.info,
+            announce: torrent.announce,
+            private: torrent.private,
+            urlList: torrent.urlList,
+            bitfield: torrent.bitfield!.buffer,
+            date: Date.now(),
+            mediaID: storeData.bencoded.mediaID,
+            episode: storeData.bencoded.episode
+          }))
+
+          await new Promise(resolve => tmpclient.remove(torrent, { destroyStore: false }, resolve))
+        })()
+      )
+    }
+
+    await Promise.allSettled(promises)
+
+    await new Promise(resolve => tmpclient.destroy(resolve))
+  }
+
+  async deleteTorrents (hashes: string[]) {
+    const tmpclient = new WebTorrent({
+      dht: false,
+      utPex: false,
+      downloadLimit: 0,
+      maxConns: 0,
+      peerId,
+      tracker: {},
+      natUpnp: false,
+      natPmp: false,
+      utp: false
+    })
+
+    const cachedStore = this[store]
+
+    const promises: Array<Promise<void>> = []
+
+    const currentHash = this[client].torrents[0]?.infoHash
+
+    for (const hash of hashes) {
+      if (hash === currentHash) continue
+      promises.push(
+        (async () => {
+          const storeData = await cachedStore.get(hash)
+          if (!storeData) return
+
+          const torrent = tmpclient.add(storeData.torrent, { path: this[path], announce: [], deselect: true, paused: true, skipVerify: true })
+
+          if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
+
+          await new Promise(resolve => tmpclient.remove(torrent, { destroyStore: true }, resolve))
+
+          await cachedStore.delete(hash)
+        })()
+      )
+    }
+
+    await Promise.allSettled(promises)
+
+    await new Promise(resolve => tmpclient.destroy(resolve))
+  }
+
   async cached () {
     return await this[store].list()
   }
