@@ -16,7 +16,7 @@ import { hex2bin, arr2hex, text2arr, concat } from 'uint8-util'
 import WebTorrent from 'webtorrent'
 
 import attachments from './attachments'
-import DoHResolver from './doh'
+// import DoHResolver from './doh'
 
 import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, TorrentSettings } from 'native'
 import type { Server } from 'node:http'
@@ -97,7 +97,7 @@ const store = Symbol('store')
 const path = Symbol('path')
 const opts = Symbol('opts')
 const tmp = Symbol('tmp')
-const doh = Symbol('doh')
+// const doh = Symbol('doh')
 const tracker = new HTTPTracker({}, atob('aHR0cDovL255YWEudHJhY2tlci53Zjo3Nzc3L2Fubm91bmNl'))
 
 class Store {
@@ -177,15 +177,15 @@ export default class TorrentClient {
   [store]: Store;
   [path]: string;
   [opts]: Record<string, unknown>;
-  [tmp]: string;
-  [doh]: DoHResolver | undefined
+  [tmp]: string
+  // [doh]: DoHResolver | undefined
 
   attachments = attachments
 
   streamed = false
   persist = false
 
-  constructor (settings: TorrentSettings & {path: string, doh: string}, temp: string) {
+  constructor (settings: TorrentSettings & {path: string }, temp: string) {
     this[opts] = {
       dht: !settings.torrentDHT,
       utPex: !settings.torrentPeX,
@@ -203,12 +203,16 @@ export default class TorrentClient {
     this[tmp] = temp
     this[path] = settings.path || temp
     this[store] = new Store(this[path])
-    if (settings.doh) this[doh] = new DoHResolver(settings.doh)
+    // try {
+    //   if (settings.doh) this[doh] = new DoHResolver(settings.doh)
+    // } catch (error) {
+    //   console.error(error)
+    // }
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
   }
 
-  updateSettings (settings: TorrentSettings & { path: string, doh: string }) {
+  updateSettings (settings: TorrentSettings & { path: string }) {
     this[client].throttleDownload(Math.round(settings.torrentSpeed * megaBitsToBytes))
     this[client].throttleUpload(Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2))
     this[opts] = {
@@ -226,8 +230,12 @@ export default class TorrentClient {
     this[store] = new Store(this[path])
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
-    this[doh]?.destroy()
-    if (settings.doh) this[doh] = new DoHResolver(settings.doh)
+    // this[doh]?.destroy()
+    // try {
+    //   if (settings.doh) this[doh] = new DoHResolver(settings.doh)
+    // } catch (error) {
+    //   console.error(error)
+    // }
   }
 
   cleanupLast: undefined | (() => Promise<void>) = undefined
@@ -646,7 +654,7 @@ export default class TorrentClient {
       new Promise(resolve => this[client].destroy(resolve)),
       new Promise(resolve => tracker.destroy(resolve))
     ])
-    this[doh]?.destroy()
+    // this[doh]?.destroy()
     exit()
   }
 }

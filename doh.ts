@@ -1,7 +1,10 @@
-import dns from 'node:dns'
+import { lookup } from 'node:dns'
+import http from 'node:http'
+import https from 'node:https'
 
 import type { LookupAddress } from 'node:dns'
 import type { LookupFunction } from 'node:net'
+import type { Agent as AgentType } from 'undici-types'
 
 interface DNSAnswer {
   Status: number
@@ -48,22 +51,32 @@ export const PROVIDERS = {
   'doh-02.spectrum.com/dns-query': ['209.18.47.61', '209.18.47.62', '[2001:1998:0f00:0001::1]', '[2001:1998:0f00:0002::1]']
 } as const
 
+const globalDispatcher = Symbol.for('undici.globalDispatcher.1')
+
+const withDispatcher = globalThis as unknown as { [globalDispatcher]: AgentType }
+
+const Agent = withDispatcher[globalDispatcher].constructor as typeof AgentType
+console.log(Agent)
+
 export default class DoHResolver {
   dohServers
   pathname
-  originalLookup = dns.lookup
 
   constructor (dohServer = 'https://cloudflare-dns.com/dns-query') {
     if (!(dohServer.slice(8) in PROVIDERS)) dohServer = 'https://cloudflare-dns.com/dns-query'
 
     this.dohServers = PROVIDERS[dohServer.slice(8) as keyof typeof PROVIDERS]
     this.pathname = new URL(dohServer).pathname
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    dns.lookup = this._lookup as any
+
+    const lookup = this._lookup
+
+    withDispatcher[globalDispatcher] = new Agent({ connect: { lookup } })
+    https.globalAgent = new https.Agent({ lookup, keepAlive: true })
+    http.globalAgent = new http.Agent({ lookup, keepAlive: true })
   }
 
   _lookup: LookupFunction = async (hostname, options, callback) => {
-    if (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '::1' || hostname === '127.0.0.1') return this.originalLookup(hostname, options, callback)
+    if (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '::1' || hostname === '127.0.0.1') return lookup(hostname, options, callback)
     try {
       // Resolves a host name (e.g. `'nodejs.org'`) into the first found A (IPv4) or
       // AAAA (IPv6) record. All `option` properties are optional. If `options` is an
@@ -103,7 +116,7 @@ export default class DoHResolver {
       }
     } catch (error) {
       // Fallback to original lookup on error
-      this.originalLookup(hostname, options, callback)
+      lookup(hostname, options, callback)
     }
   }
 
@@ -133,6 +146,9 @@ export default class DoHResolver {
   }
 
   destroy () {
-    dns.lookup = this.originalLookup
+    withDispatcher[globalDispatcher].destroy()
+    https.globalAgent.destroy()
+    http.globalAgent.destroy()
+    withDispatcher[globalDispatcher] = new Agent()
   }
 }
