@@ -17,6 +17,7 @@ import WebTorrent from 'webtorrent'
 
 import attachments from './attachments'
 // import DoHResolver from './doh'
+import { createNZB } from './nzb'
 
 import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, TorrentSettings } from 'native'
 import type { Server } from 'node:http'
@@ -525,6 +526,13 @@ export default class TorrentClient {
     return this[client].torrents.map(t => this.makeStats(t))
   }
 
+  async createNZBWebSeed (id: string, url: string, domain: string, port: number, login: string, password: string, group: string, poolSize: number) {
+    const torrent = await this[client].get(id)
+    if (!torrent) throw new Error('Torrent not found')
+
+    await createNZB(torrent, url, domain, port, login, password, group, poolSize)
+  }
+
   async torrentInfo (id: string) {
     const torrent = await this[client].get(id)
     if (!torrent) throw new Error('Torrent not found')
@@ -543,7 +551,7 @@ export default class TorrentClient {
       flags.push(type.endsWith('Incoming') ? 'incoming' : 'outgoing')
       if (wire._cryptoHandshakeDone) flags.push('encrypted')
 
-      const parsed = peerid(wire.peerId)
+      const parsed = peerid(wire.peerId!)
 
       const progress = this._wireProgress(wire, torrent)
 
