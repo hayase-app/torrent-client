@@ -526,11 +526,11 @@ export default class TorrentClient {
     return this[client].torrents.map(t => this.makeStats(t))
   }
 
-  async createNZBWebSeed (id: string, url: string, domain: string, port: number, login: string, password: string, group: string, poolSize: number) {
+  async createNZBWebSeed (id: string, url: string, domain: string, port: number, login: string, password: string, poolSize: number) {
     const torrent = await this[client].get(id)
     if (!torrent) throw new Error('Torrent not found')
 
-    await createNZB(torrent, url, domain, port, login, password, group, poolSize)
+    await createNZB(torrent, url, domain, port, login, password, poolSize)
   }
 
   async torrentInfo (id: string) {

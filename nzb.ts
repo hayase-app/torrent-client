@@ -14,7 +14,7 @@ import type Torrent from 'webtorrent/lib/torrent.js'
 
 const debug = debugFactory('webtorrent:nzbwebseed')
 
-export async function createNZB (torrent: Torrent, url: string, domain: string, port: number, login: string, password: string, group: string, _poolSize: number) {
+export async function createNZB (torrent: Torrent, url: string, domain: string, port: number, login: string, password: string, _poolSize: number) {
   if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
   if (torrent.destroyed || torrent.done) return
 
@@ -31,7 +31,7 @@ export async function createNZB (torrent: Torrent, url: string, domain: string, 
   } else {
     contents = await res.text()
   }
-  const { files, pool } = await fromNZB(contents, domain, port, login, password, group, _poolSize)
+  const { files, pool } = await fromNZB(contents, domain, port, login, password, 'alt.binaries.multimedia.anime.highspeed', _poolSize)
 
   if (torrent.destroyed) return await pool.destroy()
   torrent.once('close', () => pool.destroy())
