@@ -556,9 +556,9 @@ export default class TorrentClient {
       const progress = this._wireProgress(wire, torrent)
 
       return {
-        ip: wire.remoteAddress.replace(/^::ffff:/, '') + ':' + wire.remotePort,
+        ip: wire.type === 'webSeed' ? wire.domain : wire.remoteAddress.replace(/^::ffff:/, '') + ':' + wire.remotePort,
         seeder: wire.isSeeder,
-        client: `${parsed.client} ${parsed.version ?? '?'}`,
+        client: wire.type === 'webSeed' ? 'nntp' : `${parsed.client} ${parsed.version ?? ''}`,
         progress,
         size: {
           downloaded: wire.downloaded,

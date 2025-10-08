@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
+import zlib from 'node:zlib'
+
 import BitField from 'bitfield'
 import Wire from 'bittorrent-protocol'
 import debugFactory from 'debug'
 import ltDontHave from 'lt_donthave'
 import fromNZB, { type NNTPFile } from 'nzb-file/src'
 import { hash, concat } from 'uint8-util'
+import Peer from 'webtorrent/lib/peer.js'
 
 import type EventEmitter from 'node:events'
 import type Torrent from 'webtorrent/lib/torrent.js'
@@ -17,7 +20,17 @@ export async function createNZB (torrent: Torrent, url: string, domain: string, 
 
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Failed to fetch NZB: ${res.statusText}`)
-  const contents = await res.text()
+
+  let contents: string
+  if (url.endsWith('.nzb.gz') || res.headers.get('content-type') === 'application/gzip') {
+    const buffer = await res.arrayBuffer()
+    contents = await new Promise<string>((resolve, reject) => zlib.gunzip(Buffer.from(buffer), (err, result) => {
+      if (err) return reject(err)
+      resolve(result.toString('utf-8'))
+    }))
+  } else {
+    contents = await res.text()
+  }
   const { files, pool } = await fromNZB(contents, domain, port, login, password, group, _poolSize)
 
   if (torrent.destroyed) return await pool.destroy()
@@ -43,7 +56,14 @@ export async function createNZB (torrent: Torrent, url: string, domain: string, 
   }
 
   for (let i = 0; i < poolSize; i++) {
-    torrent.addWebSeed(new NZBWebSeed(torrentFileToNZBFileMap, torrent, domain + '-' + (i + 1)))
+    const id = domain + '-' + (i + 1)
+    const conn = new NZBWebSeed(torrentFileToNZBFileMap, torrent, id)
+    const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
+    newPeer.wire!.domain = domain
+
+    torrent._registerPeer(newPeer)
+
+    torrent.emit('peer', id)
   }
 }
 
@@ -92,10 +112,10 @@ class NZBWebSeed extends Wire {
     this.on('bitfield', () => { debug('bitfield') })
     this.lt_donthave.on('donthave', () => { debug('donthave') })
 
-    this.on('request', (pieceIndex, offset, length, callback) => {
+    this.on('request', async (pieceIndex, offset, length, callback) => {
       debug('request pieceIndex=%d offset=%d length=%d', pieceIndex, offset, length)
       try {
-        const data = this.request(pieceIndex, offset, length)
+        const data = await this.request(pieceIndex, offset, length)
         callback(null, data)
       } catch (error) {
         // Cancel all in progress requests for this piece
