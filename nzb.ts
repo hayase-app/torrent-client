@@ -116,12 +116,12 @@ class NZBWebSeed extends Wire {
       debug('request pieceIndex=%d offset=%d length=%d', pieceIndex, offset, length)
       try {
         const data = await this.request(pieceIndex, offset, length)
-        callback(null, data)
+        queueMicrotask(() => callback(null, data))
       } catch (error) {
         // Cancel all in progress requests for this piece
         this.lt_donthave.donthave(pieceIndex)
 
-        callback(error)
+        queueMicrotask(() => callback(error))
       }
     })
   }
