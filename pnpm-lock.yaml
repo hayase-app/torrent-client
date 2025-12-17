@@ -21,8 +21,8 @@ importers:
         specifier: ^1.1.11
         version: 1.1.11
       webtorrent:
-        specifier: ^2.8.5
-        version: 2.8.5(bare-url@2.3.2)
+        specifier: github:webtorrent/webtorrent
+        version: https://codeload.github.com/webtorrent/webtorrent/tar.gz/fd8f39e1560c5ae5db6b12153077877f0f33b076(bare-url@2.3.2)
     devDependencies:
       '@types/node':
         specifier: ^25.0.2
@@ -1821,8 +1821,9 @@ packages:
     resolution: {integrity: sha512-sOn0bj3/noUdzQX7rvk0jFbBurqWDGGo2ipl+WfgoOe/x3cxbGLk/ZUY+WHCISSlLaIeBumi1X3wxQZnUESExQ==}
     engines: {node: '>=16.0.0'}
 
-  webtorrent@2.8.5:
-    resolution: {integrity: sha512-oIjpuBrypApJ+RCZ8RRaHEncVSkt2cd25/I4Trb2sk9nlaEF92Dg1u8BCwqA4eJR7wIZQM95GyO7Wo4QTbrUUA==}
+  webtorrent@https://codeload.github.com/webtorrent/webtorrent/tar.gz/fd8f39e1560c5ae5db6b12153077877f0f33b076:
+    resolution: {tarball: https://codeload.github.com/webtorrent/webtorrent/tar.gz/fd8f39e1560c5ae5db6b12153077877f0f33b076}
+    version: 2.8.5
     engines: {node: '>=16'}
 
   which-boxed-primitive@1.1.1:
@@ -2072,7 +2073,7 @@ snapshots:
     dependencies:
       '@typescript-eslint/tsconfig-utils': 8.41.0(typescript@5.9.3)
       '@typescript-eslint/types': 8.41.0
-      debug: 4.4.1
+      debug: 4.4.3
       typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
@@ -2091,7 +2092,7 @@ snapshots:
       '@typescript-eslint/types': 8.41.0
       '@typescript-eslint/typescript-estree': 8.41.0(typescript@5.9.3)
       '@typescript-eslint/utils': 8.41.0(eslint@9.34.0)(typescript@5.9.3)
-      debug: 4.4.1
+      debug: 4.4.3
       eslint: 9.34.0
       ts-api-utils: 2.1.0(typescript@5.9.3)
       typescript: 5.9.3
@@ -4046,7 +4047,7 @@ snapshots:
       node-datachannel: 0.12.0
       node-domexception: 1.0.0
 
-  webtorrent@2.8.5(bare-url@2.3.2):
+  webtorrent@https://codeload.github.com/webtorrent/webtorrent/tar.gz/fd8f39e1560c5ae5db6b12153077877f0f33b076(bare-url@2.3.2):
     dependencies:
       '@silentbot1/nat-api': 0.4.9
       '@thaunknown/simple-peer': 10.0.12

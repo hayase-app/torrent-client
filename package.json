@@ -19,6 +19,6 @@
 		"matroska-metadata": "^1.0.7",
 		"native": "github:hayase-app/native",
 		"nzb-file": "^1.1.11",
-		"webtorrent": "^2.8.5"
+		"webtorrent": "github:webtorrent/webtorrent"
 	}
 }
