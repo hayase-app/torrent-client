@@ -15,6 +15,7 @@
 		"build": "tsc"
 	},
 	"dependencies": {
+		"abslink": "^1.1.2",
 		"bittorrent-peerid": "^1.3.6",
 		"matroska-metadata": "^1.0.7",
 		"native": "github:hayase-app/native",
