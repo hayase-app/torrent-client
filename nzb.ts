@@ -1,16 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { Worker } from 'node:worker_threads'
+import zlib from 'node:zlib'
 
-import { wrap } from 'abslink'
 import BitField from 'bitfield'
 import Wire from 'bittorrent-protocol'
 import debugFactory from 'debug'
 import ltDontHave from 'lt_donthave'
-import { hash } from 'uint8-util'
+import fromNZB, { type NNTPFile } from 'nzb-file/src'
+import { hash, concat } from 'uint8-util'
 import Peer from 'webtorrent/lib/peer.js'
 
-import type NZBWorker from './worker.ts'
-import type { Remote } from 'abslink'
 import type EventEmitter from 'node:events'
 import type Torrent from 'webtorrent/lib/torrent.js'
 
@@ -20,27 +18,46 @@ export async function createNZB (torrent: Torrent, url: string, domain: string, 
   if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
   if (torrent.destroyed || torrent.done) return
 
-  const worker = new Worker(new URL('./worker.ts', import.meta.url))
+  const res = await fetch(url)
+  if (!res.ok) throw new Error(`Failed to fetch NZB: ${res.statusText}`)
 
-  // @ts-expect-error incorrect infer
-  const pieceLength: number = torrent.pieceLength
+  let contents: string
+  if (url.endsWith('.nzb.gz') || res.headers.get('content-type') === 'application/gzip') {
+    const buffer = await res.arrayBuffer()
+    contents = await new Promise<string>((resolve, reject) => zlib.gunzip(Buffer.from(buffer), (err, result) => {
+      if (err) return reject(err)
+      resolve(result.toString('utf-8'))
+    }))
+  } else {
+    contents = await res.text()
+  }
+  const { files, pool } = await fromNZB(contents, domain, port, login, password, 'alt.binaries.multimedia.anime.highspeed', _poolSize)
 
-  const nzbWorker = await new (wrap<typeof NZBWorker>(worker))(pieceLength, torrent.files.map(file => ({
-    offset: file.offset,
-    length: file.length,
-    name: file.name,
-    path: file.path,
-    size: file.size
-  })))
+  if (torrent.destroyed) return await pool.destroy()
+  torrent.once('close', () => pool.destroy())
 
-  const poolSize = await nzbWorker.createNZB(url, domain, port, login, password, _poolSize)
+  await pool.ready
 
-  if (torrent.destroyed) return await nzbWorker.destroy()
-  torrent.once('close', () => nzbWorker.destroy())
+  const poolSize = pool.pool.size
+
+  const torrentFileToNZBFileMap = new Map<number, NNTPFile>()
+
+  // find files by name or path, of file size if no other files match
+  for (const file of torrent.files) {
+    const nzbFile = files.find(f => f.name === file.name || f.name === file.path)
+    if (nzbFile) {
+      torrentFileToNZBFileMap.set(file.offset, nzbFile)
+    } else {
+      const sizeMatch = files.filter(f => f.size === file.length)
+      if (sizeMatch.length === 1) {
+        torrentFileToNZBFileMap.set(file.offset, sizeMatch[0]!)
+      }
+    }
+  }
 
   for (let i = 0; i < poolSize; i++) {
     const id = domain + '-' + (i + 1)
-    const conn = new NZBWebSeed(torrent, id, nzbWorker)
+    const conn = new NZBWebSeed(torrentFileToNZBFileMap, torrent, id)
     const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
     // @ts-expect-error non-standard hacky, dont care
     newPeer.wire!.domain = domain
@@ -58,14 +75,14 @@ interface NZBWebSeed extends EventEmitter {
 class NZBWebSeed extends Wire {
   connId
   _torrent
+  _files
   lt_donthave!: InstanceType<ReturnType<typeof ltDontHave>>
-  worker
-  constructor (torrent: Torrent, id: string, worker: Remote<InstanceType<typeof NZBWorker>>) {
+  constructor (files: Map<number, NNTPFile>, torrent: Torrent, id: string) {
     super()
 
+    this._files = files
     this.connId = id
     this._torrent = torrent
-    this.worker = worker
 
     this.setKeepAlive(true)
 
@@ -99,7 +116,7 @@ class NZBWebSeed extends Wire {
     this.on('request', async (pieceIndex, offset, length, callback) => {
       debug('request pieceIndex=%d offset=%d length=%d', pieceIndex, offset, length)
       try {
-        const data = await worker.makeRequest(pieceIndex, offset, length)
+        const data = await this.request(pieceIndex, offset, length)
         queueMicrotask(() => callback(null, data))
       } catch (error) {
         // Cancel all in progress requests for this piece
@@ -110,11 +127,69 @@ class NZBWebSeed extends Wire {
     })
   }
 
+  async request (pieceIndex: number, offset: number, length: number) {
+    // @ts-expect-error incorrect infer
+    const pieceOffset = pieceIndex * this._torrent.pieceLength
+    const rangeStart = pieceOffset + offset /* offset within whole torrent */
+    const rangeEnd = rangeStart + length - 1
+
+    const files = this._torrent.files
+    const requests: Array<{
+      nntpfile: NNTPFile
+      start: number
+      end: number
+    }> = []
+    if (files.length <= 1) {
+      const nntpfile = this._files.get(0)
+      if (nntpfile) {
+        requests.push({
+          nntpfile: this._files.get(0)!,
+          start: rangeStart,
+          end: rangeEnd
+        })
+      }
+    } else {
+      const requestedFiles = files.filter(file => file.offset <= rangeEnd && (file.offset + file.length) > rangeStart)
+      if (requestedFiles.length < 1) {
+        throw new Error('Could not find file corresponding to web seed range request')
+      }
+
+      for (const requestedFile of requestedFiles) {
+        const nntpfile = this._files.get(requestedFile.offset)
+        if (!nntpfile) throw new Error('Could not find file corresponding to web seed range request')
+        const fileEnd = requestedFile.offset + requestedFile.length - 1
+        requests.push({
+          nntpfile,
+          start: Math.max(rangeStart - requestedFile.offset, 0),
+          end: Math.min(fileEnd, rangeEnd - requestedFile.offset)
+        })
+      }
+    }
+
+    if (!requests.length) {
+      throw new Error('Could not find file corresponding to web seed range request')
+    }
+
+    const chunks = await Promise.all(requests.map(async ({ start, end, nntpfile }) => {
+      debug(
+        'Requesting pieceIndex=%d offset=%d length=%d start=%d end=%d',
+        pieceIndex, offset, length, start, end
+      )
+
+      const data = await nntpfile.slice(start, end + 1).bytes()
+
+      debug('Got data of length %d', data.length)
+
+      return data
+    }))
+
+    return chunks.length === 1 ? chunks[0]! : concat(chunks)
+  }
+
   destroy () {
     super.destroy()
     // @ts-expect-error gc safety
     this._torrent = null
-    this.worker.destroy()
     return this
   }
 }
