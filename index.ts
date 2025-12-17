@@ -17,7 +17,7 @@ import WebTorrent from 'webtorrent'
 
 import attachments from './attachments'
 // import DoHResolver from './doh'
-import { createNZB } from './nzb+worker'
+import { createNZB } from './nzb'
 
 import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, TorrentSettings } from 'native'
 import type { Server } from 'node:http'
