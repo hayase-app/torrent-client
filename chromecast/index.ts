@@ -113,10 +113,7 @@ export class ChromeCasts extends EventEmitter<{display: [Array<{ friendlyName: s
   interval = setInterval(() => this.update(), 1 * 60 * 1000)
   attachments
 
-  add (cst: { friendlyName: string, host?: string, emitted?: boolean }) {
-    if (!cst.host || cst.emitted) return
-    cst.emitted = true
-
+  add (cst: { friendlyName: string, host: string }) {
     const player = this.players.get(cst.host) ?? new Cast(cst.friendlyName, cst.host)
 
     this.players.set(cst.host, player)
@@ -156,33 +153,40 @@ export class ChromeCasts extends EventEmitter<{display: [Array<{ friendlyName: s
     super()
     this.attachments = attachments
     this.mdns.on('response', (response) => {
+      // id:name
+      const friendlyNames: Record<string, string> = {}
+      // id:domain
+      const domains: Record<string, string> = {}
+      // domain:ip
+      const addresses: Record<string, string> = {}
       // @ts-expect-error w/e
       for (const { type, name, data } of [...response.answers, ...response.additionals]) {
-        if (type === 'PTR' && name === '_googlecast._tcp.local') {
-          const id = data.replace('._googlecast._tcp.local', '')
-          this.casts[id] ??= { friendlyName: id, host: '' }
-        }
+        if (type === 'A' || type === 'AAAA') addresses[name] ??= data
 
-        const id = name.replace('._googlecast._tcp.local', '')
-        if (type === 'SRV' && this.casts[id] && !this.casts[id].host) {
-          this.casts[id].host = data.target
-          this.add(this.casts[id])
-        }
+        if (!name.endsWith('._googlecast._tcp.local')) continue
+        const id = name.replace('._googlecast._tcp.local', '') || data.replace('._googlecast._tcp.local', '')
 
-        if (type === 'TXT' && this.casts[id]) {
+        if (type === 'PTR') {
+          friendlyNames[id] ??= id
+        } else if (type === 'SRV') {
+          domains[id] ??= data.target
+        } else if (type === 'TXT') {
           for (const item of data) {
-            const decodedItem = decode(item as Buffer)
-            for (const [key, value] of Object.entries(decodedItem)) {
+            for (const [key, value] of Object.entries(decode(item as Buffer))) {
               if (key === 'fn' || key === 'n') { // friendly name or name
-                const exists = this.casts[id]
-                if (exists) {
-                  exists.friendlyName = value as string
-                  this.add(exists)
-                }
+                friendlyNames[id] = value as string
               }
             }
           }
         }
+      }
+
+      for (const [id, domain] of Object.entries(domains)) {
+        const host = addresses[domain] ?? domain
+        const friendlyName = friendlyNames[id] ?? id
+
+        this.casts[id] ??= { friendlyName, host }
+        this.add({ friendlyName, host })
       }
     })
 
@@ -208,8 +212,7 @@ export class ChromeCasts extends EventEmitter<{display: [Array<{ friendlyName: s
     const host = new URL(service.URLBase).hostname
 
     this.casts[id] ??= { friendlyName, host }
-    this.casts[id].host ??= host
-    this.add(this.casts[id])
+    this.add({ friendlyName, host })
   }
 
   async destroy () {
