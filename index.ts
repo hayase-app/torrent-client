@@ -11,13 +11,15 @@ import debug from 'debug'
 // @ts-expect-error no export
 import HTTPTracker from 'http-tracker'
 import MemoryChunkStore from 'memory-chunk-store'
+import networkAddress from 'network-address'
 import parseTorrent from 'parse-torrent'
 import { hex2bin, arr2hex, text2arr, concat } from 'uint8-util'
 import WebTorrent from 'webtorrent'
 
-import attachments from './attachments'
+import attachments from './attachments.ts'
 // import DoHResolver from './doh'
-import { createNZB } from './nzb'
+import { ChromeCasts } from './chromecast/index.ts'
+import { createNZB } from './nzb.ts'
 
 import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, TorrentSettings } from 'native'
 import type { Server } from 'node:http'
@@ -183,6 +185,8 @@ export default class TorrentClient {
 
   attachments = attachments
 
+  chromecasts = new ChromeCasts(attachments)
+
   streamed = false
   persist = false
 
@@ -200,6 +204,7 @@ export default class TorrentClient {
     }
     this[client] = new WebTorrent(this[opts])
     this[client].on('error', console.error)
+    // @ts-expect-error bad types
     this[server] = this[client].createServer({}, 'node').listen(0)
     this[tmp] = temp
     this[path] = settings.path || temp
@@ -261,6 +266,7 @@ export default class TorrentClient {
         this[client] = new WebTorrent(this[opts])
         this[store] = new Store(this[path])
         this[client].on('error', console.error)
+        // @ts-expect-error bad types
         this[server] = this[client].createServer({}, 'node').listen(0)
         resolve(val)
       }
@@ -320,7 +326,7 @@ export default class TorrentClient {
     return results
   }
 
-  async toInfoHash (torrentId: string) {
+  async toInfoHash (torrentId: string | ArrayBufferView) {
     let parsed: { infoHash: string } | undefined
 
     // @ts-expect-error bad typedefs
@@ -329,7 +335,7 @@ export default class TorrentClient {
     return parsed?.infoHash
   }
 
-  async playTorrent (id: string, mediaID: number, episode: number): Promise<TorrentFile[]> {
+  async playTorrent (id: string | ArrayBufferView, mediaID: number, episode: number): Promise<TorrentFile[]> {
     const existing = await this[client].get(id)
 
     // race condition hell, if some1 added a torrent Z in path A, switched torrents, then changed to path B and played torrent Z again, and that torrent was cached in path B, we want that cache data before its removed by non-existing check
@@ -382,9 +388,14 @@ export default class TorrentClient {
     torrent.on('done', finish)
     torrent.on('close', finish)
 
-    return torrent.files.map(({ name, type, size, path, streamURL }, id) => ({
-      hash: torrent.infoHash, name, type, size, path, id, url: 'http://localhost:' + (this[server].address() as AddressInfo).port + streamURL
-    }))
+    const lan = networkAddress()
+
+    return torrent.files.map(({ name, type, size, path, streamURL }, id) => {
+      const suffix = ':' + (this[server].address() as AddressInfo).port + streamURL
+      return {
+        hash: torrent.infoHash, name, type, size, path, id, url: 'http://localhost' + suffix, lan: 'http://' + lan + suffix
+      }
+    })
   }
 
   async rescanTorrents (hashes: string[]) {
@@ -658,7 +669,8 @@ export default class TorrentClient {
 
   async destroy () {
     await Promise.all([
-      attachments.destroy(),
+      this.attachments.destroy(),
+      this.chromecasts.destroy(),
       new Promise(resolve => this[client].destroy(resolve)),
       new Promise(resolve => tracker.destroy(resolve))
     ])

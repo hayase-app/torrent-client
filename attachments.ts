@@ -1,6 +1,7 @@
 import { createServer } from 'node:http'
 
 import Metadata from 'matroska-metadata'
+import networkAddress from 'network-address'
 
 import type EventEmitter from 'node:events'
 import type { AddressInfo } from 'node:net'
@@ -65,8 +66,11 @@ export default new class Attachments {
   async attachments (hash: string, id: number) {
     const metadata = this._metadata(hash, id)
     if (!metadata) throw new Error('File not found')
+
+    const lan = networkAddress()
     return (await metadata.getAttachments()).map(({ filename, mimetype }, number) => {
-      return { filename, mimetype, id, url: 'http://localhost:' + (this.server.address() as AddressInfo).port + '/' + hash + id + '/' + number }
+      const suffix = ':' + (this.server.address() as AddressInfo).port + '/' + hash + id + '/' + number
+      return { filename, mimetype, id, url: 'http://localhost' + suffix, lan: 'http://' + lan + suffix }
     })
   }
 
