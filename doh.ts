@@ -1,9 +1,11 @@
-import { lookup } from 'node:dns'
+import dns from 'node:dns'
 import http from 'node:http'
 import https from 'node:https'
+import { isIP, type LookupFunction } from 'node:net'
+import { nextTick } from 'node:process'
+import { promisify } from 'node:util'
 
 import type { LookupAddress } from 'node:dns'
-import type { LookupFunction } from 'node:net'
 import type { Agent as AgentType } from 'undici-types'
 
 interface DNSAnswer {
@@ -52,31 +54,86 @@ export const PROVIDERS = {
 } as const
 
 const globalDispatcher = Symbol.for('undici.globalDispatcher.1')
+const withDispatcher = globalThis as unknown as { [globalDispatcher]?: AgentType }
+const Agent = withDispatcher[globalDispatcher]?.constructor as typeof AgentType | undefined
 
-const withDispatcher = globalThis as unknown as { [globalDispatcher]: AgentType }
+const originalLookup = dns.lookup
 
-const Agent = withDispatcher[globalDispatcher].constructor as typeof AgentType
-console.log(Agent)
+const LOCAL_ADDRESSES = new Set([
+  'localhost',
+  '0.0.0.0',
+  '::1',
+  '127.0.0.1',
+  '::ffff:127.0.0.1'
+])
 
 export default class DoHResolver {
   dohServers
   pathname
 
-  constructor (dohServer = 'https://cloudflare-dns.com/dns-query') {
-    if (!(dohServer.slice(8) in PROVIDERS)) dohServer = 'https://cloudflare-dns.com/dns-query'
-
-    this.dohServers = PROVIDERS[dohServer.slice(8) as keyof typeof PROVIDERS]
+  constructor (dohServer: `https://${keyof typeof PROVIDERS}` = 'https://cloudflare-dns.com/dns-query') {
+    const key = dohServer.slice(8)
+    this.dohServers = key in PROVIDERS ? PROVIDERS[key as keyof typeof PROVIDERS] : PROVIDERS['cloudflare-dns.com/dns-query']
     this.pathname = new URL(dohServer).pathname
 
     const lookup = this._lookup
+    // @ts-expect-error compat
+    this._lookup.__promisify__ = promisify(this._lookup)
+    // @ts-expect-error compat
+    dns.lookup = lookup
 
-    withDispatcher[globalDispatcher] = new Agent({ connect: { lookup } })
+    if (Agent) withDispatcher[globalDispatcher] = new Agent({ connect: { lookup } })
     https.globalAgent = new https.Agent({ lookup, keepAlive: true })
     http.globalAgent = new http.Agent({ lookup, keepAlive: true })
   }
 
   _lookup: LookupFunction = async (hostname, options, callback) => {
-    if (hostname === 'localhost' || hostname === '0.0.0.0' || hostname === '::1' || hostname === '127.0.0.1') return lookup(hostname, options, callback)
+    if (LOCAL_ADDRESSES.has(hostname) || hostname.endsWith('.local')) return originalLookup(hostname, options, callback)
+
+    let family = 0
+    const all = options?.all ?? false
+
+    if (typeof options === 'function') {
+      callback = options
+      family = 0
+    } else if (typeof options === 'number') {
+      family = options
+    } else if (options !== undefined && typeof options !== 'object') {
+      throw new Error('Invalid options argument')
+    } else {
+      if (options?.family != null) {
+        switch (options.family) {
+          case 'IPv4':
+            family = 4
+            break
+          case 'IPv6':
+            family = 6
+            break
+          default:
+            family = options.family
+            break
+        }
+      }
+    }
+
+    if (!hostname) {
+      if (all) {
+        nextTick(callback, null, [])
+      } else {
+        nextTick(callback, null, null, family === 6 ? 6 : 4)
+      }
+      return {}
+    }
+
+    const matchedFamily = isIP(hostname)
+    if (matchedFamily) {
+      if (all) {
+        nextTick(callback, null, [{ address: hostname, family: matchedFamily }])
+      } else {
+        nextTick(callback, null, hostname, matchedFamily)
+      }
+      return {}
+    }
     try {
       // Resolves a host name (e.g. `'nodejs.org'`) into the first found A (IPv4) or
       // AAAA (IPv6) record. All `option` properties are optional. If `options` is an
@@ -85,11 +142,11 @@ export default class DoHResolver {
       // With the `all` option set to `true`, the arguments for `callback` change to `(err, addresses)`, with `addresses` being an array of objects with the
       // properties `address` and `family`.
       const results: Array<ReturnType<typeof this.resolve>> = []
-      if (options.all) {
+      if (all) {
         results.push(this.resolve(hostname, 'A'))
         results.push(this.resolve(hostname, 'AAAA'))
       } else {
-        results.push(this.resolve(hostname, options.family === 6 ? 'AAAA' : 'A'))
+        results.push(this.resolve(hostname, family === 6 ? 'AAAA' : 'A'))
       }
 
       const settledResults = await Promise.allSettled(results)
@@ -104,8 +161,8 @@ export default class DoHResolver {
         throw new Error('All DNS lookups failed:' + errors)
       }
 
-      if (options.all) {
-        callback(null, addresses)
+      if (all) {
+        callback(null, addresses, family)
       } else {
         const firstAddress = addresses[0]
         if (firstAddress) {
@@ -116,7 +173,7 @@ export default class DoHResolver {
       }
     } catch (error) {
       // Fallback to original lookup on error
-      lookup(hostname, options, callback)
+      originalLookup(hostname, options, callback)
     }
   }
 
@@ -146,9 +203,11 @@ export default class DoHResolver {
   }
 
   destroy () {
-    withDispatcher[globalDispatcher].destroy()
+    if (Agent) {
+      withDispatcher[globalDispatcher]?.destroy()
+      withDispatcher[globalDispatcher] = new Agent()
+    }
     https.globalAgent.destroy()
     http.globalAgent.destroy()
-    withDispatcher[globalDispatcher] = new Agent()
   }
 }

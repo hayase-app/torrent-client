@@ -19,8 +19,10 @@ import WebTorrent from 'webtorrent'
 import attachments from './attachments.ts'
 // import DoHResolver from './doh'
 import { ChromeCasts } from './chromecast/index.ts'
+import DoHResolver from './doh'
 import { createNZB } from './nzb.ts'
 
+import type { PROVIDERS } from './doh'
 import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, TorrentSettings } from 'native'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
@@ -101,7 +103,7 @@ const store = Symbol('store')
 const path = Symbol('path')
 const opts = Symbol('opts')
 const tmp = Symbol('tmp')
-// const doh = Symbol('doh')
+const doh = Symbol('doh')
 const tracker = new HTTPTracker({}, atob('aHR0cDovL255YWEudHJhY2tlci53Zjo3Nzc3L2Fubm91bmNl'))
 
 class Store {
@@ -182,7 +184,7 @@ export default class TorrentClient {
   [path]: string;
   [opts]: Record<string, unknown>;
   [tmp]: string
-  // [doh]: DoHResolver | undefined
+  [doh]: DoHResolver | undefined
 
   attachments = attachments
 
@@ -237,12 +239,15 @@ export default class TorrentClient {
     this[store] = new Store(this[path])
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
-    // this[doh]?.destroy()
-    // try {
-    //   if (settings.doh) this[doh] = new DoHResolver(settings.doh)
-    // } catch (error) {
-    //   console.error(error)
-    // }
+  }
+
+  setDOH (dohServer: `https://${keyof typeof PROVIDERS}`) {
+    this[doh]?.destroy()
+    try {
+      this[doh] = new DoHResolver(dohServer)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   cleanupLast: undefined | (() => Promise<void>) = undefined
@@ -675,7 +680,7 @@ export default class TorrentClient {
       new Promise(resolve => this[client].destroy(resolve)),
       new Promise(resolve => tracker.destroy(resolve))
     ])
-    // this[doh]?.destroy()
+    this[doh]?.destroy()
     exit()
   }
 }
