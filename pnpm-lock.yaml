@@ -28,7 +28,7 @@ importers:
         version: 7.2.5
       native:
         specifier: github:hayase-app/native
-        version: https://codeload.github.com/hayase-app/native/tar.gz/d8cefa1db808012f754b2728a2f0e5078ead4f4e
+        version: https://codeload.github.com/hayase-app/native/tar.gz/8e9d865f111e356a087e14865d9451771546aad2
       network-address:
         specifier: ^1.1.2
         version: 1.1.2
@@ -1459,8 +1459,8 @@ packages:
   napi-macros@2.2.2:
     resolution: {integrity: sha512-hmEVtAGYzVQpCKdbQea4skABsdXW4RUh5t5mJ2zzqowJS2OyXZTU1KhDVFhx+NlWZ4ap9mqR9TcDO3LTTttd+g==}
 
-  native@https://codeload.github.com/hayase-app/native/tar.gz/d8cefa1db808012f754b2728a2f0e5078ead4f4e:
-    resolution: {tarball: https://codeload.github.com/hayase-app/native/tar.gz/d8cefa1db808012f754b2728a2f0e5078ead4f4e}
+  native@https://codeload.github.com/hayase-app/native/tar.gz/8e9d865f111e356a087e14865d9451771546aad2:
+    resolution: {tarball: https://codeload.github.com/hayase-app/native/tar.gz/8e9d865f111e356a087e14865d9451771546aad2}
     version: 1.0.0
 
   natural-compare@1.4.0:
@@ -3805,7 +3805,7 @@ snapshots:
   napi-macros@2.2.2:
     optional: true
 
-  native@https://codeload.github.com/hayase-app/native/tar.gz/d8cefa1db808012f754b2728a2f0e5078ead4f4e:
+  native@https://codeload.github.com/hayase-app/native/tar.gz/8e9d865f111e356a087e14865d9451771546aad2:
     dependencies:
       '@types/chromecast-caf-receiver': 6.0.26
 

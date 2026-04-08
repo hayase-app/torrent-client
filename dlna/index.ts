@@ -103,8 +103,6 @@ const parseDescription = async (descriptionURL: string): Promise<DeviceDescripti
 
   if (!friendlyName || !host || !controlURL || !deviceId) return undefined
 
-  console.log({ friendlyName, host, controlURL, serviceType: avTransport.serviceType, deviceId })
-
   return {
     friendlyName,
     host,
