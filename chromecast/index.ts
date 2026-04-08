@@ -164,7 +164,8 @@ export class ChromeCasts extends EventEmitter<{display: [Array<{ friendlyName: s
         if (type === 'A' || type === 'AAAA') addresses[name] ??= data
 
         if (!name.endsWith('._googlecast._tcp.local')) continue
-        const id = name.replace('._googlecast._tcp.local', '') || data.replace('._googlecast._tcp.local', '')
+        const _id: string = name.replace('._googlecast._tcp.local', '') || data.replace('._googlecast._tcp.local', '')
+        const id = _id.substring(_id.lastIndexOf('-') + 1)
 
         if (type === 'PTR') {
           friendlyNames[id] ??= id
@@ -185,9 +186,27 @@ export class ChromeCasts extends EventEmitter<{display: [Array<{ friendlyName: s
         const host = addresses[domain] ?? domain
         const friendlyName = friendlyNames[id] ?? id
 
-        this.casts[id] ??= { friendlyName, host }
+        this.casts[id] ??= { friendlyName: 'Cast - ' + friendlyName, host: 'cast://' + host }
         this.add({ friendlyName, host })
       }
+    })
+
+    this.ssdp.on('device', async ({ device }) => {
+      if (!device?.url) return
+
+      const res = await fetch(device.url)
+
+      const service = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' }).parse(await res.text()).root
+
+      const friendlyName = service.device?.friendlyName ?? service.device?.friendlyname ?? service.device?.modelName
+      if (!friendlyName) return
+
+      const id = service.device.UDN.replace('uuid:', '').replaceAll('-', '')
+
+      const host = new URL(service.URLBase).hostname
+
+      this.casts[id] ??= { friendlyName: 'Cast - ' + friendlyName, host: 'cast://' + host }
+      this.add({ friendlyName, host })
     })
 
     this.update()
@@ -196,22 +215,7 @@ export class ChromeCasts extends EventEmitter<{display: [Array<{ friendlyName: s
   async update () {
     this.mdns.query('_googlecast._tcp.local', 'PTR')
 
-    const { device } = await this.ssdp.search('urn:dial-multiscreen-org:device:dial:1', 5000)
-    if (!device?.url) return
-
-    const res = await fetch(device.url)
-
-    const service = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' }).parse(await res.text()).root
-
-    const friendlyName = service.device?.friendlyName
-    if (!friendlyName) return
-
-    const id = service.device.friendlyName + '-' + service.device.UDN.replace('uuid:', '').replaceAll('-', '')
-
-    const host = new URL(service.URLBase).hostname
-
-    this.casts[id] ??= { friendlyName, host }
-    this.add({ friendlyName, host })
+    await this.ssdp.search('urn:dial-multiscreen-org:device:dial:1')
   }
 
   async destroy () {

@@ -19,10 +19,12 @@ import WebTorrent from 'webtorrent'
 import attachments from './attachments.ts'
 // import DoHResolver from './doh'
 import { ChromeCasts } from './chromecast/index.ts'
+import { DLNAs } from './dlna/index.ts'
 import DoHResolver from './doh'
 import { createNZB } from './nzb.ts'
 
 import type { PROVIDERS } from './doh'
+import type { MediaInformation } from 'chromecast-caf-receiver/cast.framework.messages'
 import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, TorrentSettings } from 'native'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
@@ -189,6 +191,7 @@ export default class TorrentClient {
   attachments = attachments
 
   chromecasts = new ChromeCasts(attachments)
+  dlnas = new DLNAs()
 
   streamed = false
   persist = false
@@ -673,10 +676,34 @@ export default class TorrentClient {
     }
   }
 
+  listenDisplay (cb: (displays: Array<{ friendlyName: string, host: string }>) => void) {
+    const emit = () => cb([...Object.values(this.chromecasts.casts), ...Object.values(this.dlnas.displays)])
+
+    this.chromecasts.listen(emit)
+    this.dlnas.listen(emit)
+  }
+
+  playDisplay (host: string, hash: string, id: number, media: MediaInformation) {
+    if (host.startsWith('cast://')) {
+      return this.chromecasts.play(host.substring(7), hash, id, media)
+    } else if (host.startsWith('dlna://')) {
+      return this.dlnas.play(host.substring(7), hash, id, media)
+    }
+  }
+
+  closeDisplay (host: string) {
+    if (host.startsWith('cast://')) {
+      return this.chromecasts.close(host.substring(7))
+    } else if (host.startsWith('dlna://')) {
+      return this.dlnas.close(host.substring(7))
+    }
+  }
+
   async destroy () {
     await Promise.all([
       this.attachments.destroy(),
       this.chromecasts.destroy(),
+      this.dlnas.destroy(),
       new Promise(resolve => this[client].destroy(resolve)),
       new Promise(resolve => tracker.destroy(resolve))
     ])

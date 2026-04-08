@@ -1,5 +1,5 @@
 import dgram from 'node:dgram'
-import { EventEmitter, once } from 'node:events'
+import { EventEmitter } from 'node:events'
 import os from 'node:os'
 
 const MULTICAST_IP_ADDRESS = '239.255.255.250'
@@ -20,7 +20,7 @@ class Device {
   }
 }
 
-export default class Ssdp extends EventEmitter {
+export default class Ssdp extends EventEmitter<{ device: [{ device: Device, address: string }] }> {
   multicast = MULTICAST_IP_ADDRESS
   port = MULTICAST_PORT
   sockets: dgram.Socket[] = []
@@ -56,8 +56,9 @@ export default class Ssdp extends EventEmitter {
     }
   }
 
-  async search (device: string, timeoutms: number) {
+  async search (device: string) {
     if (this._destroyed) throw new Error('client is destroyed')
+    this.removeAllListeners('_device')
 
     await this._waitForBind()
 
@@ -70,28 +71,17 @@ export default class Ssdp extends EventEmitter {
       '\r\n'
     )
 
-    const timeout = new Promise<[Record<string, string>, string]>((resolve, reject) => {
-      setTimeout(() => {
-        const err = new Error('timeout')
-        reject(err)
-      }, timeoutms).unref?.()
+    this.on('_device', (info: Record<string, string>, address: string) => {
+      if (info.st !== device || !info.location) return
+
+      this.emit(
+        'device',
+        { device: new Device({ url: info.location, permanentFallback: this.permanentFallback }), address }
+      )
     })
-
-    const event = once(this, '_device') as Promise<[Record<string, string>, string]>
-
     this.sockets.forEach((socket) => {
       socket.send(query, 0, query.length, this.port, this.multicast)
     })
-
-    try {
-      const [info, address] = await Promise.race([event, timeout])
-
-      if (info.st !== device) return {}
-
-      return { device: new Device({ url: info.location, permanentFallback: this.permanentFallback }), address }
-    } catch (error) {
-      return {}
-    }
   }
 
   createSocket (interf: os.NetworkInterfaceInfo) {
@@ -209,6 +199,8 @@ export default class Ssdp extends EventEmitter {
 
   async destroy () {
     this._destroyed = true
+
+    this.removeAllListeners()
 
     return await Promise.allSettled(this.sockets.map(socket => new Promise<void>(resolve => socket.close(resolve))))
   }
