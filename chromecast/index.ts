@@ -201,13 +201,12 @@ export class ChromeCasts extends EventEmitter<{display: [Array<{ friendlyName: s
 
     const res = await fetch(device.url)
 
-    const x = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' })
-    const service = x.parse(await res.text()).root
+    const service = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' }).parse(await res.text()).root
 
     const friendlyName = service.device?.friendlyName
     if (!friendlyName) return
 
-    const id = service.device.modelName + '-' + service.device.UDN.replace('uuid:', '').replaceAll('-', '')
+    const id = service.device.friendlyName + '-' + service.device.UDN.replace('uuid:', '').replaceAll('-', '')
 
     const host = new URL(service.URLBase).hostname
 
