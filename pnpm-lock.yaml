@@ -33,8 +33,8 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2
       nzb-file:
-        specifier: ^1.1.13
-        version: 1.1.13
+        specifier: ^1.1.14
+        version: 1.1.14
       protobufjs:
         specifier: ^8.0.1
         version: 8.0.1
@@ -227,8 +227,8 @@ packages:
     resolution: {integrity: sha512-Q53KyCXweV1CS62EfqtPDqfpksn5keQ59PGqzzkK+g8Vif1jB4inoBCcs/BUSdsqddhE3G+2Fn+4RX3S6RqT0A==}
     engines: {node: '>=0.2.6'}
 
-  '@thaunknown/yencode@1.4.0':
-    resolution: {integrity: sha512-cVT4C/7N/cr/fSUeo6+lGvp/vnTXIB+t9E3MDhlVaF+mFf4Bj+ECtucr4ASJoo2UsPKG6rptvJ0d1WP/rgzbiw==}
+  '@thaunknown/yencode@1.5.0':
+    resolution: {integrity: sha512-ydd+uUeCkSNebwzHt9iW8LTt5INOypUI3k79Es7TWXdD15wOaYP0nTbK8sqvL1WWySm1RGhHn11896dCdDOR2A==}
     engines: {node: '>=0.10'}
 
   '@types/chromecast-caf-receiver@6.0.26':
@@ -1510,8 +1510,8 @@ packages:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  nzb-file@1.1.13:
-    resolution: {integrity: sha512-CzJGCDOEx69jE6w7tS7kiU5ZBoQVGajTxOVe5wlRMUCkokHtVWxyuZxh9ayu6Eku9zNFowY6MQXnU3AhW9yXdg==}
+  nzb-file@1.1.14:
+    resolution: {integrity: sha512-9oAFO/7+DfY5O5BQQVTrcKoDzti97iEkbnNQGeZT19JbSl4n02yPLeKwMywyLec1s05noLzJFV5AM+9ypietJQ==}
 
   nzb-parser@1.0.2:
     resolution: {integrity: sha512-xJM5Oa7+qbZTPBakXgHKsT/+FltS4xAIBxlA18gRzkZuhL6Cw5I4GrFgEtvSHQM/Tvcd7yO06SidlRoMBwFfEw==}
@@ -2336,7 +2336,7 @@ snapshots:
     dependencies:
       uint8-util: 2.2.5
 
-  '@thaunknown/yencode@1.4.0':
+  '@thaunknown/yencode@1.5.0':
     dependencies:
       node-gyp-build: 4.8.4
 
@@ -3850,9 +3850,9 @@ snapshots:
     dependencies:
       path-key: 4.0.0
 
-  nzb-file@1.1.13:
+  nzb-file@1.1.14:
     dependencies:
-      '@thaunknown/yencode': 1.4.0
+      '@thaunknown/yencode': 1.5.0
       mime: 4.1.0
       nntp-js: 1.0.4
       nzb-parser: 1.0.2
