@@ -26,7 +26,7 @@
 		"multicast-dns": "^7.2.5",
 		"native": "github:hayase-app/native",
 		"network-address": "^1.1.2",
-		"nzb-file": "^1.1.14",
+		"nzb-file": "^1.1.15",
 		"protobufjs": "^8.0.1",
 		"webtorrent": "github:webtorrent/webtorrent"
 	}
