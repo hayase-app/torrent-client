@@ -2,6 +2,7 @@ import { parentPort } from 'node:worker_threads'
 import zlib from 'node:zlib'
 
 import { expose } from 'abslink'
+import fetch from 'cross-fetch-ponyfill'
 import debugFactory from 'debug'
 import fromNZB, { type NNTPFile } from 'nzb-file/src'
 import { concat } from 'uint8-util'

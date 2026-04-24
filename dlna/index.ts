@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events'
 
+import fetch from 'cross-fetch-ponyfill'
 import { XMLParser } from 'fast-xml-parser'
 
 import Ssdp from '../chromecast/lib/ssdp.ts'

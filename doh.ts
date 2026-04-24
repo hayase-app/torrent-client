@@ -5,6 +5,8 @@ import { isIP, type LookupFunction } from 'node:net'
 import { nextTick } from 'node:process'
 import { promisify } from 'node:util'
 
+import fetch from 'cross-fetch-ponyfill'
+
 import type { LookupAddress } from 'node:dns'
 import type { Agent as AgentType } from 'undici-types'
 

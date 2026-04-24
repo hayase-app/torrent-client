@@ -3,6 +3,7 @@ import zlib from 'node:zlib'
 
 import BitField from 'bitfield'
 import Wire from 'bittorrent-protocol'
+import fetch from 'cross-fetch-ponyfill'
 import debugFactory from 'debug'
 import ltDontHave from 'lt_donthave'
 import fromNZB, { type NNTPFile } from 'nzb-file/src'

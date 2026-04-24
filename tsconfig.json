@@ -11,6 +11,7 @@
   },
   "include": [
     "./**/*.ts",
+    "./**/*.d.ts",
     "chromecast/lib/castproto/proto.d.cts"
   ]
 }

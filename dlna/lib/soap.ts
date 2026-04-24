@@ -1,3 +1,4 @@
+import fetch from 'cross-fetch-ponyfill'
 import { XMLParser } from 'fast-xml-parser'
 
 type SoapArgs = Record<string, string | number | boolean>

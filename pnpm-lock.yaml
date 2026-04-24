@@ -17,6 +17,9 @@ importers:
       bittorrent-peerid:
         specifier: ^1.3.6
         version: 1.3.6
+      cross-fetch-ponyfill:
+        specifier: ^1.0.3
+        version: 1.0.3
       fast-xml-parser:
         specifier: ^5.7.1
         version: 5.7.1
