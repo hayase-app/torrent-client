@@ -532,6 +532,35 @@ export default class TorrentClient {
     return torrents
   }
 
+  async trackers (id: string) {
+    const torrent = await this[client].get(id)
+    if (!torrent) throw new Error('Torrent not found')
+
+    torrent.discovery.tracker.scrape({
+      infoHash: torrent.infoHash,
+      announce: torrent.announce,
+      peerId: torrent.client.peerId,
+      port: torrent.client.torrentPort
+    })
+
+    const responses: Array<{ complete: number, downloaded: number, incomplete: number, announce: string, failed?: boolean }> = []
+    torrent.discovery.tracker.on('scrape', (res: { complete: number, downloaded: number, incomplete: number, announce: string }) => {
+      responses.push(res)
+    })
+
+    await sleep(5_000)
+
+    torrent.discovery.tracker.removeAllListeners('scrape')
+
+    const mappedResponses = Object.fromEntries(responses.map(({ complete, downloaded, incomplete, announce }) => [announce, { complete, downloaded, incomplete, failed: false }]))
+
+    for (const { announceUrl } of torrent.discovery.tracker._trackers) {
+      mappedResponses[announceUrl] ??= { complete: 0, downloaded: 0, incomplete: 0, failed: true }
+    }
+
+    return mappedResponses
+  }
+
   errors (cb: (errors: Error) => void) {
     this[client].on('error', err => cb(err))
     process.on('uncaughtException', err => cb(err))
