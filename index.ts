@@ -21,11 +21,11 @@ import attachments from './attachments.ts'
 import { ChromeCasts } from './chromecast/index.ts'
 import { DLNAs } from './dlna/index.ts'
 import DoHResolver from './doh'
-import { createNZB } from './nzb.ts'
+import { NZBManager } from './nzb.ts'
 
 import type { PROVIDERS } from './doh'
 import type { MediaInformation } from 'chromecast-caf-receiver/cast.framework.messages'
-import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, TorrentSettings } from 'native'
+import type { LibraryEntry, PeerInfo, TorrentFile, TorrentInfo, ClientSettings } from 'native'
 import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import type Torrent from 'webtorrent/lib/torrent.js'
@@ -106,6 +106,7 @@ const path = Symbol('path')
 const opts = Symbol('opts')
 const tmp = Symbol('tmp')
 const doh = Symbol('doh')
+const nzb = Symbol('nzb')
 const tracker = new HTTPTracker({}, atob('aHR0cDovL255YWEudHJhY2tlci53Zjo3Nzc3L2Fubm91bmNl'))
 
 class Store {
@@ -180,13 +181,14 @@ process.on('uncaughtException', err => console.error(err))
 const peerId = concat([[45, 113, 66, 53, 48, 51, 48, 45], randomBytes(12)])
 
 export default class TorrentClient {
-  [client]: WebTorrent;
-  [server]: Server;
-  [store]: Store;
-  [path]: string;
-  [opts]: Record<string, unknown>;
+  [client]: WebTorrent
+  [server]: Server
+  [store]: Store
+  [path]: string
+  [opts]: Record<string, unknown>
   [tmp]: string
   [doh]: DoHResolver | undefined
+  [nzb]: NZBManager
 
   attachments = attachments
 
@@ -196,7 +198,7 @@ export default class TorrentClient {
   streamed = false
   persist = false
 
-  constructor (settings: TorrentSettings & {path: string }, temp: string) {
+  constructor (settings: ClientSettings & {path: string }, temp: string) {
     this[opts] = {
       dht: !settings.torrentDHT,
       utPex: !settings.torrentPeX,
@@ -209,6 +211,7 @@ export default class TorrentClient {
       peerId
     }
     this[client] = new WebTorrent(this[opts])
+    this[nzb] = new NZBManager(settings.nzbDomain, settings.nzbPort, settings.nzbLogin, settings.nzbPassword, settings.nzbPoolSize)
     this[client].on('error', console.error)
     // @ts-expect-error bad types
     this[server] = this[client].createServer({}, 'node').listen(0)
@@ -224,7 +227,7 @@ export default class TorrentClient {
     this.persist = settings.torrentPersist
   }
 
-  updateSettings (settings: TorrentSettings & { path: string }) {
+  updateSettings (settings: ClientSettings & { path: string }) {
     this[client].throttleDownload(Math.round(settings.torrentSpeed * megaBitsToBytes))
     this[client].throttleUpload(Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2))
     this[opts] = {
@@ -239,6 +242,8 @@ export default class TorrentClient {
       peerId
     }
     this[path] = settings.path || this[tmp]
+    this[nzb].destroy()
+    this[nzb] = new NZBManager(settings.nzbDomain, settings.nzbPort, settings.nzbLogin, settings.nzbPassword, settings.nzbPoolSize)
     this[store] = new Store(this[path])
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
@@ -368,6 +373,8 @@ export default class TorrentClient {
     if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
 
     this.attachments.register(torrent.files, torrent.infoHash)
+    this[nzb].addedNZBs.clear()
+    this[nzb].register(torrent)
 
     const baseInfo = structTorrent({
       // @ts-expect-error bad typedefs
@@ -575,11 +582,11 @@ export default class TorrentClient {
     return this[client].torrents.map(t => this.makeStats(t))
   }
 
-  async createNZBWebSeed (id: string, url: string, domain: string, port: number, login: string, password: string, poolSize: number) {
+  async createNZBWebSeed (id: string, url: string) {
     const torrent = await this[client].get(id)
     if (!torrent) throw new Error('Torrent not found')
 
-    await createNZB(torrent, url, domain, port, login, password, poolSize)
+    await this[nzb].addNZBPeers(torrent, url)
   }
 
   async torrentInfo (id: string) {
@@ -734,7 +741,8 @@ export default class TorrentClient {
       this.chromecasts.destroy(),
       this.dlnas.destroy(),
       new Promise(resolve => this[client].destroy(resolve)),
-      new Promise(resolve => tracker.destroy(resolve))
+      new Promise(resolve => tracker.destroy(resolve)),
+      this[nzb].destroy()
     ])
     this[doh]?.destroy()
     exit()

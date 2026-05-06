@@ -1,12 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import zlib from 'node:zlib'
+import { gunzip } from 'node:zlib'
 
+import { fromPost } from '@thaunknown/yencode'
 import BitField from 'bitfield'
 import Wire from 'bittorrent-protocol'
 import fetch from 'cross-fetch-ponyfill'
 import debugFactory from 'debug'
 import ltDontHave from 'lt_donthave'
-import fromNZB, { type NNTPFile } from 'nzb-file/src'
+import { NNTPFile } from 'nzb-file/src'
+import { Pool } from 'nzb-file/src/pool'
+import parse from 'nzb-parser'
 import { hash, concat } from 'uint8-util'
 import Peer from 'webtorrent/lib/peer.js'
 
@@ -15,57 +19,99 @@ import type Torrent from 'webtorrent/lib/torrent.js'
 
 const debug = debugFactory('webtorrent:nzbwebseed')
 
-export async function createNZB (torrent: Torrent, url: string, domain: string, port: number, login: string, password: string, _poolSize: number) {
-  if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
-  if (torrent.destroyed || torrent.done) return
-
+async function urlToContents (url: string) {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Failed to fetch NZB: ${res.statusText}`)
 
   let contents: string
   if (url.endsWith('.nzb.gz') || res.headers.get('content-type') === 'application/gzip') {
     const buffer = await res.arrayBuffer()
-    contents = await new Promise<string>((resolve, reject) => zlib.gunzip(Buffer.from(buffer), (err, result) => {
+    contents = await new Promise<string>((resolve, reject) => gunzip(Buffer.from(buffer), (err, result) => {
       if (err) return reject(err)
       resolve(result.toString('utf-8'))
     }))
   } else {
     contents = await res.text()
   }
-  const { files, pool } = await fromNZB(contents, domain, port, login, password, 'alt.binaries.multimedia.anime.highspeed', _poolSize)
+  return contents
+}
 
-  if (torrent.destroyed) return await pool.destroy()
-  torrent.once('close', () => pool.destroy())
+export class NZBManager {
+  pool
 
-  await pool.ready
+  constructor (domain: string, port: number, login: string, password: string, _poolSize: number) {
+    this.pool = new Pool(login, password, 'alt.binaries.multimedia.anime.highspeed', domain, port, _poolSize)
+  }
 
-  const poolSize = pool.pool.size
+  addedNZBs = new Set<string>()
 
-  const torrentFileToNZBFileMap = new Map<number, NNTPFile>()
+  async addNZBPeers (torrent: Torrent, url: string) {
+    if (this.addedNZBs.has(url + torrent.infoHash)) return
+    this.addedNZBs.add(url + torrent.infoHash)
 
-  // find files by name or path, of file size if no other files match
-  for (const file of torrent.files) {
-    const nzbFile = files.find(f => f.name === file.name || f.name === file.path)
-    if (nzbFile) {
-      torrentFileToNZBFileMap.set(file.offset, nzbFile)
-    } else {
-      const sizeMatch = files.filter(f => f.size === file.length)
-      if (sizeMatch.length === 1) {
-        torrentFileToNZBFileMap.set(file.offset, sizeMatch[0]!)
+    const { files } = parse(await urlToContents(url))
+    if (torrent.destroyed || torrent.done) return
+
+    const torrentFileToNZBFileMap = new Map<number, NNTPFile>()
+
+    const fileList: NNTPFile[] = []
+    for (const { name, segments, datetime } of files) {
+      const { data } = await this.pool.body(`<${segments[0]?.messageId}>`)
+      if (torrent.destroyed || torrent.done) return
+      const { props } = fromPost(Buffer.from(data), false)
+      fileList.push(new NNTPFile({ name, size: parseInt(props!.begin.size), segments, segmentSize: parseInt(props!.part.end), lastModifiedDate: datetime, pool: this.pool }))
+    }
+
+    // find files by name or path, of file size if no other files match
+    for (const file of torrent.files) {
+      const nzbFile = fileList.find(f => f.name === file.name || f.name === file.path)
+      if (nzbFile) {
+        torrentFileToNZBFileMap.set(file.offset, nzbFile)
+      } else {
+        const sizeMatch = fileList.filter(f => f.size === file.length)
+        if (sizeMatch.length === 1) {
+          torrentFileToNZBFileMap.set(file.offset, sizeMatch[0]!)
+        }
       }
+    }
+
+    for (const wire of this.registeredTorrents.get(torrent.infoHash) ?? []) {
+      wire._mergeFileList(torrentFileToNZBFileMap)
     }
   }
 
-  for (let i = 0; i < poolSize; i++) {
-    const id = domain + '-' + (i + 1)
-    const conn = new NZBWebSeed(torrentFileToNZBFileMap, torrent, id)
-    const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
-    // @ts-expect-error non-standard hacky, dont care
-    newPeer.wire!.domain = domain
+  registeredTorrents = new Map<string, NZBWebSeed[]>()
+  async register (torrent: Torrent) {
+    if (this.registeredTorrents.has(torrent.infoHash)) return
 
-    torrent._registerPeer(newPeer)
+    if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
+    if (torrent.destroyed || torrent.done) return
 
-    torrent.emit('peer', id)
+    const poolSize = this.pool.pool.size
+    const domain = this.pool.pool.values().next().value!.host
+
+    const peers: NZBWebSeed[] = []
+    for (let i = 0; i < poolSize; i++) {
+      const id = domain + '-' + (i + 1)
+      const conn = new NZBWebSeed(torrent, id)
+      const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
+      // @ts-expect-error non-standard hacky, dont care
+      newPeer.wire!.domain = domain
+
+      torrent._registerPeer(newPeer)
+      peers.push(conn)
+
+      torrent.emit('peer', id)
+    }
+
+    this.registeredTorrents.set(torrent.infoHash, peers)
+    torrent.once('destroyed', () => {
+      this.registeredTorrents.delete(torrent.infoHash)
+    })
+  }
+
+  destroy () {
+    return this.pool.destroy()
   }
 }
 
@@ -76,18 +122,23 @@ interface NZBWebSeed extends EventEmitter {
 class NZBWebSeed extends Wire {
   connId
   _torrent
-  _files
+  _files = new Map<number, NNTPFile[]>()
   lt_donthave!: InstanceType<ReturnType<typeof ltDontHave>>
-  constructor (files: Map<number, NNTPFile>, torrent: Torrent, id: string) {
+  _bitfield
+  constructor (torrent: Torrent, id: string) {
     super()
 
-    this._files = files
     this.connId = id
     this._torrent = torrent
 
     this.setKeepAlive(true)
 
     this.use(ltDontHave())
+    const numPieces = torrent.pieces.length
+    this._bitfield = new BitField(numPieces)
+    for (let i = 0; i <= numPieces; i++) {
+      this._bitfield.set(i, false)
+    }
 
     this.once('handshake', async (infoHash, peerId) => {
       const hex = await hash(this.connId, 'hex') // Used as the peerId for this fake remote peer
@@ -95,12 +146,7 @@ class NZBWebSeed extends Wire {
       // @ts-expect-error incorrect infer
       this.handshake(infoHash, hex)
 
-      const numPieces = this._torrent.pieces.length
-      const bitfield = new BitField(numPieces)
-      for (let i = 0; i <= numPieces; i++) {
-        bitfield.set(i, true)
-      }
-      this.bitfield(bitfield)
+      this.bitfield(this._bitfield)
     })
 
     this.once('interested', () => {
@@ -128,6 +174,23 @@ class NZBWebSeed extends Wire {
     })
   }
 
+  _mergeFileList (map: Map<number, NNTPFile>) {
+    for (const [index, nntpfile] of map) {
+      if (!this._files.has(index)) {
+        this._files.set(index, [])
+      }
+      this._files.get(index)!.push(nntpfile)
+
+      const file = this._torrent.files[index]!
+
+      for (let i = file._startPiece; i <= file._endPiece; ++i) {
+        this._bitfield.set(i, true)
+      }
+    }
+
+    this.bitfield(this._bitfield)
+  }
+
   async request (pieceIndex: number, offset: number, length: number) {
     // @ts-expect-error incorrect infer
     const pieceOffset = pieceIndex * this._torrent.pieceLength
@@ -136,7 +199,7 @@ class NZBWebSeed extends Wire {
 
     const files = this._torrent.files
     const requests: Array<{
-      nntpfile: NNTPFile
+      nntpfiles: NNTPFile[]
       start: number
       end: number
     }> = []
@@ -144,7 +207,7 @@ class NZBWebSeed extends Wire {
       const nntpfile = this._files.get(0)
       if (nntpfile) {
         requests.push({
-          nntpfile: this._files.get(0)!,
+          nntpfiles: this._files.get(0)!,
           start: rangeStart,
           end: rangeEnd
         })
@@ -156,11 +219,11 @@ class NZBWebSeed extends Wire {
       }
 
       for (const requestedFile of requestedFiles) {
-        const nntpfile = this._files.get(requestedFile.offset)
-        if (!nntpfile) throw new Error('Could not find file corresponding to web seed range request')
+        const nntpfiles = this._files.get(requestedFile.offset)
+        if (!nntpfiles) throw new Error('Could not find file corresponding to web seed range request')
         const fileEnd = requestedFile.offset + requestedFile.length - 1
         requests.push({
-          nntpfile,
+          nntpfiles,
           start: Math.max(rangeStart - requestedFile.offset, 0),
           end: Math.min(fileEnd, rangeEnd - requestedFile.offset)
         })
@@ -171,17 +234,25 @@ class NZBWebSeed extends Wire {
       throw new Error('Could not find file corresponding to web seed range request')
     }
 
-    const chunks = await Promise.all(requests.map(async ({ start, end, nntpfile }) => {
+    const chunks = await Promise.all(requests.map(async ({ start, end, nntpfiles }) => {
       debug(
         'Requesting pieceIndex=%d offset=%d length=%d start=%d end=%d',
         pieceIndex, offset, length, start, end
       )
 
-      const data = await nntpfile.slice(start, end + 1).bytes()
+      for (const nntpfile of nntpfiles) {
+        try {
+          debug('Trying file %s (size %d)', nntpfile.name, nntpfile.size)
+          const data = await nntpfile.slice(start, end + 1).bytes()
 
-      debug('Got data of length %d', data.length)
+          debug('Got data of length %d', data.length)
 
-      return data
+          return data
+        } catch (error) {
+          debug('Error requesting file %s: %s', nntpfile.name, error)
+        }
+      }
+      throw new Error('All files corresponding to web seed range request failed')
     }))
 
     return chunks.length === 1 ? chunks[0]! : concat(chunks)
