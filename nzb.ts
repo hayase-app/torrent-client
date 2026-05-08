@@ -88,7 +88,8 @@ export class NZBManager {
     if (torrent.destroyed || torrent.done) return
 
     const poolSize = this.pool.pool.size
-    const domain = this.pool.pool.values().next().value!.host
+    const domain = this.pool.pool.values().next().value?.host
+    if (!domain) return
 
     const peers: NZBWebSeed[] = []
     for (let i = 0; i < poolSize; i++) {

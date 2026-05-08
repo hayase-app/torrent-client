@@ -187,8 +187,8 @@ export default class TorrentClient {
   [path]: string
   [opts]: Record<string, unknown>
   [tmp]: string
-  [doh]: DoHResolver | undefined
-  [nzb]: NZBManager
+  [doh]?: DoHResolver
+  [nzb]?: NZBManager
 
   attachments = attachments
 
@@ -211,7 +211,9 @@ export default class TorrentClient {
       peerId
     }
     this[client] = new WebTorrent(this[opts])
-    this[nzb] = new NZBManager(settings.nzbDomain, settings.nzbPort, settings.nzbLogin, settings.nzbPassword, settings.nzbPoolSize)
+    if (settings.nzbDomain && settings.nzbPort && settings.nzbLogin && settings.nzbPassword && settings.nzbPoolSize) {
+      this[nzb] = new NZBManager(settings.nzbDomain, settings.nzbPort, settings.nzbLogin, settings.nzbPassword, settings.nzbPoolSize)
+    }
     this[client].on('error', console.error)
     // @ts-expect-error bad types
     this[server] = this[client].createServer({}, 'node').listen(0)
@@ -242,8 +244,10 @@ export default class TorrentClient {
       peerId
     }
     this[path] = settings.path || this[tmp]
-    this[nzb].destroy()
-    this[nzb] = new NZBManager(settings.nzbDomain, settings.nzbPort, settings.nzbLogin, settings.nzbPassword, settings.nzbPoolSize)
+    this[nzb]?.destroy()
+    if (settings.nzbDomain && settings.nzbPort && settings.nzbLogin && settings.nzbPassword && settings.nzbPoolSize) {
+      this[nzb] = new NZBManager(settings.nzbDomain, settings.nzbPort, settings.nzbLogin, settings.nzbPassword, settings.nzbPoolSize)
+    }
     this[store] = new Store(this[path])
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
@@ -373,8 +377,8 @@ export default class TorrentClient {
     if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
 
     this.attachments.register(torrent.files, torrent.infoHash)
-    this[nzb].addedNZBs.clear()
-    this[nzb].register(torrent)
+    this[nzb]?.addedNZBs.clear()
+    this[nzb]?.register(torrent)
 
     const baseInfo = structTorrent({
       // @ts-expect-error bad typedefs
@@ -586,7 +590,7 @@ export default class TorrentClient {
     const torrent = await this[client].get(id)
     if (!torrent) throw new Error('Torrent not found')
 
-    await this[nzb].addNZBPeers(torrent, url)
+    await this[nzb]?.addNZBPeers(torrent, url)
   }
 
   async torrentInfo (id: string) {
@@ -742,7 +746,7 @@ export default class TorrentClient {
       this.dlnas.destroy(),
       new Promise(resolve => this[client].destroy(resolve)),
       new Promise(resolve => tracker.destroy(resolve)),
-      this[nzb].destroy()
+      this[nzb]?.destroy()
     ])
     this[doh]?.destroy()
     exit()
