@@ -253,8 +253,8 @@ export default class TorrentClient {
     this.persist = settings.torrentPersist
   }
 
-  setDOH (dohServer: `https://${keyof typeof PROVIDERS}`) {
-    this[doh]?.destroy()
+  async setDOH (dohServer: `https://${keyof typeof PROVIDERS}`) {
+    await this[doh]?.destroy()
     try {
       this[doh] = new DoHResolver(dohServer)
     } catch (error) {
@@ -740,15 +740,15 @@ export default class TorrentClient {
   }
 
   async destroy () {
-    await Promise.all([
+    await Promise.allSettled([
       this.attachments.destroy(),
       this.chromecasts.destroy(),
       this.dlnas.destroy(),
       new Promise(resolve => this[client].destroy(resolve)),
       new Promise(resolve => tracker.destroy(resolve)),
-      this[nzb]?.destroy()
+      this[nzb]?.destroy(),
+      this[doh]?.destroy()
     ])
-    this[doh]?.destroy()
     exit()
   }
 }

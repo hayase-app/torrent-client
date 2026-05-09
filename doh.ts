@@ -204,12 +204,12 @@ export default class DoHResolver {
       .map<LookupAddress>(answer => ({ address: answer.data, family: answer.type === 28 ? 6 : 4 }))
   }
 
-  destroy () {
-    if (Agent) {
-      withDispatcher[globalDispatcher]?.destroy()
-      withDispatcher[globalDispatcher] = new Agent()
-    }
+  async destroy () {
     https.globalAgent.destroy()
     http.globalAgent.destroy()
+    if (Agent) {
+      await withDispatcher[globalDispatcher]?.destroy()
+      withDispatcher[globalDispatcher] = new Agent()
+    }
   }
 }

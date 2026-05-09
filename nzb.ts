@@ -23,17 +23,14 @@ async function urlToContents (url: string) {
   const res = await fetch(url)
   if (!res.ok) throw new Error(`Failed to fetch NZB: ${res.statusText}`)
 
-  let contents: string
   if (url.endsWith('.nzb.gz') || res.headers.get('content-type') === 'application/gzip') {
     const buffer = await res.arrayBuffer()
-    contents = await new Promise<string>((resolve, reject) => gunzip(Buffer.from(buffer), (err, result) => {
+    return await new Promise<string>((resolve, reject) => gunzip(Buffer.from(buffer), (err, result) => {
       if (err) return reject(err)
       resolve(result.toString('utf-8'))
     }))
-  } else {
-    contents = await res.text()
   }
-  return contents
+  return await res.text()
 }
 
 export class NZBManager {
@@ -50,6 +47,7 @@ export class NZBManager {
     this.addedNZBs.add(url + torrent.infoHash)
 
     const { files } = parse(await urlToContents(url))
+    await this.pool.ready
     if (torrent.destroyed || torrent.done) return
 
     const torrentFileToNZBFileMap = new Map<number, NNTPFile>()
@@ -85,6 +83,7 @@ export class NZBManager {
     if (this.registeredTorrents.has(torrent.infoHash)) return
 
     if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
+    await this.pool.ready
     if (torrent.destroyed || torrent.done) return
 
     const poolSize = this.pool.pool.size
