@@ -33,6 +33,8 @@ async function urlToContents (url: string) {
   return await res.text()
 }
 
+type TorrentFile = File & EventEmitter & { _startPiece: number, _endPiece: number }
+
 export class NZBManager {
   pool
 
@@ -50,7 +52,7 @@ export class NZBManager {
     await this.pool.ready
     if (torrent.destroyed || torrent.done) return
 
-    const torrentFileToNZBFileMap = new Map<number, NNTPFile>()
+    const torrentFileToNZBFileMap = new Map<TorrentFile, NNTPFile>()
 
     const fileList: NNTPFile[] = []
     for (const { name, segments, datetime } of files) {
@@ -64,11 +66,11 @@ export class NZBManager {
     for (const file of torrent.files) {
       const nzbFile = fileList.find(f => f.name === file.name || f.name === file.path)
       if (nzbFile) {
-        torrentFileToNZBFileMap.set(file.offset, nzbFile)
+        torrentFileToNZBFileMap.set(file, nzbFile)
       } else {
         const sizeMatch = fileList.filter(f => f.size === file.length)
         if (sizeMatch.length === 1) {
-          torrentFileToNZBFileMap.set(file.offset, sizeMatch[0]!)
+          torrentFileToNZBFileMap.set(file, sizeMatch[0]!)
         }
       }
     }
@@ -122,7 +124,7 @@ interface NZBWebSeed extends EventEmitter {
 class NZBWebSeed extends Wire {
   connId
   _torrent
-  _files = new Map<number, NNTPFile[]>()
+  _files = new Map<TorrentFile, NNTPFile[]>()
   lt_donthave!: InstanceType<ReturnType<typeof ltDontHave>>
   _bitfield
   constructor (torrent: Torrent, id: string) {
@@ -143,8 +145,7 @@ class NZBWebSeed extends Wire {
     this.once('handshake', async (infoHash, peerId) => {
       const hex = await hash(this.connId, 'hex') // Used as the peerId for this fake remote peer
       if (this.destroyed) return
-      // @ts-expect-error incorrect infer
-      this.handshake(infoHash, hex)
+      this.handshake(infoHash, hex, {})
 
       this.bitfield(this._bitfield)
     })
@@ -174,14 +175,12 @@ class NZBWebSeed extends Wire {
     })
   }
 
-  _mergeFileList (map: Map<number, NNTPFile>) {
-    for (const [index, nntpfile] of map) {
-      if (!this._files.has(index)) {
-        this._files.set(index, [])
+  _mergeFileList (map: Map<TorrentFile, NNTPFile>) {
+    for (const [file, nntpfile] of map) {
+      if (!this._files.has(file)) {
+        this._files.set(file, [])
       }
-      this._files.get(index)!.push(nntpfile)
-
-      const file = this._torrent.files[index]!
+      this._files.get(file)!.push(nntpfile)
 
       for (let i = file._startPiece; i <= file._endPiece; ++i) {
         this._bitfield.set(i, true)
@@ -204,10 +203,10 @@ class NZBWebSeed extends Wire {
       end: number
     }> = []
     if (files.length <= 1) {
-      const nntpfile = this._files.get(0)
-      if (nntpfile) {
+      const nntpfiles = this._files.values().next().value
+      if (nntpfiles) {
         requests.push({
-          nntpfiles: this._files.get(0)!,
+          nntpfiles,
           start: rangeStart,
           end: rangeEnd
         })
@@ -219,7 +218,7 @@ class NZBWebSeed extends Wire {
       }
 
       for (const requestedFile of requestedFiles) {
-        const nntpfiles = this._files.get(requestedFile.offset)
+        const nntpfiles = this._files.get(requestedFile)
         if (!nntpfiles) throw new Error('Could not find file corresponding to web seed range request')
         const fileEnd = requestedFile.offset + requestedFile.length - 1
         requests.push({
