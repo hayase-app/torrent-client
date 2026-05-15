@@ -83,7 +83,7 @@ export default new class Attachments {
   tracks (hash: string, id: number) {
     const metadata = this._metadata(hash, id)
     if (!metadata) throw new Error('File not found')
-    return metadata.getTracks() as Promise<Array<{ number: string, language?: string, type: string, header: string }>>
+    return metadata.getTracks()
   }
 
   async destroy () {
