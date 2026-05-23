@@ -205,6 +205,7 @@ export default class TorrentClient {
       downloadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes),
       uploadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2),
       natUpnp: 'permanent',
+      userAgent: '',
       torrentPort: settings.torrentPort,
       dhtPort: settings.dhtPort,
       maxConns: settings.maxConns,
@@ -270,7 +271,7 @@ export default class TorrentClient {
     await new Promise(resolve => this[client].destroy(resolve))
 
     return await new Promise(resolve => {
-      const checkClient = new WebTorrent({ torrentPort, natUpnp: 'permanent', peerId })
+      const checkClient = new WebTorrent({ torrentPort, natUpnp: 'permanent', peerId, userAgent: '' })
       const torrent = checkClient.add(
         atob('bWFnbmV0Oj94dD11cm46YnRpaDpkZDgyNTVlY2RjN2NhNTVmYjBiYmY4MTMyM2Q4NzA2MmRiMWY2ZDFjJmRuPUJpZytCdWNrK0J1bm55JnRyPXVkcCUzQSUyRiUyRmV4cGxvZGllLm9yZyUzQTY5NjkmdHI9dWRwJTNBJTJGJTJGdHJhY2tlci5jb3BwZXJzdXJmZXIudGslM0E2OTY5JnRyPXVkcCUzQSUyRiUyRnRyYWNrZXIuZW1waXJlLWpzLnVzJTNBMTMzNyZ0cj11ZHAlM0ElMkYlMkZ0cmFja2VyLmxlZWNoZXJzLXBhcmFkaXNlLm9yZyUzQTY5NjkmdHI9dWRwJTNBJTJGJTJGdHJhY2tlci5vcGVudHJhY2tyLm9yZyUzQTEzMzc='),
         { store: MemoryChunkStore }
@@ -428,6 +429,7 @@ export default class TorrentClient {
       tracker: {},
       natUpnp: false,
       natPmp: false,
+      userAgent: '',
       utp: false
     })
 
@@ -479,6 +481,7 @@ export default class TorrentClient {
       tracker: {},
       natUpnp: false,
       natPmp: false,
+      userAgent: '',
       utp: false
     })
 
