@@ -1,16 +1,18 @@
 import { randomBytes } from 'node:crypto'
+import { once } from 'node:events'
 import { readFile, writeFile, statfs, unlink, mkdir, readdir, access, constants } from 'node:fs/promises'
 import { join } from 'node:path'
 import { exit } from 'node:process'
 import querystring from 'querystring'
 
+import NatAPI from '@silentbot1/nat-api'
 import bencode from 'bencode'
 import BitField from 'bitfield'
+import DHT from 'bittorrent-dht'
 import peerid from 'bittorrent-peerid'
 import debug from 'debug'
 // @ts-expect-error no export
 import HTTPTracker from 'http-tracker'
-import MemoryChunkStore from 'memory-chunk-store'
 import networkAddress from 'network-address'
 import parseTorrent from 'parse-torrent'
 import { hex2bin, arr2hex, text2arr, concat } from 'uint8-util'
@@ -40,6 +42,14 @@ const querystringStringify = (obj: Record<string, string>) => {
   `%${char.charCodeAt(0).toString(16).toUpperCase()}`)
   return ret
 }
+
+const DHT_BOOTSTRAP = [
+  { host: 'dht.libtorrent.org', port: 25401 },
+  { host: 'dht.transmissionbt.com', port: 6881 },
+  { host: 'router.bittorrent.com', port: 6881 }
+]
+
+const DHT_TEST_INFOHASH = Buffer.from('dd8255ecd7ca55fb0bbf81323d87062db1f6d1c', 'hex')
 
 interface TorrentMetadata {
   info: unknown
@@ -123,7 +133,7 @@ class Store {
       if (!data.length) return
       // this double decoded bencoded data, unfortunate, but I wish to preserve my sanity
       const bencoded: TorrentData = bencode.decode(data)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/await-thenable
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const torrent: any = await parseTorrent(data)
 
       return { bencoded, torrent }
@@ -200,7 +210,7 @@ export default class TorrentClient {
 
   constructor (settings: ClientSettings & {path: string }, temp: string) {
     this[opts] = {
-      dht: !settings.torrentDHT,
+      dht: !settings.torrentDHT && { bootstrap: DHT_BOOTSTRAP },
       utPex: !settings.torrentPeX,
       downloadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes),
       uploadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2),
@@ -234,7 +244,7 @@ export default class TorrentClient {
     this[client].throttleDownload(Math.round(settings.torrentSpeed * megaBitsToBytes))
     this[client].throttleUpload(Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2))
     this[opts] = {
-      dht: !settings.torrentDHT,
+      dht: !settings.torrentDHT && { bootstrap: DHT_BOOTSTRAP },
       utPex: !settings.torrentPeX,
       downloadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes),
       uploadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2),
@@ -263,36 +273,38 @@ export default class TorrentClient {
     }
   }
 
-  cleanupLast: undefined | (() => Promise<void>) = undefined
-
   // WARN: ONLY CALL THIS DURING SETUP!!!
-  async checkIncomingConnections (torrentPort: number): Promise<boolean> {
-    await this.cleanupLast?.()
-    await new Promise(resolve => this[client].destroy(resolve))
+  async checkIncomingConnections (testPort: number): Promise<boolean> {
+    const nat = new NatAPI({ enableUPNP: true, enablePMP: true, upnpPermanentFallback: true })
+    try {
+      if (!await nat.map({ publicPort: testPort, privatePort: testPort, protocol: null })) return false
+    } catch {
+      return false
+    } finally {
+      await nat.destroy()
+    }
 
-    return await new Promise(resolve => {
-      const checkClient = new WebTorrent({ torrentPort, natUpnp: 'permanent', peerId, userAgent: '' })
-      const torrent = checkClient.add(
-        atob('bWFnbmV0Oj94dD11cm46YnRpaDpkZDgyNTVlY2RjN2NhNTVmYjBiYmY4MTMyM2Q4NzA2MmRiMWY2ZDFjJmRuPUJpZytCdWNrK0J1bm55JnRyPXVkcCUzQSUyRiUyRmV4cGxvZGllLm9yZyUzQTY5NjkmdHI9dWRwJTNBJTJGJTJGdHJhY2tlci5jb3BwZXJzdXJmZXIudGslM0E2OTY5JnRyPXVkcCUzQSUyRiUyRnRyYWNrZXIuZW1waXJlLWpzLnVzJTNBMTMzNyZ0cj11ZHAlM0ElMkYlMkZ0cmFja2VyLmxlZWNoZXJzLXBhcmFkaXNlLm9yZyUzQTY5NjkmdHI9dWRwJTNBJTJGJTJGdHJhY2tlci5vcGVudHJhY2tyLm9yZyUzQTEzMzc='),
-        { store: MemoryChunkStore }
-      )
-      // patching library to not create outgoing connections
-      torrent._drain = () => undefined
-      checkClient.on('error', console.error)
-      const cleanup = this.cleanupLast = async (val = false) => {
-        if (checkClient.destroyed) return
-        await new Promise(resolve => checkClient.destroy(resolve))
-        this[client] = new WebTorrent(this[opts])
-        this[store] = new Store(this[path])
-        this[client].on('error', console.error)
-        // @ts-expect-error bad types
-        this[server] = this[client].createServer({}, 'node').listen(0)
-        resolve(val)
-      }
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 30_000).unref()
+    const dht = new DHT({ bootstrap: DHT_BOOTSTRAP })
+    dht.on('error', () => {})
+    dht.listen(testPort)
+    await once(dht, 'listening')
+    await once(dht, 'ready')
+    dht.announce(DHT_TEST_INFOHASH, testPort)
 
-      setTimeout(() => cleanup(), 60_000).unref()
-      torrent.on('wire', () => cleanup(true))
-    })
+    try {
+      await Promise.race([
+        once(dht, 'announce_peer', ctrl),
+        once(dht, 'get_peers', ctrl),
+      ])
+      return true
+    } catch {
+      return false
+    } finally {
+      clearTimeout(timer)
+      await new Promise<void>(resolve => dht.destroy(resolve))
+    }
   }
 
   async checkAvailableSpace () {
@@ -348,8 +360,6 @@ export default class TorrentClient {
   async toInfoHash (torrentId: string | ArrayBufferView) {
     let parsed: { infoHash: string } | undefined
 
-    // @ts-expect-error bad typedefs
-    // eslint-disable-next-line @typescript-eslint/await-thenable
     try { parsed = await parseTorrent(torrentId) } catch (err) {}
     return parsed?.infoHash
   }
@@ -614,7 +624,7 @@ export default class TorrentClient {
       flags.push(type.endsWith('Incoming') ? 'incoming' : 'outgoing')
       if (wire._cryptoHandshakeDone) flags.push('encrypted')
 
-      const parsed = peerid(wire.peerId!)
+      const parsed = peerid(wire.peerId)
 
       const progress = this._wireProgress(wire, torrent)
 
