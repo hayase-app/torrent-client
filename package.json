@@ -13,7 +13,7 @@
 		"protobufjs-cli": "^2.0.1",
 		"typescript": "^5.9.3",
 		"typescript-eslint": "^8.60.0",
-		"undici-types": "^7.16.0"
+		"undici-types": "^8.3.0"
 	},
 	"scripts": {
 		"build": "tsc",
@@ -35,6 +35,6 @@
 		"nzb-file": "^1.1.16",
 		"nzb-parser": "1.0.3",
 		"protobufjs": "^8.0.1",
-		"webtorrent": "^3.0.8"
+		"webtorrent": "^3.0.13"
 	}
 }

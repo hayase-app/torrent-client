@@ -215,7 +215,7 @@ export default class TorrentClient {
       downloadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes),
       uploadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2),
       natUpnp: 'permanent',
-      userAgent: '',
+      userAgent: 'curl/7.81.0',
       torrentPort: settings.torrentPort,
       dhtPort: settings.dhtPort,
       maxConns: settings.maxConns,
@@ -439,7 +439,7 @@ export default class TorrentClient {
       tracker: {},
       natUpnp: false,
       natPmp: false,
-      userAgent: '',
+      userAgent: 'curl/7.81.0',
       utp: false
     })
 
@@ -491,7 +491,7 @@ export default class TorrentClient {
       tracker: {},
       natUpnp: false,
       natPmp: false,
-      userAgent: '',
+      userAgent: 'curl/7.81.0',
       utp: false
     })
 
