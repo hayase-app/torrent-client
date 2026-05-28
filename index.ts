@@ -275,15 +275,6 @@ export default class TorrentClient {
 
   // WARN: ONLY CALL THIS DURING SETUP!!!
   async checkIncomingConnections (testPort: number): Promise<boolean> {
-    const nat = new NatAPI({ enableUPNP: true, enablePMP: true, upnpPermanentFallback: true })
-    try {
-      if (!await nat.map({ publicPort: testPort, privatePort: testPort, protocol: null })) return false
-    } catch {
-      return false
-    } finally {
-      await nat.destroy()
-    }
-
     const ctrl = new AbortController()
     const timer = setTimeout(() => ctrl.abort(), 30_000).unref()
     const dht = new DHT({ bootstrap: DHT_BOOTSTRAP })
@@ -291,7 +282,18 @@ export default class TorrentClient {
     dht.listen(testPort)
     await once(dht, 'listening')
     await once(dht, 'ready')
-    dht.announce(DHT_TEST_INFOHASH, testPort)
+    
+    const actualPort = dht.address().port
+    const nat = new NatAPI({ enableUPNP: true, enablePMP: true, upnpPermanentFallback: true })
+    try {
+      if (!await nat.map({ publicPort: actualPort, privatePort: actualPort, protocol: null })) return false
+    } catch {
+      return false
+    } finally {
+      await nat.destroy()
+    }
+
+    dht.announce(DHT_TEST_INFOHASH, actualPort)
 
     try {
       await Promise.race([
