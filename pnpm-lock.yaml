@@ -51,8 +51,8 @@ importers:
         specifier: ^8.0.1
         version: 8.4.2
       webtorrent:
-        specifier: ^3.0.13
-        version: 3.0.13(bare-url@2.4.3)
+        specifier: ^3.0.14
+        version: 3.0.14(bare-url@2.4.3)
     devDependencies:
       '@types/node':
         specifier: ^25.8.0
@@ -2067,8 +2067,8 @@ packages:
     resolution: {integrity: sha512-B52Rwxu7wzhLhANMRBys8W1wXAi9LwVzLfWWyueSQZmjpgojzX5p5g3m/fcZMFDtB+JZLnOt0Ud9u9FOZakg1Q==}
     engines: {node: '>=16.0.0'}
 
-  webtorrent@3.0.13:
-    resolution: {integrity: sha512-Vt4W/ybTFAZrMYBhAExGg2XXd9Gj+ZOXkuNO4VfGqi/ZJCjBXbO+YkbnpyiUzMHD4Fm+lgEPDzgBGcOaJqCgcw==}
+  webtorrent@3.0.14:
+    resolution: {integrity: sha512-z4M1CawI5X1NIrcZuZUmOTDBidJdiewgxA5hukMffbbGVV4q1gs+ujCbwA7iX1XOsMb/xgVWCcXfLQwBhp1zag==}
     engines: {node: '>=22'}
 
   which-boxed-primitive@1.1.1:
@@ -2268,7 +2268,7 @@ snapshots:
     dependencies:
       debug: 4.4.3
       err-code: 3.0.1
-      streamx: 2.25.0
+      streamx: 2.26.0
       uint8-util: 2.2.6
       webrtc-polyfill: 1.2.1
     transitivePeerDependencies:
@@ -2280,7 +2280,7 @@ snapshots:
     dependencies:
       debug: 4.4.3
       queue-microtask: 1.2.3
-      streamx: 2.25.0
+      streamx: 2.26.0
       uint8-util: 2.2.6
       ws: 8.21.0(bufferutil@4.1.0)(utf-8-validate@6.0.6)
     transitivePeerDependencies:
@@ -2633,7 +2633,7 @@ snapshots:
 
   bare-stream@2.13.1(bare-events@2.8.3):
     dependencies:
-      streamx: 2.25.0
+      streamx: 2.26.0
       teex: 1.0.1
     optionalDependencies:
       bare-events: 2.8.3
@@ -4292,7 +4292,7 @@ snapshots:
   speed-limiter@1.0.2:
     dependencies:
       limiter: 1.1.5
-      streamx: 2.25.0
+      streamx: 2.26.0
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
@@ -4422,7 +4422,7 @@ snapshots:
 
   teex@1.0.1:
     dependencies:
-      streamx: 2.25.0
+      streamx: 2.26.0
     transitivePeerDependencies:
       - bare-abort-controller
       - react-native-b4a
@@ -4623,7 +4623,7 @@ snapshots:
     dependencies:
       node-datachannel: 0.32.3
 
-  webtorrent@3.0.13(bare-url@2.4.3):
+  webtorrent@3.0.14(bare-url@2.4.3):
     dependencies:
       '@silentbot1/nat-api': 0.4.9
       '@thaunknown/simple-peer': 10.1.1

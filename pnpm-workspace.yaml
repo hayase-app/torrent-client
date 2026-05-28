@@ -1,7 +1,7 @@
 allowBuilds:
   '@thaunknown/yencode': false
   bufferutil: false
-  ip-set: set this to true or false
+  ip-set: false
   node-datachannel: false
   protobufjs: false
   utf-8-validate: false
@@ -13,3 +13,4 @@ minimumReleaseAgeExclude:
   - webtorrent@3.0.13
   - bittorrent-protocol@5.0.6
   - torrent-piece@4.0.1
+  - webtorrent@3.0.14
