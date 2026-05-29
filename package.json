@@ -35,6 +35,6 @@
 		"nzb-file": "^1.1.16",
 		"nzb-parser": "1.0.3",
 		"protobufjs": "^8.0.1",
-		"webtorrent": "^3.0.14"
+		"webtorrent": "^3.0.16"
 	}
 }

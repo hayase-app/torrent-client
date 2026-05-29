@@ -10,7 +10,6 @@ minimumReleaseAgeExclude:
   - create-torrent@6.1.2
   - parse-torrent@11.0.21
   - torrent-discovery@11.0.21
-  - webtorrent@3.0.13
   - bittorrent-protocol@5.0.6
   - torrent-piece@4.0.1
-  - webtorrent@3.0.14
+  - webtorrent@3.0.16
