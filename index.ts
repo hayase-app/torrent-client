@@ -133,7 +133,7 @@ class Store {
       if (!data.length) return
       // this double decoded bencoded data, unfortunate, but I wish to preserve my sanity
       const bencoded: TorrentData = bencode.decode(data)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/await-thenable
       const torrent: any = await parseTorrent(data)
 
       return { bencoded, torrent }
@@ -282,7 +282,7 @@ export default class TorrentClient {
     dht.listen(testPort)
     await once(dht, 'listening')
     await once(dht, 'ready')
-    
+
     const actualPort = dht.address().port
     const nat = new NatAPI({ enableUPNP: true, enablePMP: true, upnpPermanentFallback: true })
     try {
@@ -298,7 +298,7 @@ export default class TorrentClient {
     try {
       await Promise.race([
         once(dht, 'announce_peer', ctrl),
-        once(dht, 'get_peers', ctrl),
+        once(dht, 'get_peers', ctrl)
       ])
       return true
     } catch {
@@ -362,7 +362,8 @@ export default class TorrentClient {
   async toInfoHash (torrentId: string | ArrayBufferView) {
     let parsed: { infoHash: string } | undefined
 
-    try { parsed = await parseTorrent(torrentId) } catch (err) {}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/await-thenable
+    try { parsed = await parseTorrent(torrentId) as any } catch (err) {}
     return parsed?.infoHash
   }
 
@@ -626,7 +627,7 @@ export default class TorrentClient {
       flags.push(type.endsWith('Incoming') ? 'incoming' : 'outgoing')
       if (wire._cryptoHandshakeDone) flags.push('encrypted')
 
-      const parsed = peerid(wire.peerId)
+      const parsed = peerid(wire.peerId!)
 
       const progress = this._wireProgress(wire, torrent)
 

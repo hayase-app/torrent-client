@@ -54,13 +54,13 @@ export class NZBManager {
 
     const torrentFileToNZBFileMap = new Map<TorrentFile, NNTPFile>()
 
-    const fileList: NNTPFile[] = []
-    for (const { name, segments, datetime } of files) {
+    const fileList: NNTPFile[] = await Promise.all(files.map(async ({ name, segments, datetime }) => {
       const { data } = await this.pool.body(`<${segments[0]?.messageId}>`)
-      if (torrent.destroyed || torrent.done) return
       const { props } = fromPost(Buffer.from(data))
-      fileList.push(new NNTPFile({ name, size: parseInt(props!.begin.size), segments, segmentSize: parseInt(props!.part.end), lastModifiedDate: datetime, pool: this.pool }))
-    }
+      return new NNTPFile({ name, size: parseInt(props!.begin.size), segments, segmentSize: parseInt(props!.part.end), lastModifiedDate: datetime, pool: this.pool })
+    }))
+
+    if (torrent.destroyed || torrent.done) return
 
     // find files by name or path, of file size if no other files match
     for (const file of torrent.files) {

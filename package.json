@@ -5,14 +5,12 @@
 	"description": "Webtorrent client for Hayase",
 	"main": "index.ts",
 	"version": "1.0.0",
+	"packageManager": "pnpm@10.28.0",
 	"devDependencies": {
 		"@types/node": "^25.8.0",
-		"eslint": "9.39.4",
 		"eslint-config-standard-universal": "^1.0.10",
-		"globals": "^17.6.0",
 		"protobufjs-cli": "^2.0.1",
 		"typescript": "^5.9.3",
-		"typescript-eslint": "^8.60.0",
 		"undici-types": "^8.3.0"
 	},
 	"scripts": {
