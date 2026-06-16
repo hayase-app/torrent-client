@@ -32,7 +32,7 @@
 		"network-address": "^1.1.2",
 		"nzb-file": "^1.1.18",
 		"nzb-parser": "1.0.4",
-		"protobufjs": "^8.6.3",
+		"protobufjs": "8.6.2",
 		"webtorrent": "^3.0.16"
 	}
 }

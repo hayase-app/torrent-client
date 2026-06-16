@@ -48,7 +48,7 @@ importers:
         specifier: 1.0.4
         version: 1.0.4
       protobufjs:
-        specifier: ^8.6.3
+        specifier: ^8.6.2
         version: 8.6.3
       webtorrent:
         specifier: ^3.0.16
