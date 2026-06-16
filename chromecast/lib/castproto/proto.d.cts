@@ -1,5 +1,6 @@
-import * as $protobuf from "protobufjs";
-import Long = require("long");
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type * as $protobuf from 'protobufjs'
+
 /** Namespace extensions. */
 export namespace extensions {
 
@@ -9,566 +10,665 @@ export namespace extensions {
         /** Namespace cast_channel. */
         namespace cast_channel {
 
-            /** Properties of a CastMessage. */
-            interface ICastMessage {
-
-                /** CastMessage protocolVersion */
-                protocolVersion: extensions.api.cast_channel.CastMessage.ProtocolVersion;
-
-                /** CastMessage sourceId */
-                sourceId: string;
-
-                /** CastMessage destinationId */
-                destinationId: string;
-
-                /** CastMessage namespace */
-                namespace: string;
-
-                /** CastMessage payloadType */
-                payloadType: extensions.api.cast_channel.CastMessage.PayloadType;
-
-                /** CastMessage payloadUtf8 */
-                payloadUtf8?: (string|null);
-
-                /** CastMessage payloadBinary */
-                payloadBinary?: (Uint8Array|null);
+            /**
+             * Properties of a CastMessage.
+             * @deprecated Use extensions.api.cast_channel.CastMessage.$Properties instead.
+             */
+            interface ICastMessage extends CastMessage.$Properties {
             }
 
             /** Represents a CastMessage. */
-            class CastMessage implements ICastMessage {
-
-                /**
+            class CastMessage {
+              /**
                  * Constructs a new CastMessage.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: extensions.api.cast_channel.ICastMessage);
+              constructor(properties?: CastMessage.$Properties)
 
-                /** CastMessage protocolVersion. */
-                public protocolVersion: extensions.api.cast_channel.CastMessage.ProtocolVersion;
+              /** Unknown fields preserved while decoding when enabled */
+              $unknowns?: Uint8Array[]
 
-                /** CastMessage sourceId. */
-                public sourceId: string;
+              /** CastMessage protocolVersion. */
+              protocolVersion: CastMessage.ProtocolVersion
 
-                /** CastMessage destinationId. */
-                public destinationId: string;
+              /** CastMessage sourceId. */
+              sourceId: string
 
-                /** CastMessage namespace. */
-                public namespace: string;
+              /** CastMessage destinationId. */
+              destinationId: string
 
-                /** CastMessage payloadType. */
-                public payloadType: extensions.api.cast_channel.CastMessage.PayloadType;
+              /** CastMessage namespace. */
+              namespace: string
 
-                /** CastMessage payloadUtf8. */
-                public payloadUtf8: string;
+              /** CastMessage payloadType. */
+              payloadType: CastMessage.PayloadType
 
-                /** CastMessage payloadBinary. */
-                public payloadBinary: Uint8Array;
+              /** CastMessage payloadUtf8. */
+              payloadUtf8: string
 
-                /**
+              /** CastMessage payloadBinary. */
+              payloadBinary: Uint8Array
+
+              /**
                  * Creates a new CastMessage instance using the specified properties.
                  * @param [properties] Properties to set
                  * @returns CastMessage instance
                  */
-                public static create(properties?: extensions.api.cast_channel.ICastMessage): extensions.api.cast_channel.CastMessage;
+              static create(properties: CastMessage.$Shape): CastMessage & CastMessage.$Shape
+              static create(properties?: CastMessage.$Properties): CastMessage
 
-                /**
+              /**
                  * Encodes the specified CastMessage message. Does not implicitly {@link extensions.api.cast_channel.CastMessage.verify|verify} messages.
                  * @param message CastMessage message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: extensions.api.cast_channel.ICastMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encode(message: CastMessage.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Encodes the specified CastMessage message, length delimited. Does not implicitly {@link extensions.api.cast_channel.CastMessage.verify|verify} messages.
                  * @param message CastMessage message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: extensions.api.cast_channel.ICastMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encodeDelimited(message: CastMessage.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Decodes a CastMessage message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns CastMessage
+                 * @returns {extensions.api.cast_channel.CastMessage & extensions.api.cast_channel.CastMessage.$Shape} CastMessage
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): extensions.api.cast_channel.CastMessage;
+              static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): CastMessage & CastMessage.$Shape
 
-                /**
+              /**
                  * Decodes a CastMessage message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns CastMessage
+                 * @returns {extensions.api.cast_channel.CastMessage & extensions.api.cast_channel.CastMessage.$Shape} CastMessage
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): extensions.api.cast_channel.CastMessage;
+              static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): CastMessage & CastMessage.$Shape
 
-                /**
+              /**
                  * Verifies a CastMessage message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
-                public static verify(message: { [k: string]: any }): (string|null);
+              static verify(message: Record<string, any>): (string|null)
 
-                /**
+              /**
                  * Creates a CastMessage message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
                  * @returns CastMessage
                  */
-                public static fromObject(object: { [k: string]: any }): extensions.api.cast_channel.CastMessage;
+              static fromObject(object: Record<string, any>): CastMessage
 
-                /**
+              /**
                  * Creates a plain object from a CastMessage message. Also converts values to other types if specified.
                  * @param message CastMessage
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: extensions.api.cast_channel.CastMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+              static toObject(message: CastMessage, options?: $protobuf.IConversionOptions): Record<string, any>
 
-                /**
+              /**
                  * Converts this CastMessage to JSON.
                  * @returns JSON object
                  */
-                public toJSON(): { [k: string]: any };
+              toJSON(): Record<string, any>
 
-                /**
-                 * Gets the default type url for CastMessage
-                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns The default type url
+              /**
+                 * Gets the type url for CastMessage
+                 * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns The type url
                  */
-                public static getTypeUrl(typeUrlPrefix?: string): string;
+              static getTypeUrl(prefix?: string): string
             }
 
             namespace CastMessage {
 
+                /** Properties of a CastMessage. */
+                interface $Properties {
+
+                    /** CastMessage protocolVersion */
+                    protocolVersion: ProtocolVersion
+
+                    /** CastMessage sourceId */
+                    sourceId: string
+
+                    /** CastMessage destinationId */
+                    destinationId: string
+
+                    /** CastMessage namespace */
+                    namespace: string
+
+                    /** CastMessage payloadType */
+                    payloadType: PayloadType
+
+                    /** CastMessage payloadUtf8 */
+                    payloadUtf8?: (string|null)
+
+                    /** CastMessage payloadBinary */
+                    payloadBinary?: (Uint8Array|null)
+
+                    /** Unknown fields preserved while decoding when enabled */
+                    $unknowns?: Uint8Array[]
+                }
+
+                /** Shape of a CastMessage. */
+                type $Shape = $Properties
+
                 /** ProtocolVersion enum. */
                 enum ProtocolVersion {
+
+                    /** CASTV2_1_0 value */
                     CASTV2_1_0 = 0
                 }
 
                 /** PayloadType enum. */
                 enum PayloadType {
+
+                    /** STRING value */
                     STRING = 0,
+
+                    /** BINARY value */
                     BINARY = 1
                 }
             }
 
-            /** Properties of an AuthChallenge. */
-            interface IAuthChallenge {
+            /**
+             * Properties of an AuthChallenge.
+             * @deprecated Use extensions.api.cast_channel.AuthChallenge.$Properties instead.
+             */
+            interface IAuthChallenge extends AuthChallenge.$Properties {
             }
 
             /** Represents an AuthChallenge. */
-            class AuthChallenge implements IAuthChallenge {
-
-                /**
+            class AuthChallenge {
+              /**
                  * Constructs a new AuthChallenge.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: extensions.api.cast_channel.IAuthChallenge);
+              constructor(properties?: AuthChallenge.$Properties)
 
-                /**
+              /** Unknown fields preserved while decoding when enabled */
+              $unknowns?: Uint8Array[]
+
+              /**
                  * Creates a new AuthChallenge instance using the specified properties.
                  * @param [properties] Properties to set
                  * @returns AuthChallenge instance
                  */
-                public static create(properties?: extensions.api.cast_channel.IAuthChallenge): extensions.api.cast_channel.AuthChallenge;
+              static create(properties: AuthChallenge.$Shape): AuthChallenge & AuthChallenge.$Shape
+              static create(properties?: AuthChallenge.$Properties): AuthChallenge
 
-                /**
+              /**
                  * Encodes the specified AuthChallenge message. Does not implicitly {@link extensions.api.cast_channel.AuthChallenge.verify|verify} messages.
                  * @param message AuthChallenge message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: extensions.api.cast_channel.IAuthChallenge, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encode(message: AuthChallenge.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Encodes the specified AuthChallenge message, length delimited. Does not implicitly {@link extensions.api.cast_channel.AuthChallenge.verify|verify} messages.
                  * @param message AuthChallenge message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: extensions.api.cast_channel.IAuthChallenge, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encodeDelimited(message: AuthChallenge.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Decodes an AuthChallenge message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns AuthChallenge
+                 * @returns {extensions.api.cast_channel.AuthChallenge & extensions.api.cast_channel.AuthChallenge.$Shape} AuthChallenge
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): extensions.api.cast_channel.AuthChallenge;
+              static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): AuthChallenge & AuthChallenge.$Shape
 
-                /**
+              /**
                  * Decodes an AuthChallenge message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns AuthChallenge
+                 * @returns {extensions.api.cast_channel.AuthChallenge & extensions.api.cast_channel.AuthChallenge.$Shape} AuthChallenge
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): extensions.api.cast_channel.AuthChallenge;
+              static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): AuthChallenge & AuthChallenge.$Shape
 
-                /**
+              /**
                  * Verifies an AuthChallenge message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
-                public static verify(message: { [k: string]: any }): (string|null);
+              static verify(message: Record<string, any>): (string|null)
 
-                /**
+              /**
                  * Creates an AuthChallenge message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
                  * @returns AuthChallenge
                  */
-                public static fromObject(object: { [k: string]: any }): extensions.api.cast_channel.AuthChallenge;
+              static fromObject(object: Record<string, any>): AuthChallenge
 
-                /**
+              /**
                  * Creates a plain object from an AuthChallenge message. Also converts values to other types if specified.
                  * @param message AuthChallenge
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: extensions.api.cast_channel.AuthChallenge, options?: $protobuf.IConversionOptions): { [k: string]: any };
+              static toObject(message: AuthChallenge, options?: $protobuf.IConversionOptions): Record<string, any>
 
-                /**
+              /**
                  * Converts this AuthChallenge to JSON.
                  * @returns JSON object
                  */
-                public toJSON(): { [k: string]: any };
+              toJSON(): Record<string, any>
 
-                /**
-                 * Gets the default type url for AuthChallenge
-                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns The default type url
+              /**
+                 * Gets the type url for AuthChallenge
+                 * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns The type url
                  */
-                public static getTypeUrl(typeUrlPrefix?: string): string;
+              static getTypeUrl(prefix?: string): string
             }
 
-            /** Properties of an AuthResponse. */
-            interface IAuthResponse {
+            namespace AuthChallenge {
 
-                /** AuthResponse signature */
-                signature: Uint8Array;
+                /** Properties of an AuthChallenge. */
+                interface $Properties {
 
-                /** AuthResponse clientAuthCertificate */
-                clientAuthCertificate: Uint8Array;
+                    /** Unknown fields preserved while decoding when enabled */
+                    $unknowns?: Uint8Array[]
+                }
 
-                /** AuthResponse clientCa */
-                clientCa?: (Uint8Array[]|null);
+                /** Shape of an AuthChallenge. */
+                type $Shape = $Properties
+            }
+
+            /**
+             * Properties of an AuthResponse.
+             * @deprecated Use extensions.api.cast_channel.AuthResponse.$Properties instead.
+             */
+            interface IAuthResponse extends AuthResponse.$Properties {
             }
 
             /** Represents an AuthResponse. */
-            class AuthResponse implements IAuthResponse {
-
-                /**
+            class AuthResponse {
+              /**
                  * Constructs a new AuthResponse.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: extensions.api.cast_channel.IAuthResponse);
+              constructor(properties?: AuthResponse.$Properties)
 
-                /** AuthResponse signature. */
-                public signature: Uint8Array;
+              /** Unknown fields preserved while decoding when enabled */
+              $unknowns?: Uint8Array[]
 
-                /** AuthResponse clientAuthCertificate. */
-                public clientAuthCertificate: Uint8Array;
+              /** AuthResponse signature. */
+              signature: Uint8Array
 
-                /** AuthResponse clientCa. */
-                public clientCa: Uint8Array[];
+              /** AuthResponse clientAuthCertificate. */
+              clientAuthCertificate: Uint8Array
 
-                /**
+              /** AuthResponse clientCa. */
+              clientCa: Uint8Array[]
+
+              /**
                  * Creates a new AuthResponse instance using the specified properties.
                  * @param [properties] Properties to set
                  * @returns AuthResponse instance
                  */
-                public static create(properties?: extensions.api.cast_channel.IAuthResponse): extensions.api.cast_channel.AuthResponse;
+              static create(properties: AuthResponse.$Shape): AuthResponse & AuthResponse.$Shape
+              static create(properties?: AuthResponse.$Properties): AuthResponse
 
-                /**
+              /**
                  * Encodes the specified AuthResponse message. Does not implicitly {@link extensions.api.cast_channel.AuthResponse.verify|verify} messages.
                  * @param message AuthResponse message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: extensions.api.cast_channel.IAuthResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encode(message: AuthResponse.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Encodes the specified AuthResponse message, length delimited. Does not implicitly {@link extensions.api.cast_channel.AuthResponse.verify|verify} messages.
                  * @param message AuthResponse message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: extensions.api.cast_channel.IAuthResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encodeDelimited(message: AuthResponse.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Decodes an AuthResponse message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns AuthResponse
+                 * @returns {extensions.api.cast_channel.AuthResponse & extensions.api.cast_channel.AuthResponse.$Shape} AuthResponse
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): extensions.api.cast_channel.AuthResponse;
+              static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): AuthResponse & AuthResponse.$Shape
 
-                /**
+              /**
                  * Decodes an AuthResponse message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns AuthResponse
+                 * @returns {extensions.api.cast_channel.AuthResponse & extensions.api.cast_channel.AuthResponse.$Shape} AuthResponse
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): extensions.api.cast_channel.AuthResponse;
+              static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): AuthResponse & AuthResponse.$Shape
 
-                /**
+              /**
                  * Verifies an AuthResponse message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
-                public static verify(message: { [k: string]: any }): (string|null);
+              static verify(message: Record<string, any>): (string|null)
 
-                /**
+              /**
                  * Creates an AuthResponse message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
                  * @returns AuthResponse
                  */
-                public static fromObject(object: { [k: string]: any }): extensions.api.cast_channel.AuthResponse;
+              static fromObject(object: Record<string, any>): AuthResponse
 
-                /**
+              /**
                  * Creates a plain object from an AuthResponse message. Also converts values to other types if specified.
                  * @param message AuthResponse
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: extensions.api.cast_channel.AuthResponse, options?: $protobuf.IConversionOptions): { [k: string]: any };
+              static toObject(message: AuthResponse, options?: $protobuf.IConversionOptions): Record<string, any>
 
-                /**
+              /**
                  * Converts this AuthResponse to JSON.
                  * @returns JSON object
                  */
-                public toJSON(): { [k: string]: any };
+              toJSON(): Record<string, any>
 
-                /**
-                 * Gets the default type url for AuthResponse
-                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns The default type url
+              /**
+                 * Gets the type url for AuthResponse
+                 * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns The type url
                  */
-                public static getTypeUrl(typeUrlPrefix?: string): string;
+              static getTypeUrl(prefix?: string): string
             }
 
-            /** Properties of an AuthError. */
-            interface IAuthError {
+            namespace AuthResponse {
 
-                /** AuthError errorType */
-                errorType: extensions.api.cast_channel.AuthError.ErrorType;
+                /** Properties of an AuthResponse. */
+                interface $Properties {
+
+                    /** AuthResponse signature */
+                    signature: Uint8Array
+
+                    /** AuthResponse clientAuthCertificate */
+                    clientAuthCertificate: Uint8Array
+
+                    /** AuthResponse clientCa */
+                    clientCa?: (Uint8Array[]|null)
+
+                    /** Unknown fields preserved while decoding when enabled */
+                    $unknowns?: Uint8Array[]
+                }
+
+                /** Shape of an AuthResponse. */
+                type $Shape = $Properties
+            }
+
+            /**
+             * Properties of an AuthError.
+             * @deprecated Use extensions.api.cast_channel.AuthError.$Properties instead.
+             */
+            interface IAuthError extends AuthError.$Properties {
             }
 
             /** Represents an AuthError. */
-            class AuthError implements IAuthError {
-
-                /**
+            class AuthError {
+              /**
                  * Constructs a new AuthError.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: extensions.api.cast_channel.IAuthError);
+              constructor(properties?: AuthError.$Properties)
 
-                /** AuthError errorType. */
-                public errorType: extensions.api.cast_channel.AuthError.ErrorType;
+              /** Unknown fields preserved while decoding when enabled */
+              $unknowns?: Uint8Array[]
 
-                /**
+              /** AuthError errorType. */
+              errorType: AuthError.ErrorType
+
+              /**
                  * Creates a new AuthError instance using the specified properties.
                  * @param [properties] Properties to set
                  * @returns AuthError instance
                  */
-                public static create(properties?: extensions.api.cast_channel.IAuthError): extensions.api.cast_channel.AuthError;
+              static create(properties: AuthError.$Shape): AuthError & AuthError.$Shape
+              static create(properties?: AuthError.$Properties): AuthError
 
-                /**
+              /**
                  * Encodes the specified AuthError message. Does not implicitly {@link extensions.api.cast_channel.AuthError.verify|verify} messages.
                  * @param message AuthError message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: extensions.api.cast_channel.IAuthError, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encode(message: AuthError.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Encodes the specified AuthError message, length delimited. Does not implicitly {@link extensions.api.cast_channel.AuthError.verify|verify} messages.
                  * @param message AuthError message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: extensions.api.cast_channel.IAuthError, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encodeDelimited(message: AuthError.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Decodes an AuthError message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns AuthError
+                 * @returns {extensions.api.cast_channel.AuthError & extensions.api.cast_channel.AuthError.$Shape} AuthError
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): extensions.api.cast_channel.AuthError;
+              static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): AuthError & AuthError.$Shape
 
-                /**
+              /**
                  * Decodes an AuthError message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns AuthError
+                 * @returns {extensions.api.cast_channel.AuthError & extensions.api.cast_channel.AuthError.$Shape} AuthError
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): extensions.api.cast_channel.AuthError;
+              static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): AuthError & AuthError.$Shape
 
-                /**
+              /**
                  * Verifies an AuthError message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
-                public static verify(message: { [k: string]: any }): (string|null);
+              static verify(message: Record<string, any>): (string|null)
 
-                /**
+              /**
                  * Creates an AuthError message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
                  * @returns AuthError
                  */
-                public static fromObject(object: { [k: string]: any }): extensions.api.cast_channel.AuthError;
+              static fromObject(object: Record<string, any>): AuthError
 
-                /**
+              /**
                  * Creates a plain object from an AuthError message. Also converts values to other types if specified.
                  * @param message AuthError
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: extensions.api.cast_channel.AuthError, options?: $protobuf.IConversionOptions): { [k: string]: any };
+              static toObject(message: AuthError, options?: $protobuf.IConversionOptions): Record<string, any>
 
-                /**
+              /**
                  * Converts this AuthError to JSON.
                  * @returns JSON object
                  */
-                public toJSON(): { [k: string]: any };
+              toJSON(): Record<string, any>
 
-                /**
-                 * Gets the default type url for AuthError
-                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns The default type url
+              /**
+                 * Gets the type url for AuthError
+                 * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns The type url
                  */
-                public static getTypeUrl(typeUrlPrefix?: string): string;
+              static getTypeUrl(prefix?: string): string
             }
 
             namespace AuthError {
 
+                /** Properties of an AuthError. */
+                interface $Properties {
+
+                    /** AuthError errorType */
+                    errorType: ErrorType
+
+                    /** Unknown fields preserved while decoding when enabled */
+                    $unknowns?: Uint8Array[]
+                }
+
+                /** Shape of an AuthError. */
+                type $Shape = $Properties
+
                 /** ErrorType enum. */
                 enum ErrorType {
+
+                    /** INTERNAL_ERROR value */
                     INTERNAL_ERROR = 0,
+
+                    /** NO_TLS value */
                     NO_TLS = 1
                 }
             }
 
-            /** Properties of a DeviceAuthMessage. */
-            interface IDeviceAuthMessage {
-
-                /** DeviceAuthMessage challenge */
-                challenge?: (extensions.api.cast_channel.IAuthChallenge|null);
-
-                /** DeviceAuthMessage response */
-                response?: (extensions.api.cast_channel.IAuthResponse|null);
-
-                /** DeviceAuthMessage error */
-                error?: (extensions.api.cast_channel.IAuthError|null);
+            /**
+             * Properties of a DeviceAuthMessage.
+             * @deprecated Use extensions.api.cast_channel.DeviceAuthMessage.$Properties instead.
+             */
+            interface IDeviceAuthMessage extends DeviceAuthMessage.$Properties {
             }
 
             /** Represents a DeviceAuthMessage. */
-            class DeviceAuthMessage implements IDeviceAuthMessage {
-
-                /**
+            class DeviceAuthMessage {
+              /**
                  * Constructs a new DeviceAuthMessage.
                  * @param [properties] Properties to set
                  */
-                constructor(properties?: extensions.api.cast_channel.IDeviceAuthMessage);
+              constructor(properties?: DeviceAuthMessage.$Properties)
 
-                /** DeviceAuthMessage challenge. */
-                public challenge?: (extensions.api.cast_channel.IAuthChallenge|null);
+              /** Unknown fields preserved while decoding when enabled */
+              $unknowns?: Uint8Array[]
 
-                /** DeviceAuthMessage response. */
-                public response?: (extensions.api.cast_channel.IAuthResponse|null);
+              /** DeviceAuthMessage challenge. */
+              challenge?: (AuthChallenge.$Properties|null)
 
-                /** DeviceAuthMessage error. */
-                public error?: (extensions.api.cast_channel.IAuthError|null);
+              /** DeviceAuthMessage response. */
+              response?: (AuthResponse.$Properties|null)
 
-                /**
+              /** DeviceAuthMessage error. */
+              error?: (AuthError.$Properties|null)
+
+              /**
                  * Creates a new DeviceAuthMessage instance using the specified properties.
                  * @param [properties] Properties to set
                  * @returns DeviceAuthMessage instance
                  */
-                public static create(properties?: extensions.api.cast_channel.IDeviceAuthMessage): extensions.api.cast_channel.DeviceAuthMessage;
+              static create(properties: DeviceAuthMessage.$Shape): DeviceAuthMessage & DeviceAuthMessage.$Shape
+              static create(properties?: DeviceAuthMessage.$Properties): DeviceAuthMessage
 
-                /**
+              /**
                  * Encodes the specified DeviceAuthMessage message. Does not implicitly {@link extensions.api.cast_channel.DeviceAuthMessage.verify|verify} messages.
                  * @param message DeviceAuthMessage message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encode(message: extensions.api.cast_channel.IDeviceAuthMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encode(message: DeviceAuthMessage.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Encodes the specified DeviceAuthMessage message, length delimited. Does not implicitly {@link extensions.api.cast_channel.DeviceAuthMessage.verify|verify} messages.
                  * @param message DeviceAuthMessage message or plain object to encode
                  * @param [writer] Writer to encode to
                  * @returns Writer
                  */
-                public static encodeDelimited(message: extensions.api.cast_channel.IDeviceAuthMessage, writer?: $protobuf.Writer): $protobuf.Writer;
+              static encodeDelimited(message: DeviceAuthMessage.$Properties, writer?: $protobuf.Writer): $protobuf.Writer
 
-                /**
+              /**
                  * Decodes a DeviceAuthMessage message from the specified reader or buffer.
                  * @param reader Reader or buffer to decode from
                  * @param [length] Message length if known beforehand
-                 * @returns DeviceAuthMessage
+                 * @returns {extensions.api.cast_channel.DeviceAuthMessage & extensions.api.cast_channel.DeviceAuthMessage.$Shape} DeviceAuthMessage
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): extensions.api.cast_channel.DeviceAuthMessage;
+              static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): DeviceAuthMessage & DeviceAuthMessage.$Shape
 
-                /**
+              /**
                  * Decodes a DeviceAuthMessage message from the specified reader or buffer, length delimited.
                  * @param reader Reader or buffer to decode from
-                 * @returns DeviceAuthMessage
+                 * @returns {extensions.api.cast_channel.DeviceAuthMessage & extensions.api.cast_channel.DeviceAuthMessage.$Shape} DeviceAuthMessage
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): extensions.api.cast_channel.DeviceAuthMessage;
+              static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): DeviceAuthMessage & DeviceAuthMessage.$Shape
 
-                /**
+              /**
                  * Verifies a DeviceAuthMessage message.
                  * @param message Plain object to verify
                  * @returns `null` if valid, otherwise the reason why it is not
                  */
-                public static verify(message: { [k: string]: any }): (string|null);
+              static verify(message: Record<string, any>): (string|null)
 
-                /**
+              /**
                  * Creates a DeviceAuthMessage message from a plain object. Also converts values to their respective internal types.
                  * @param object Plain object
                  * @returns DeviceAuthMessage
                  */
-                public static fromObject(object: { [k: string]: any }): extensions.api.cast_channel.DeviceAuthMessage;
+              static fromObject(object: Record<string, any>): DeviceAuthMessage
 
-                /**
+              /**
                  * Creates a plain object from a DeviceAuthMessage message. Also converts values to other types if specified.
                  * @param message DeviceAuthMessage
                  * @param [options] Conversion options
                  * @returns Plain object
                  */
-                public static toObject(message: extensions.api.cast_channel.DeviceAuthMessage, options?: $protobuf.IConversionOptions): { [k: string]: any };
+              static toObject(message: DeviceAuthMessage, options?: $protobuf.IConversionOptions): Record<string, any>
 
-                /**
+              /**
                  * Converts this DeviceAuthMessage to JSON.
                  * @returns JSON object
                  */
-                public toJSON(): { [k: string]: any };
+              toJSON(): Record<string, any>
 
-                /**
-                 * Gets the default type url for DeviceAuthMessage
-                 * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns The default type url
+              /**
+                 * Gets the type url for DeviceAuthMessage
+                 * @param [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns The type url
                  */
-                public static getTypeUrl(typeUrlPrefix?: string): string;
+              static getTypeUrl(prefix?: string): string
+            }
+
+            namespace DeviceAuthMessage {
+
+                /** Properties of a DeviceAuthMessage. */
+                interface $Properties {
+
+                    /** DeviceAuthMessage challenge */
+                    challenge?: (AuthChallenge.$Properties|null)
+
+                    /** DeviceAuthMessage response */
+                    response?: (AuthResponse.$Properties|null)
+
+                    /** DeviceAuthMessage error */
+                    error?: (AuthError.$Properties|null)
+
+                    /** Unknown fields preserved while decoding when enabled */
+                    $unknowns?: Uint8Array[]
+                }
+
+                /** Shape of a DeviceAuthMessage. */
+                type $Shape = $Properties
             }
         }
     }

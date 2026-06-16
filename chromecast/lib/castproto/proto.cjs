@@ -1,10 +1,11 @@
-/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
+/*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-mixed-operators, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars, default-case, jsdoc/require-param*/
 "use strict";
 
 var $protobuf = require("protobufjs/minimal");
 
 // Common aliases
 var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+var $Object = $util.global.Object, $undefined = $util.global.undefined, $Error = $util.global.Error, $TypeError = $util.global.TypeError, $String = $util.global.String, $Array = $util.global.Array;
 
 // Exported root namespace
 var $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
@@ -40,8 +41,7 @@ $root.extensions = (function() {
 
                 /**
                  * Properties of a CastMessage.
-                 * @memberof extensions.api.cast_channel
-                 * @interface ICastMessage
+                 * @typedef {Object} extensions.api.cast_channel.CastMessage.$Properties
                  * @property {extensions.api.cast_channel.CastMessage.ProtocolVersion} protocolVersion CastMessage protocolVersion
                  * @property {string} sourceId CastMessage sourceId
                  * @property {string} destinationId CastMessage destinationId
@@ -49,22 +49,36 @@ $root.extensions = (function() {
                  * @property {extensions.api.cast_channel.CastMessage.PayloadType} payloadType CastMessage payloadType
                  * @property {string|null} [payloadUtf8] CastMessage payloadUtf8
                  * @property {Uint8Array|null} [payloadBinary] CastMessage payloadBinary
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+                 */
+
+                /**
+                 * Properties of a CastMessage.
+                 * @memberof extensions.api.cast_channel
+                 * @interface ICastMessage
+                 * @augments extensions.api.cast_channel.CastMessage.$Properties
+                 * @deprecated Use extensions.api.cast_channel.CastMessage.$Properties instead.
+                 */
+
+                /**
+                 * Shape of a CastMessage.
+                 * @typedef {extensions.api.cast_channel.CastMessage.$Properties} extensions.api.cast_channel.CastMessage.$Shape
                  */
 
                 /**
                  * Constructs a new CastMessage.
                  * @memberof extensions.api.cast_channel
                  * @classdesc Represents a CastMessage.
-                 * @implements ICastMessage
                  * @constructor
-                 * @param {extensions.api.cast_channel.ICastMessage=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.CastMessage.$Properties=} [properties] Properties to set
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
                  */
-                function CastMessage(properties) {
+                var CastMessage = function (properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
+                        for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
-                }
+                };
 
                 /**
                  * CastMessage protocolVersion.
@@ -127,10 +141,14 @@ $root.extensions = (function() {
                  * @function create
                  * @memberof extensions.api.cast_channel.CastMessage
                  * @static
-                 * @param {extensions.api.cast_channel.ICastMessage=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.CastMessage.$Properties=} [properties] Properties to set
                  * @returns {extensions.api.cast_channel.CastMessage} CastMessage instance
+                 * @type {{
+                 *   (properties: extensions.api.cast_channel.CastMessage.$Shape): extensions.api.cast_channel.CastMessage & extensions.api.cast_channel.CastMessage.$Shape;
+                 *   (properties?: extensions.api.cast_channel.CastMessage.$Properties): extensions.api.cast_channel.CastMessage;
+                 * }}
                  */
-                CastMessage.create = function create(properties) {
+                CastMessage.create = function(properties) {
                     return new CastMessage(properties);
                 };
 
@@ -139,22 +157,29 @@ $root.extensions = (function() {
                  * @function encode
                  * @memberof extensions.api.cast_channel.CastMessage
                  * @static
-                 * @param {extensions.api.cast_channel.ICastMessage} message CastMessage message or plain object to encode
+                 * @param {extensions.api.cast_channel.CastMessage.$Properties} message CastMessage message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                CastMessage.encode = function encode(message, writer) {
+                CastMessage.encode = function (message, writer, _depth) {
                     if (!writer)
                         writer = $Writer.create();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     writer.uint32(/* id 1, wireType 0 =*/8).int32(message.protocolVersion);
                     writer.uint32(/* id 2, wireType 2 =*/18).string(message.sourceId);
                     writer.uint32(/* id 3, wireType 2 =*/26).string(message.destinationId);
                     writer.uint32(/* id 4, wireType 2 =*/34).string(message.namespace);
                     writer.uint32(/* id 5, wireType 0 =*/40).int32(message.payloadType);
-                    if (message.payloadUtf8 != null && Object.hasOwnProperty.call(message, "payloadUtf8"))
+                    if (message.payloadUtf8 != null && $Object.hasOwnProperty.call(message, "payloadUtf8"))
                         writer.uint32(/* id 6, wireType 2 =*/50).string(message.payloadUtf8);
-                    if (message.payloadBinary != null && Object.hasOwnProperty.call(message, "payloadBinary"))
+                    if (message.payloadBinary != null && $Object.hasOwnProperty.call(message, "payloadBinary"))
                         writer.uint32(/* id 7, wireType 2 =*/58).bytes(message.payloadBinary);
+                    if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                        for (var i = 0; i < message.$unknowns.length; ++i)
+                            writer.raw(message.$unknowns[i]);
                     return writer;
                 };
 
@@ -163,12 +188,12 @@ $root.extensions = (function() {
                  * @function encodeDelimited
                  * @memberof extensions.api.cast_channel.CastMessage
                  * @static
-                 * @param {extensions.api.cast_channel.ICastMessage} message CastMessage message or plain object to encode
+                 * @param {extensions.api.cast_channel.CastMessage.$Properties} message CastMessage message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                CastMessage.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
+                CastMessage.encodeDelimited = function(message, writer) {
+                    return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
                 };
 
                 /**
@@ -178,61 +203,87 @@ $root.extensions = (function() {
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
                  * @param {number} [length] Message length if known beforehand
-                 * @returns {extensions.api.cast_channel.CastMessage} CastMessage
+                 * @returns {extensions.api.cast_channel.CastMessage & extensions.api.cast_channel.CastMessage.$Shape} CastMessage
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                CastMessage.decode = function decode(reader, length, error) {
+                CastMessage.decode = function (reader, length, _end, _depth, _target) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.extensions.api.cast_channel.CastMessage();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $Reader.recursionLimit)
+                        throw $Error("max depth exceeded");
+                    var end = length === $undefined ? reader.len : reader.pos + length, message = _target || new $root.extensions.api.cast_channel.CastMessage();
                     while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        if (tag === error)
-                            break;
-                        switch (tag >>> 3) {
-                        case 1: {
-                                message.protocolVersion = reader.int32();
-                                break;
-                            }
-                        case 2: {
-                                message.sourceId = reader.string();
-                                break;
-                            }
-                        case 3: {
-                                message.destinationId = reader.string();
-                                break;
-                            }
-                        case 4: {
-                                message.namespace = reader.string();
-                                break;
-                            }
-                        case 5: {
-                                message.payloadType = reader.int32();
-                                break;
-                            }
-                        case 6: {
-                                message.payloadUtf8 = reader.string();
-                                break;
-                            }
-                        case 7: {
-                                message.payloadBinary = reader.bytes();
-                                break;
-                            }
-                        default:
-                            reader.skipType(tag & 7);
+                        var start = reader.pos;
+                        var tag = reader.tag();
+                        if (tag === _end) {
+                            _end = $undefined;
                             break;
                         }
+                        var wireType = tag & 7;
+                        switch (tag >>>= 3) {
+                        case 1: {
+                                if (wireType !== 0)
+                                    break;
+                                message.protocolVersion = reader.int32();
+                                continue;
+                            }
+                        case 2: {
+                                if (wireType !== 2)
+                                    break;
+                                message.sourceId = reader.string();
+                                continue;
+                            }
+                        case 3: {
+                                if (wireType !== 2)
+                                    break;
+                                message.destinationId = reader.string();
+                                continue;
+                            }
+                        case 4: {
+                                if (wireType !== 2)
+                                    break;
+                                message.namespace = reader.string();
+                                continue;
+                            }
+                        case 5: {
+                                if (wireType !== 0)
+                                    break;
+                                message.payloadType = reader.int32();
+                                continue;
+                            }
+                        case 6: {
+                                if (wireType !== 2)
+                                    break;
+                                message.payloadUtf8 = reader.string();
+                                continue;
+                            }
+                        case 7: {
+                                if (wireType !== 2)
+                                    break;
+                                message.payloadBinary = reader.bytes();
+                                continue;
+                            }
+                        }
+                        reader.skipType(wireType, _depth, tag);
+                        if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
                     }
-                    if (!message.hasOwnProperty("protocolVersion"))
+                    if (_end !== $undefined)
+                        throw $Error("missing end group");
+                    if (!$Object.hasOwnProperty.call(message, "protocolVersion"))
                         throw $util.ProtocolError("missing required 'protocolVersion'", { instance: message });
-                    if (!message.hasOwnProperty("sourceId"))
+                    if (!$Object.hasOwnProperty.call(message, "sourceId"))
                         throw $util.ProtocolError("missing required 'sourceId'", { instance: message });
-                    if (!message.hasOwnProperty("destinationId"))
+                    if (!$Object.hasOwnProperty.call(message, "destinationId"))
                         throw $util.ProtocolError("missing required 'destinationId'", { instance: message });
-                    if (!message.hasOwnProperty("namespace"))
+                    if (!$Object.hasOwnProperty.call(message, "namespace"))
                         throw $util.ProtocolError("missing required 'namespace'", { instance: message });
-                    if (!message.hasOwnProperty("payloadType"))
+                    if (!$Object.hasOwnProperty.call(message, "payloadType"))
                         throw $util.ProtocolError("missing required 'payloadType'", { instance: message });
                     return message;
                 };
@@ -243,11 +294,11 @@ $root.extensions = (function() {
                  * @memberof extensions.api.cast_channel.CastMessage
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {extensions.api.cast_channel.CastMessage} CastMessage
+                 * @returns {extensions.api.cast_channel.CastMessage & extensions.api.cast_channel.CastMessage.$Shape} CastMessage
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                CastMessage.decodeDelimited = function decodeDelimited(reader) {
+                CastMessage.decodeDelimited = function(reader) {
                     if (!(reader instanceof $Reader))
                         reader = new $Reader(reader);
                     return this.decode(reader, reader.uint32());
@@ -261,9 +312,13 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
-                CastMessage.verify = function verify(message) {
+                CastMessage.verify = function (message, _depth) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        return "max depth exceeded";
                     switch (message.protocolVersion) {
                     default:
                         return "protocolVersion: enum value expected";
@@ -283,10 +338,10 @@ $root.extensions = (function() {
                     case 1:
                         break;
                     }
-                    if (message.payloadUtf8 != null && message.hasOwnProperty("payloadUtf8"))
+                    if (message.payloadUtf8 != null && $Object.hasOwnProperty.call(message, "payloadUtf8"))
                         if (!$util.isString(message.payloadUtf8))
                             return "payloadUtf8: string expected";
-                    if (message.payloadBinary != null && message.hasOwnProperty("payloadBinary"))
+                    if (message.payloadBinary != null && $Object.hasOwnProperty.call(message, "payloadBinary"))
                         if (!(message.payloadBinary && typeof message.payloadBinary.length === "number" || $util.isString(message.payloadBinary)))
                             return "payloadBinary: buffer expected";
                     return null;
@@ -300,9 +355,15 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} object Plain object
                  * @returns {extensions.api.cast_channel.CastMessage} CastMessage
                  */
-                CastMessage.fromObject = function fromObject(object) {
+                CastMessage.fromObject = function (object, _depth) {
                     if (object instanceof $root.extensions.api.cast_channel.CastMessage)
                         return object;
+                    if (!$util.isObject(object))
+                        throw $TypeError(".extensions.api.cast_channel.CastMessage: object expected");
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     var message = new $root.extensions.api.cast_channel.CastMessage();
                     switch (object.protocolVersion) {
                     default:
@@ -317,11 +378,11 @@ $root.extensions = (function() {
                         break;
                     }
                     if (object.sourceId != null)
-                        message.sourceId = String(object.sourceId);
+                        message.sourceId = $String(object.sourceId);
                     if (object.destinationId != null)
-                        message.destinationId = String(object.destinationId);
+                        message.destinationId = $String(object.destinationId);
                     if (object.namespace != null)
-                        message.namespace = String(object.namespace);
+                        message.namespace = $String(object.namespace);
                     switch (object.payloadType) {
                     default:
                         if (typeof object.payloadType === "number") {
@@ -339,7 +400,7 @@ $root.extensions = (function() {
                         break;
                     }
                     if (object.payloadUtf8 != null)
-                        message.payloadUtf8 = String(object.payloadUtf8);
+                        message.payloadUtf8 = $String(object.payloadUtf8);
                     if (object.payloadBinary != null)
                         if (typeof object.payloadBinary === "string")
                             $util.base64.decode(object.payloadBinary, message.payloadBinary = $util.newBuffer($util.base64.length(object.payloadBinary)), 0);
@@ -357,39 +418,43 @@ $root.extensions = (function() {
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
                  * @returns {Object.<string,*>} Plain object
                  */
-                CastMessage.toObject = function toObject(message, options) {
+                CastMessage.toObject = function (message, options, _depth) {
                     if (!options)
                         options = {};
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     var object = {};
                     if (options.defaults) {
-                        object.protocolVersion = options.enums === String ? "CASTV2_1_0" : 0;
+                        object.protocolVersion = options.enums === $String ? "CASTV2_1_0" : 0;
                         object.sourceId = "";
                         object.destinationId = "";
                         object.namespace = "";
-                        object.payloadType = options.enums === String ? "STRING" : 0;
+                        object.payloadType = options.enums === $String ? "STRING" : 0;
                         object.payloadUtf8 = "";
-                        if (options.bytes === String)
+                        if (options.bytes === $String)
                             object.payloadBinary = "";
                         else {
                             object.payloadBinary = [];
-                            if (options.bytes !== Array)
+                            if (options.bytes !== $Array)
                                 object.payloadBinary = $util.newBuffer(object.payloadBinary);
                         }
                     }
-                    if (message.protocolVersion != null && message.hasOwnProperty("protocolVersion"))
-                        object.protocolVersion = options.enums === String ? $root.extensions.api.cast_channel.CastMessage.ProtocolVersion[message.protocolVersion] === undefined ? message.protocolVersion : $root.extensions.api.cast_channel.CastMessage.ProtocolVersion[message.protocolVersion] : message.protocolVersion;
-                    if (message.sourceId != null && message.hasOwnProperty("sourceId"))
+                    if (message.protocolVersion != null && $Object.hasOwnProperty.call(message, "protocolVersion"))
+                        object.protocolVersion = options.enums === $String ? $root.extensions.api.cast_channel.CastMessage.ProtocolVersion[message.protocolVersion] === $undefined ? message.protocolVersion : $root.extensions.api.cast_channel.CastMessage.ProtocolVersion[message.protocolVersion] : message.protocolVersion;
+                    if (message.sourceId != null && $Object.hasOwnProperty.call(message, "sourceId"))
                         object.sourceId = message.sourceId;
-                    if (message.destinationId != null && message.hasOwnProperty("destinationId"))
+                    if (message.destinationId != null && $Object.hasOwnProperty.call(message, "destinationId"))
                         object.destinationId = message.destinationId;
-                    if (message.namespace != null && message.hasOwnProperty("namespace"))
+                    if (message.namespace != null && $Object.hasOwnProperty.call(message, "namespace"))
                         object.namespace = message.namespace;
-                    if (message.payloadType != null && message.hasOwnProperty("payloadType"))
-                        object.payloadType = options.enums === String ? $root.extensions.api.cast_channel.CastMessage.PayloadType[message.payloadType] === undefined ? message.payloadType : $root.extensions.api.cast_channel.CastMessage.PayloadType[message.payloadType] : message.payloadType;
-                    if (message.payloadUtf8 != null && message.hasOwnProperty("payloadUtf8"))
+                    if (message.payloadType != null && $Object.hasOwnProperty.call(message, "payloadType"))
+                        object.payloadType = options.enums === $String ? $root.extensions.api.cast_channel.CastMessage.PayloadType[message.payloadType] === $undefined ? message.payloadType : $root.extensions.api.cast_channel.CastMessage.PayloadType[message.payloadType] : message.payloadType;
+                    if (message.payloadUtf8 != null && $Object.hasOwnProperty.call(message, "payloadUtf8"))
                         object.payloadUtf8 = message.payloadUtf8;
-                    if (message.payloadBinary != null && message.hasOwnProperty("payloadBinary"))
-                        object.payloadBinary = options.bytes === String ? $util.base64.encode(message.payloadBinary, 0, message.payloadBinary.length) : options.bytes === Array ? Array.prototype.slice.call(message.payloadBinary) : message.payloadBinary;
+                    if (message.payloadBinary != null && $Object.hasOwnProperty.call(message, "payloadBinary"))
+                        object.payloadBinary = options.bytes === $String ? $util.base64.encode(message.payloadBinary, 0, message.payloadBinary.length) : options.bytes === $Array ? $Array.prototype.slice.call(message.payloadBinary) : message.payloadBinary;
                     return object;
                 };
 
@@ -400,23 +465,22 @@ $root.extensions = (function() {
                  * @instance
                  * @returns {Object.<string,*>} JSON object
                  */
-                CastMessage.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                CastMessage.prototype.toJSON = function() {
+                    return CastMessage.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
                 /**
-                 * Gets the default type url for CastMessage
+                 * Gets the type url for CastMessage
                  * @function getTypeUrl
                  * @memberof extensions.api.cast_channel.CastMessage
                  * @static
-                 * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns {string} The default type url
+                 * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns {string} The type url
                  */
-                CastMessage.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-                    if (typeUrlPrefix === undefined) {
-                        typeUrlPrefix = "type.googleapis.com";
-                    }
-                    return typeUrlPrefix + "/extensions.api.cast_channel.CastMessage";
+                CastMessage.getTypeUrl = function(prefix) {
+                    if (prefix === $undefined)
+                        prefix = "type.googleapis.com";
+                    return prefix + "/extensions.api.cast_channel.CastMessage";
                 };
 
                 /**
@@ -426,7 +490,7 @@ $root.extensions = (function() {
                  * @property {number} CASTV2_1_0=0 CASTV2_1_0 value
                  */
                 CastMessage.ProtocolVersion = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = $Object.create(valuesById);
                     values[valuesById[0] = "CASTV2_1_0"] = 0;
                     return values;
                 })();
@@ -439,7 +503,7 @@ $root.extensions = (function() {
                  * @property {number} BINARY=1 BINARY value
                  */
                 CastMessage.PayloadType = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = $Object.create(valuesById);
                     values[valuesById[0] = "STRING"] = 0;
                     values[valuesById[1] = "BINARY"] = 1;
                     return values;
@@ -452,34 +516,51 @@ $root.extensions = (function() {
 
                 /**
                  * Properties of an AuthChallenge.
+                 * @typedef {Object} extensions.api.cast_channel.AuthChallenge.$Properties
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+                 */
+
+                /**
+                 * Properties of an AuthChallenge.
                  * @memberof extensions.api.cast_channel
                  * @interface IAuthChallenge
+                 * @augments extensions.api.cast_channel.AuthChallenge.$Properties
+                 * @deprecated Use extensions.api.cast_channel.AuthChallenge.$Properties instead.
+                 */
+
+                /**
+                 * Shape of an AuthChallenge.
+                 * @typedef {extensions.api.cast_channel.AuthChallenge.$Properties} extensions.api.cast_channel.AuthChallenge.$Shape
                  */
 
                 /**
                  * Constructs a new AuthChallenge.
                  * @memberof extensions.api.cast_channel
                  * @classdesc Represents an AuthChallenge.
-                 * @implements IAuthChallenge
                  * @constructor
-                 * @param {extensions.api.cast_channel.IAuthChallenge=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.AuthChallenge.$Properties=} [properties] Properties to set
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
                  */
-                function AuthChallenge(properties) {
+                var AuthChallenge = function (properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
+                        for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
-                }
+                };
 
                 /**
                  * Creates a new AuthChallenge instance using the specified properties.
                  * @function create
                  * @memberof extensions.api.cast_channel.AuthChallenge
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthChallenge=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.AuthChallenge.$Properties=} [properties] Properties to set
                  * @returns {extensions.api.cast_channel.AuthChallenge} AuthChallenge instance
+                 * @type {{
+                 *   (properties: extensions.api.cast_channel.AuthChallenge.$Shape): extensions.api.cast_channel.AuthChallenge & extensions.api.cast_channel.AuthChallenge.$Shape;
+                 *   (properties?: extensions.api.cast_channel.AuthChallenge.$Properties): extensions.api.cast_channel.AuthChallenge;
+                 * }}
                  */
-                AuthChallenge.create = function create(properties) {
+                AuthChallenge.create = function(properties) {
                     return new AuthChallenge(properties);
                 };
 
@@ -488,13 +569,20 @@ $root.extensions = (function() {
                  * @function encode
                  * @memberof extensions.api.cast_channel.AuthChallenge
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthChallenge} message AuthChallenge message or plain object to encode
+                 * @param {extensions.api.cast_channel.AuthChallenge.$Properties} message AuthChallenge message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                AuthChallenge.encode = function encode(message, writer) {
+                AuthChallenge.encode = function (message, writer, _depth) {
                     if (!writer)
                         writer = $Writer.create();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
+                    if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                        for (var i = 0; i < message.$unknowns.length; ++i)
+                            writer.raw(message.$unknowns[i]);
                     return writer;
                 };
 
@@ -503,12 +591,12 @@ $root.extensions = (function() {
                  * @function encodeDelimited
                  * @memberof extensions.api.cast_channel.AuthChallenge
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthChallenge} message AuthChallenge message or plain object to encode
+                 * @param {extensions.api.cast_channel.AuthChallenge.$Properties} message AuthChallenge message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                AuthChallenge.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
+                AuthChallenge.encodeDelimited = function(message, writer) {
+                    return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
                 };
 
                 /**
@@ -518,24 +606,33 @@ $root.extensions = (function() {
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
                  * @param {number} [length] Message length if known beforehand
-                 * @returns {extensions.api.cast_channel.AuthChallenge} AuthChallenge
+                 * @returns {extensions.api.cast_channel.AuthChallenge & extensions.api.cast_channel.AuthChallenge.$Shape} AuthChallenge
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                AuthChallenge.decode = function decode(reader, length, error) {
+                AuthChallenge.decode = function (reader, length, _end, _depth, _target) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.extensions.api.cast_channel.AuthChallenge();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $Reader.recursionLimit)
+                        throw $Error("max depth exceeded");
+                    var end = length === $undefined ? reader.len : reader.pos + length, message = _target || new $root.extensions.api.cast_channel.AuthChallenge();
                     while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        if (tag === error)
-                            break;
-                        switch (tag >>> 3) {
-                        default:
-                            reader.skipType(tag & 7);
+                        var start = reader.pos;
+                        var tag = reader.tag();
+                        if (tag === _end) {
+                            _end = $undefined;
                             break;
                         }
+                        reader.skipType(tag & 7, _depth, tag);
+                        if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
                     }
+                    if (_end !== $undefined)
+                        throw $Error("missing end group");
                     return message;
                 };
 
@@ -545,11 +642,11 @@ $root.extensions = (function() {
                  * @memberof extensions.api.cast_channel.AuthChallenge
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {extensions.api.cast_channel.AuthChallenge} AuthChallenge
+                 * @returns {extensions.api.cast_channel.AuthChallenge & extensions.api.cast_channel.AuthChallenge.$Shape} AuthChallenge
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                AuthChallenge.decodeDelimited = function decodeDelimited(reader) {
+                AuthChallenge.decodeDelimited = function(reader) {
                     if (!(reader instanceof $Reader))
                         reader = new $Reader(reader);
                     return this.decode(reader, reader.uint32());
@@ -563,9 +660,13 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
-                AuthChallenge.verify = function verify(message) {
+                AuthChallenge.verify = function (message, _depth) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        return "max depth exceeded";
                     return null;
                 };
 
@@ -577,9 +678,15 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} object Plain object
                  * @returns {extensions.api.cast_channel.AuthChallenge} AuthChallenge
                  */
-                AuthChallenge.fromObject = function fromObject(object) {
+                AuthChallenge.fromObject = function (object, _depth) {
                     if (object instanceof $root.extensions.api.cast_channel.AuthChallenge)
                         return object;
+                    if (!$util.isObject(object))
+                        throw $TypeError(".extensions.api.cast_channel.AuthChallenge: object expected");
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     return new $root.extensions.api.cast_channel.AuthChallenge();
                 };
 
@@ -592,7 +699,7 @@ $root.extensions = (function() {
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
                  * @returns {Object.<string,*>} Plain object
                  */
-                AuthChallenge.toObject = function toObject() {
+                AuthChallenge.toObject = function () {
                     return {};
                 };
 
@@ -603,23 +710,22 @@ $root.extensions = (function() {
                  * @instance
                  * @returns {Object.<string,*>} JSON object
                  */
-                AuthChallenge.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                AuthChallenge.prototype.toJSON = function() {
+                    return AuthChallenge.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
                 /**
-                 * Gets the default type url for AuthChallenge
+                 * Gets the type url for AuthChallenge
                  * @function getTypeUrl
                  * @memberof extensions.api.cast_channel.AuthChallenge
                  * @static
-                 * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns {string} The default type url
+                 * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns {string} The type url
                  */
-                AuthChallenge.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-                    if (typeUrlPrefix === undefined) {
-                        typeUrlPrefix = "type.googleapis.com";
-                    }
-                    return typeUrlPrefix + "/extensions.api.cast_channel.AuthChallenge";
+                AuthChallenge.getTypeUrl = function(prefix) {
+                    if (prefix === $undefined)
+                        prefix = "type.googleapis.com";
+                    return prefix + "/extensions.api.cast_channel.AuthChallenge";
                 };
 
                 return AuthChallenge;
@@ -629,28 +735,41 @@ $root.extensions = (function() {
 
                 /**
                  * Properties of an AuthResponse.
-                 * @memberof extensions.api.cast_channel
-                 * @interface IAuthResponse
+                 * @typedef {Object} extensions.api.cast_channel.AuthResponse.$Properties
                  * @property {Uint8Array} signature AuthResponse signature
                  * @property {Uint8Array} clientAuthCertificate AuthResponse clientAuthCertificate
                  * @property {Array.<Uint8Array>|null} [clientCa] AuthResponse clientCa
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+                 */
+
+                /**
+                 * Properties of an AuthResponse.
+                 * @memberof extensions.api.cast_channel
+                 * @interface IAuthResponse
+                 * @augments extensions.api.cast_channel.AuthResponse.$Properties
+                 * @deprecated Use extensions.api.cast_channel.AuthResponse.$Properties instead.
+                 */
+
+                /**
+                 * Shape of an AuthResponse.
+                 * @typedef {extensions.api.cast_channel.AuthResponse.$Properties} extensions.api.cast_channel.AuthResponse.$Shape
                  */
 
                 /**
                  * Constructs a new AuthResponse.
                  * @memberof extensions.api.cast_channel
                  * @classdesc Represents an AuthResponse.
-                 * @implements IAuthResponse
                  * @constructor
-                 * @param {extensions.api.cast_channel.IAuthResponse=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.AuthResponse.$Properties=} [properties] Properties to set
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
                  */
-                function AuthResponse(properties) {
+                var AuthResponse = function (properties) {
                     this.clientCa = [];
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
+                        for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
-                }
+                };
 
                 /**
                  * AuthResponse signature.
@@ -681,10 +800,14 @@ $root.extensions = (function() {
                  * @function create
                  * @memberof extensions.api.cast_channel.AuthResponse
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthResponse=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.AuthResponse.$Properties=} [properties] Properties to set
                  * @returns {extensions.api.cast_channel.AuthResponse} AuthResponse instance
+                 * @type {{
+                 *   (properties: extensions.api.cast_channel.AuthResponse.$Shape): extensions.api.cast_channel.AuthResponse & extensions.api.cast_channel.AuthResponse.$Shape;
+                 *   (properties?: extensions.api.cast_channel.AuthResponse.$Properties): extensions.api.cast_channel.AuthResponse;
+                 * }}
                  */
-                AuthResponse.create = function create(properties) {
+                AuthResponse.create = function(properties) {
                     return new AuthResponse(properties);
                 };
 
@@ -693,18 +816,25 @@ $root.extensions = (function() {
                  * @function encode
                  * @memberof extensions.api.cast_channel.AuthResponse
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthResponse} message AuthResponse message or plain object to encode
+                 * @param {extensions.api.cast_channel.AuthResponse.$Properties} message AuthResponse message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                AuthResponse.encode = function encode(message, writer) {
+                AuthResponse.encode = function (message, writer, _depth) {
                     if (!writer)
                         writer = $Writer.create();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.signature);
                     writer.uint32(/* id 2, wireType 2 =*/18).bytes(message.clientAuthCertificate);
                     if (message.clientCa != null && message.clientCa.length)
                         for (var i = 0; i < message.clientCa.length; ++i)
                             writer.uint32(/* id 3, wireType 2 =*/26).bytes(message.clientCa[i]);
+                    if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                        for (var i = 0; i < message.$unknowns.length; ++i)
+                            writer.raw(message.$unknowns[i]);
                     return writer;
                 };
 
@@ -713,12 +843,12 @@ $root.extensions = (function() {
                  * @function encodeDelimited
                  * @memberof extensions.api.cast_channel.AuthResponse
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthResponse} message AuthResponse message or plain object to encode
+                 * @param {extensions.api.cast_channel.AuthResponse.$Properties} message AuthResponse message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                AuthResponse.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
+                AuthResponse.encodeDelimited = function(message, writer) {
+                    return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
                 };
 
                 /**
@@ -728,41 +858,59 @@ $root.extensions = (function() {
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
                  * @param {number} [length] Message length if known beforehand
-                 * @returns {extensions.api.cast_channel.AuthResponse} AuthResponse
+                 * @returns {extensions.api.cast_channel.AuthResponse & extensions.api.cast_channel.AuthResponse.$Shape} AuthResponse
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                AuthResponse.decode = function decode(reader, length, error) {
+                AuthResponse.decode = function (reader, length, _end, _depth, _target) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.extensions.api.cast_channel.AuthResponse();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $Reader.recursionLimit)
+                        throw $Error("max depth exceeded");
+                    var end = length === $undefined ? reader.len : reader.pos + length, message = _target || new $root.extensions.api.cast_channel.AuthResponse();
                     while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        if (tag === error)
+                        var start = reader.pos;
+                        var tag = reader.tag();
+                        if (tag === _end) {
+                            _end = $undefined;
                             break;
-                        switch (tag >>> 3) {
+                        }
+                        var wireType = tag & 7;
+                        switch (tag >>>= 3) {
                         case 1: {
+                                if (wireType !== 2)
+                                    break;
                                 message.signature = reader.bytes();
-                                break;
+                                continue;
                             }
                         case 2: {
+                                if (wireType !== 2)
+                                    break;
                                 message.clientAuthCertificate = reader.bytes();
-                                break;
+                                continue;
                             }
                         case 3: {
+                                if (wireType !== 2)
+                                    break;
                                 if (!(message.clientCa && message.clientCa.length))
                                     message.clientCa = [];
                                 message.clientCa.push(reader.bytes());
-                                break;
+                                continue;
                             }
-                        default:
-                            reader.skipType(tag & 7);
-                            break;
+                        }
+                        reader.skipType(wireType, _depth, tag);
+                        if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
                         }
                     }
-                    if (!message.hasOwnProperty("signature"))
+                    if (_end !== $undefined)
+                        throw $Error("missing end group");
+                    if (!$Object.hasOwnProperty.call(message, "signature"))
                         throw $util.ProtocolError("missing required 'signature'", { instance: message });
-                    if (!message.hasOwnProperty("clientAuthCertificate"))
+                    if (!$Object.hasOwnProperty.call(message, "clientAuthCertificate"))
                         throw $util.ProtocolError("missing required 'clientAuthCertificate'", { instance: message });
                     return message;
                 };
@@ -773,11 +921,11 @@ $root.extensions = (function() {
                  * @memberof extensions.api.cast_channel.AuthResponse
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {extensions.api.cast_channel.AuthResponse} AuthResponse
+                 * @returns {extensions.api.cast_channel.AuthResponse & extensions.api.cast_channel.AuthResponse.$Shape} AuthResponse
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                AuthResponse.decodeDelimited = function decodeDelimited(reader) {
+                AuthResponse.decodeDelimited = function(reader) {
                     if (!(reader instanceof $Reader))
                         reader = new $Reader(reader);
                     return this.decode(reader, reader.uint32());
@@ -791,15 +939,19 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
-                AuthResponse.verify = function verify(message) {
+                AuthResponse.verify = function (message, _depth) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        return "max depth exceeded";
                     if (!(message.signature && typeof message.signature.length === "number" || $util.isString(message.signature)))
                         return "signature: buffer expected";
                     if (!(message.clientAuthCertificate && typeof message.clientAuthCertificate.length === "number" || $util.isString(message.clientAuthCertificate)))
                         return "clientAuthCertificate: buffer expected";
-                    if (message.clientCa != null && message.hasOwnProperty("clientCa")) {
-                        if (!Array.isArray(message.clientCa))
+                    if (message.clientCa != null && $Object.hasOwnProperty.call(message, "clientCa")) {
+                        if (!$Array.isArray(message.clientCa))
                             return "clientCa: array expected";
                         for (var i = 0; i < message.clientCa.length; ++i)
                             if (!(message.clientCa[i] && typeof message.clientCa[i].length === "number" || $util.isString(message.clientCa[i])))
@@ -816,9 +968,15 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} object Plain object
                  * @returns {extensions.api.cast_channel.AuthResponse} AuthResponse
                  */
-                AuthResponse.fromObject = function fromObject(object) {
+                AuthResponse.fromObject = function (object, _depth) {
                     if (object instanceof $root.extensions.api.cast_channel.AuthResponse)
                         return object;
+                    if (!$util.isObject(object))
+                        throw $TypeError(".extensions.api.cast_channel.AuthResponse: object expected");
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     var message = new $root.extensions.api.cast_channel.AuthResponse();
                     if (object.signature != null)
                         if (typeof object.signature === "string")
@@ -831,9 +989,9 @@ $root.extensions = (function() {
                         else if (object.clientAuthCertificate.length >= 0)
                             message.clientAuthCertificate = object.clientAuthCertificate;
                     if (object.clientCa) {
-                        if (!Array.isArray(object.clientCa))
-                            throw TypeError(".extensions.api.cast_channel.AuthResponse.clientCa: array expected");
-                        message.clientCa = [];
+                        if (!$Array.isArray(object.clientCa))
+                            throw $TypeError(".extensions.api.cast_channel.AuthResponse.clientCa: array expected");
+                        message.clientCa = $Array(object.clientCa.length);
                         for (var i = 0; i < object.clientCa.length; ++i)
                             if (typeof object.clientCa[i] === "string")
                                 $util.base64.decode(object.clientCa[i], message.clientCa[i] = $util.newBuffer($util.base64.length(object.clientCa[i])), 0);
@@ -852,36 +1010,40 @@ $root.extensions = (function() {
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
                  * @returns {Object.<string,*>} Plain object
                  */
-                AuthResponse.toObject = function toObject(message, options) {
+                AuthResponse.toObject = function (message, options, _depth) {
                     if (!options)
                         options = {};
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     var object = {};
                     if (options.arrays || options.defaults)
                         object.clientCa = [];
                     if (options.defaults) {
-                        if (options.bytes === String)
+                        if (options.bytes === $String)
                             object.signature = "";
                         else {
                             object.signature = [];
-                            if (options.bytes !== Array)
+                            if (options.bytes !== $Array)
                                 object.signature = $util.newBuffer(object.signature);
                         }
-                        if (options.bytes === String)
+                        if (options.bytes === $String)
                             object.clientAuthCertificate = "";
                         else {
                             object.clientAuthCertificate = [];
-                            if (options.bytes !== Array)
+                            if (options.bytes !== $Array)
                                 object.clientAuthCertificate = $util.newBuffer(object.clientAuthCertificate);
                         }
                     }
-                    if (message.signature != null && message.hasOwnProperty("signature"))
-                        object.signature = options.bytes === String ? $util.base64.encode(message.signature, 0, message.signature.length) : options.bytes === Array ? Array.prototype.slice.call(message.signature) : message.signature;
-                    if (message.clientAuthCertificate != null && message.hasOwnProperty("clientAuthCertificate"))
-                        object.clientAuthCertificate = options.bytes === String ? $util.base64.encode(message.clientAuthCertificate, 0, message.clientAuthCertificate.length) : options.bytes === Array ? Array.prototype.slice.call(message.clientAuthCertificate) : message.clientAuthCertificate;
+                    if (message.signature != null && $Object.hasOwnProperty.call(message, "signature"))
+                        object.signature = options.bytes === $String ? $util.base64.encode(message.signature, 0, message.signature.length) : options.bytes === $Array ? $Array.prototype.slice.call(message.signature) : message.signature;
+                    if (message.clientAuthCertificate != null && $Object.hasOwnProperty.call(message, "clientAuthCertificate"))
+                        object.clientAuthCertificate = options.bytes === $String ? $util.base64.encode(message.clientAuthCertificate, 0, message.clientAuthCertificate.length) : options.bytes === $Array ? $Array.prototype.slice.call(message.clientAuthCertificate) : message.clientAuthCertificate;
                     if (message.clientCa && message.clientCa.length) {
-                        object.clientCa = [];
+                        object.clientCa = $Array(message.clientCa.length);
                         for (var j = 0; j < message.clientCa.length; ++j)
-                            object.clientCa[j] = options.bytes === String ? $util.base64.encode(message.clientCa[j], 0, message.clientCa[j].length) : options.bytes === Array ? Array.prototype.slice.call(message.clientCa[j]) : message.clientCa[j];
+                            object.clientCa[j] = options.bytes === $String ? $util.base64.encode(message.clientCa[j], 0, message.clientCa[j].length) : options.bytes === $Array ? $Array.prototype.slice.call(message.clientCa[j]) : message.clientCa[j];
                     }
                     return object;
                 };
@@ -893,23 +1055,22 @@ $root.extensions = (function() {
                  * @instance
                  * @returns {Object.<string,*>} JSON object
                  */
-                AuthResponse.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                AuthResponse.prototype.toJSON = function() {
+                    return AuthResponse.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
                 /**
-                 * Gets the default type url for AuthResponse
+                 * Gets the type url for AuthResponse
                  * @function getTypeUrl
                  * @memberof extensions.api.cast_channel.AuthResponse
                  * @static
-                 * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns {string} The default type url
+                 * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns {string} The type url
                  */
-                AuthResponse.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-                    if (typeUrlPrefix === undefined) {
-                        typeUrlPrefix = "type.googleapis.com";
-                    }
-                    return typeUrlPrefix + "/extensions.api.cast_channel.AuthResponse";
+                AuthResponse.getTypeUrl = function(prefix) {
+                    if (prefix === $undefined)
+                        prefix = "type.googleapis.com";
+                    return prefix + "/extensions.api.cast_channel.AuthResponse";
                 };
 
                 return AuthResponse;
@@ -919,25 +1080,38 @@ $root.extensions = (function() {
 
                 /**
                  * Properties of an AuthError.
+                 * @typedef {Object} extensions.api.cast_channel.AuthError.$Properties
+                 * @property {extensions.api.cast_channel.AuthError.ErrorType} errorType AuthError errorType
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+                 */
+
+                /**
+                 * Properties of an AuthError.
                  * @memberof extensions.api.cast_channel
                  * @interface IAuthError
-                 * @property {extensions.api.cast_channel.AuthError.ErrorType} errorType AuthError errorType
+                 * @augments extensions.api.cast_channel.AuthError.$Properties
+                 * @deprecated Use extensions.api.cast_channel.AuthError.$Properties instead.
+                 */
+
+                /**
+                 * Shape of an AuthError.
+                 * @typedef {extensions.api.cast_channel.AuthError.$Properties} extensions.api.cast_channel.AuthError.$Shape
                  */
 
                 /**
                  * Constructs a new AuthError.
                  * @memberof extensions.api.cast_channel
                  * @classdesc Represents an AuthError.
-                 * @implements IAuthError
                  * @constructor
-                 * @param {extensions.api.cast_channel.IAuthError=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.AuthError.$Properties=} [properties] Properties to set
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
                  */
-                function AuthError(properties) {
+                var AuthError = function (properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
+                        for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
-                }
+                };
 
                 /**
                  * AuthError errorType.
@@ -952,10 +1126,14 @@ $root.extensions = (function() {
                  * @function create
                  * @memberof extensions.api.cast_channel.AuthError
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthError=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.AuthError.$Properties=} [properties] Properties to set
                  * @returns {extensions.api.cast_channel.AuthError} AuthError instance
+                 * @type {{
+                 *   (properties: extensions.api.cast_channel.AuthError.$Shape): extensions.api.cast_channel.AuthError & extensions.api.cast_channel.AuthError.$Shape;
+                 *   (properties?: extensions.api.cast_channel.AuthError.$Properties): extensions.api.cast_channel.AuthError;
+                 * }}
                  */
-                AuthError.create = function create(properties) {
+                AuthError.create = function(properties) {
                     return new AuthError(properties);
                 };
 
@@ -964,14 +1142,21 @@ $root.extensions = (function() {
                  * @function encode
                  * @memberof extensions.api.cast_channel.AuthError
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthError} message AuthError message or plain object to encode
+                 * @param {extensions.api.cast_channel.AuthError.$Properties} message AuthError message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                AuthError.encode = function encode(message, writer) {
+                AuthError.encode = function (message, writer, _depth) {
                     if (!writer)
                         writer = $Writer.create();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     writer.uint32(/* id 1, wireType 0 =*/8).int32(message.errorType);
+                    if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                        for (var i = 0; i < message.$unknowns.length; ++i)
+                            writer.raw(message.$unknowns[i]);
                     return writer;
                 };
 
@@ -980,12 +1165,12 @@ $root.extensions = (function() {
                  * @function encodeDelimited
                  * @memberof extensions.api.cast_channel.AuthError
                  * @static
-                 * @param {extensions.api.cast_channel.IAuthError} message AuthError message or plain object to encode
+                 * @param {extensions.api.cast_channel.AuthError.$Properties} message AuthError message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                AuthError.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
+                AuthError.encodeDelimited = function(message, writer) {
+                    return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
                 };
 
                 /**
@@ -995,29 +1180,43 @@ $root.extensions = (function() {
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
                  * @param {number} [length] Message length if known beforehand
-                 * @returns {extensions.api.cast_channel.AuthError} AuthError
+                 * @returns {extensions.api.cast_channel.AuthError & extensions.api.cast_channel.AuthError.$Shape} AuthError
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                AuthError.decode = function decode(reader, length, error) {
+                AuthError.decode = function (reader, length, _end, _depth, _target) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.extensions.api.cast_channel.AuthError();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $Reader.recursionLimit)
+                        throw $Error("max depth exceeded");
+                    var end = length === $undefined ? reader.len : reader.pos + length, message = _target || new $root.extensions.api.cast_channel.AuthError();
                     while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        if (tag === error)
-                            break;
-                        switch (tag >>> 3) {
-                        case 1: {
-                                message.errorType = reader.int32();
-                                break;
-                            }
-                        default:
-                            reader.skipType(tag & 7);
+                        var start = reader.pos;
+                        var tag = reader.tag();
+                        if (tag === _end) {
+                            _end = $undefined;
                             break;
                         }
+                        var wireType = tag & 7;
+                        switch (tag >>>= 3) {
+                        case 1: {
+                                if (wireType !== 0)
+                                    break;
+                                message.errorType = reader.int32();
+                                continue;
+                            }
+                        }
+                        reader.skipType(wireType, _depth, tag);
+                        if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
                     }
-                    if (!message.hasOwnProperty("errorType"))
+                    if (_end !== $undefined)
+                        throw $Error("missing end group");
+                    if (!$Object.hasOwnProperty.call(message, "errorType"))
                         throw $util.ProtocolError("missing required 'errorType'", { instance: message });
                     return message;
                 };
@@ -1028,11 +1227,11 @@ $root.extensions = (function() {
                  * @memberof extensions.api.cast_channel.AuthError
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {extensions.api.cast_channel.AuthError} AuthError
+                 * @returns {extensions.api.cast_channel.AuthError & extensions.api.cast_channel.AuthError.$Shape} AuthError
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                AuthError.decodeDelimited = function decodeDelimited(reader) {
+                AuthError.decodeDelimited = function(reader) {
                     if (!(reader instanceof $Reader))
                         reader = new $Reader(reader);
                     return this.decode(reader, reader.uint32());
@@ -1046,9 +1245,13 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
-                AuthError.verify = function verify(message) {
+                AuthError.verify = function (message, _depth) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        return "max depth exceeded";
                     switch (message.errorType) {
                     default:
                         return "errorType: enum value expected";
@@ -1067,9 +1270,15 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} object Plain object
                  * @returns {extensions.api.cast_channel.AuthError} AuthError
                  */
-                AuthError.fromObject = function fromObject(object) {
+                AuthError.fromObject = function (object, _depth) {
                     if (object instanceof $root.extensions.api.cast_channel.AuthError)
                         return object;
+                    if (!$util.isObject(object))
+                        throw $TypeError(".extensions.api.cast_channel.AuthError: object expected");
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     var message = new $root.extensions.api.cast_channel.AuthError();
                     switch (object.errorType) {
                     default:
@@ -1099,14 +1308,18 @@ $root.extensions = (function() {
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
                  * @returns {Object.<string,*>} Plain object
                  */
-                AuthError.toObject = function toObject(message, options) {
+                AuthError.toObject = function (message, options, _depth) {
                     if (!options)
                         options = {};
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     var object = {};
                     if (options.defaults)
-                        object.errorType = options.enums === String ? "INTERNAL_ERROR" : 0;
-                    if (message.errorType != null && message.hasOwnProperty("errorType"))
-                        object.errorType = options.enums === String ? $root.extensions.api.cast_channel.AuthError.ErrorType[message.errorType] === undefined ? message.errorType : $root.extensions.api.cast_channel.AuthError.ErrorType[message.errorType] : message.errorType;
+                        object.errorType = options.enums === $String ? "INTERNAL_ERROR" : 0;
+                    if (message.errorType != null && $Object.hasOwnProperty.call(message, "errorType"))
+                        object.errorType = options.enums === $String ? $root.extensions.api.cast_channel.AuthError.ErrorType[message.errorType] === $undefined ? message.errorType : $root.extensions.api.cast_channel.AuthError.ErrorType[message.errorType] : message.errorType;
                     return object;
                 };
 
@@ -1117,23 +1330,22 @@ $root.extensions = (function() {
                  * @instance
                  * @returns {Object.<string,*>} JSON object
                  */
-                AuthError.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                AuthError.prototype.toJSON = function() {
+                    return AuthError.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
                 /**
-                 * Gets the default type url for AuthError
+                 * Gets the type url for AuthError
                  * @function getTypeUrl
                  * @memberof extensions.api.cast_channel.AuthError
                  * @static
-                 * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns {string} The default type url
+                 * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns {string} The type url
                  */
-                AuthError.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-                    if (typeUrlPrefix === undefined) {
-                        typeUrlPrefix = "type.googleapis.com";
-                    }
-                    return typeUrlPrefix + "/extensions.api.cast_channel.AuthError";
+                AuthError.getTypeUrl = function(prefix) {
+                    if (prefix === $undefined)
+                        prefix = "type.googleapis.com";
+                    return prefix + "/extensions.api.cast_channel.AuthError";
                 };
 
                 /**
@@ -1144,7 +1356,7 @@ $root.extensions = (function() {
                  * @property {number} NO_TLS=1 NO_TLS value
                  */
                 AuthError.ErrorType = (function() {
-                    var valuesById = {}, values = Object.create(valuesById);
+                    var valuesById = {}, values = $Object.create(valuesById);
                     values[valuesById[0] = "INTERNAL_ERROR"] = 0;
                     values[valuesById[1] = "NO_TLS"] = 1;
                     return values;
@@ -1157,31 +1369,44 @@ $root.extensions = (function() {
 
                 /**
                  * Properties of a DeviceAuthMessage.
+                 * @typedef {Object} extensions.api.cast_channel.DeviceAuthMessage.$Properties
+                 * @property {extensions.api.cast_channel.AuthChallenge.$Properties|null} [challenge] DeviceAuthMessage challenge
+                 * @property {extensions.api.cast_channel.AuthResponse.$Properties|null} [response] DeviceAuthMessage response
+                 * @property {extensions.api.cast_channel.AuthError.$Properties|null} [error] DeviceAuthMessage error
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
+                 */
+
+                /**
+                 * Properties of a DeviceAuthMessage.
                  * @memberof extensions.api.cast_channel
                  * @interface IDeviceAuthMessage
-                 * @property {extensions.api.cast_channel.IAuthChallenge|null} [challenge] DeviceAuthMessage challenge
-                 * @property {extensions.api.cast_channel.IAuthResponse|null} [response] DeviceAuthMessage response
-                 * @property {extensions.api.cast_channel.IAuthError|null} [error] DeviceAuthMessage error
+                 * @augments extensions.api.cast_channel.DeviceAuthMessage.$Properties
+                 * @deprecated Use extensions.api.cast_channel.DeviceAuthMessage.$Properties instead.
+                 */
+
+                /**
+                 * Shape of a DeviceAuthMessage.
+                 * @typedef {extensions.api.cast_channel.DeviceAuthMessage.$Properties} extensions.api.cast_channel.DeviceAuthMessage.$Shape
                  */
 
                 /**
                  * Constructs a new DeviceAuthMessage.
                  * @memberof extensions.api.cast_channel
                  * @classdesc Represents a DeviceAuthMessage.
-                 * @implements IDeviceAuthMessage
                  * @constructor
-                 * @param {extensions.api.cast_channel.IDeviceAuthMessage=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.DeviceAuthMessage.$Properties=} [properties] Properties to set
+                 * @property {Array.<Uint8Array>} [$unknowns] Unknown fields preserved while decoding when enabled
                  */
-                function DeviceAuthMessage(properties) {
+                var DeviceAuthMessage = function (properties) {
                     if (properties)
-                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
-                            if (properties[keys[i]] != null)
+                        for (var keys = $Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null && keys[i] !== "__proto__")
                                 this[keys[i]] = properties[keys[i]];
-                }
+                };
 
                 /**
                  * DeviceAuthMessage challenge.
-                 * @member {extensions.api.cast_channel.IAuthChallenge|null|undefined} challenge
+                 * @member {extensions.api.cast_channel.AuthChallenge.$Properties|null|undefined} challenge
                  * @memberof extensions.api.cast_channel.DeviceAuthMessage
                  * @instance
                  */
@@ -1189,7 +1414,7 @@ $root.extensions = (function() {
 
                 /**
                  * DeviceAuthMessage response.
-                 * @member {extensions.api.cast_channel.IAuthResponse|null|undefined} response
+                 * @member {extensions.api.cast_channel.AuthResponse.$Properties|null|undefined} response
                  * @memberof extensions.api.cast_channel.DeviceAuthMessage
                  * @instance
                  */
@@ -1197,7 +1422,7 @@ $root.extensions = (function() {
 
                 /**
                  * DeviceAuthMessage error.
-                 * @member {extensions.api.cast_channel.IAuthError|null|undefined} error
+                 * @member {extensions.api.cast_channel.AuthError.$Properties|null|undefined} error
                  * @memberof extensions.api.cast_channel.DeviceAuthMessage
                  * @instance
                  */
@@ -1208,10 +1433,14 @@ $root.extensions = (function() {
                  * @function create
                  * @memberof extensions.api.cast_channel.DeviceAuthMessage
                  * @static
-                 * @param {extensions.api.cast_channel.IDeviceAuthMessage=} [properties] Properties to set
+                 * @param {extensions.api.cast_channel.DeviceAuthMessage.$Properties=} [properties] Properties to set
                  * @returns {extensions.api.cast_channel.DeviceAuthMessage} DeviceAuthMessage instance
+                 * @type {{
+                 *   (properties: extensions.api.cast_channel.DeviceAuthMessage.$Shape): extensions.api.cast_channel.DeviceAuthMessage & extensions.api.cast_channel.DeviceAuthMessage.$Shape;
+                 *   (properties?: extensions.api.cast_channel.DeviceAuthMessage.$Properties): extensions.api.cast_channel.DeviceAuthMessage;
+                 * }}
                  */
-                DeviceAuthMessage.create = function create(properties) {
+                DeviceAuthMessage.create = function(properties) {
                     return new DeviceAuthMessage(properties);
                 };
 
@@ -1220,19 +1449,26 @@ $root.extensions = (function() {
                  * @function encode
                  * @memberof extensions.api.cast_channel.DeviceAuthMessage
                  * @static
-                 * @param {extensions.api.cast_channel.IDeviceAuthMessage} message DeviceAuthMessage message or plain object to encode
+                 * @param {extensions.api.cast_channel.DeviceAuthMessage.$Properties} message DeviceAuthMessage message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                DeviceAuthMessage.encode = function encode(message, writer) {
+                DeviceAuthMessage.encode = function (message, writer, _depth) {
                     if (!writer)
                         writer = $Writer.create();
-                    if (message.challenge != null && Object.hasOwnProperty.call(message, "challenge"))
-                        $root.extensions.api.cast_channel.AuthChallenge.encode(message.challenge, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-                    if (message.response != null && Object.hasOwnProperty.call(message, "response"))
-                        $root.extensions.api.cast_channel.AuthResponse.encode(message.response, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
-                    if (message.error != null && Object.hasOwnProperty.call(message, "error"))
-                        $root.extensions.api.cast_channel.AuthError.encode(message.error, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
+                    if (message.challenge != null && $Object.hasOwnProperty.call(message, "challenge"))
+                        $root.extensions.api.cast_channel.AuthChallenge.encode(message.challenge, writer.uint32(/* id 1, wireType 2 =*/10).fork(), _depth + 1).ldelim();
+                    if (message.response != null && $Object.hasOwnProperty.call(message, "response"))
+                        $root.extensions.api.cast_channel.AuthResponse.encode(message.response, writer.uint32(/* id 2, wireType 2 =*/18).fork(), _depth + 1).ldelim();
+                    if (message.error != null && $Object.hasOwnProperty.call(message, "error"))
+                        $root.extensions.api.cast_channel.AuthError.encode(message.error, writer.uint32(/* id 3, wireType 2 =*/26).fork(), _depth + 1).ldelim();
+                    if (message.$unknowns != null && $Object.hasOwnProperty.call(message, "$unknowns"))
+                        for (var i = 0; i < message.$unknowns.length; ++i)
+                            writer.raw(message.$unknowns[i]);
                     return writer;
                 };
 
@@ -1241,12 +1477,12 @@ $root.extensions = (function() {
                  * @function encodeDelimited
                  * @memberof extensions.api.cast_channel.DeviceAuthMessage
                  * @static
-                 * @param {extensions.api.cast_channel.IDeviceAuthMessage} message DeviceAuthMessage message or plain object to encode
+                 * @param {extensions.api.cast_channel.DeviceAuthMessage.$Properties} message DeviceAuthMessage message or plain object to encode
                  * @param {$protobuf.Writer} [writer] Writer to encode to
                  * @returns {$protobuf.Writer} Writer
                  */
-                DeviceAuthMessage.encodeDelimited = function encodeDelimited(message, writer) {
-                    return this.encode(message, writer).ldelim();
+                DeviceAuthMessage.encodeDelimited = function(message, writer) {
+                    return this.encode(message, writer && writer.len ? writer.fork() : writer).ldelim();
                 };
 
                 /**
@@ -1256,36 +1492,54 @@ $root.extensions = (function() {
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
                  * @param {number} [length] Message length if known beforehand
-                 * @returns {extensions.api.cast_channel.DeviceAuthMessage} DeviceAuthMessage
+                 * @returns {extensions.api.cast_channel.DeviceAuthMessage & extensions.api.cast_channel.DeviceAuthMessage.$Shape} DeviceAuthMessage
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                DeviceAuthMessage.decode = function decode(reader, length, error) {
+                DeviceAuthMessage.decode = function (reader, length, _end, _depth, _target) {
                     if (!(reader instanceof $Reader))
                         reader = $Reader.create(reader);
-                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.extensions.api.cast_channel.DeviceAuthMessage();
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $Reader.recursionLimit)
+                        throw $Error("max depth exceeded");
+                    var end = length === $undefined ? reader.len : reader.pos + length, message = _target || new $root.extensions.api.cast_channel.DeviceAuthMessage();
                     while (reader.pos < end) {
-                        var tag = reader.uint32();
-                        if (tag === error)
-                            break;
-                        switch (tag >>> 3) {
-                        case 1: {
-                                message.challenge = $root.extensions.api.cast_channel.AuthChallenge.decode(reader, reader.uint32());
-                                break;
-                            }
-                        case 2: {
-                                message.response = $root.extensions.api.cast_channel.AuthResponse.decode(reader, reader.uint32());
-                                break;
-                            }
-                        case 3: {
-                                message.error = $root.extensions.api.cast_channel.AuthError.decode(reader, reader.uint32());
-                                break;
-                            }
-                        default:
-                            reader.skipType(tag & 7);
+                        var start = reader.pos;
+                        var tag = reader.tag();
+                        if (tag === _end) {
+                            _end = $undefined;
                             break;
                         }
+                        var wireType = tag & 7;
+                        switch (tag >>>= 3) {
+                        case 1: {
+                                if (wireType !== 2)
+                                    break;
+                                message.challenge = $root.extensions.api.cast_channel.AuthChallenge.decode(reader, reader.uint32(), $undefined, _depth + 1, message.challenge);
+                                continue;
+                            }
+                        case 2: {
+                                if (wireType !== 2)
+                                    break;
+                                message.response = $root.extensions.api.cast_channel.AuthResponse.decode(reader, reader.uint32(), $undefined, _depth + 1, message.response);
+                                continue;
+                            }
+                        case 3: {
+                                if (wireType !== 2)
+                                    break;
+                                message.error = $root.extensions.api.cast_channel.AuthError.decode(reader, reader.uint32(), $undefined, _depth + 1, message.error);
+                                continue;
+                            }
+                        }
+                        reader.skipType(wireType, _depth, tag);
+                        if (!reader.discardUnknown) {
+                            $util.makeProp(message, "$unknowns", false);
+                            (message.$unknowns || (message.$unknowns = [])).push(reader.raw(start, reader.pos));
+                        }
                     }
+                    if (_end !== $undefined)
+                        throw $Error("missing end group");
                     return message;
                 };
 
@@ -1295,11 +1549,11 @@ $root.extensions = (function() {
                  * @memberof extensions.api.cast_channel.DeviceAuthMessage
                  * @static
                  * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-                 * @returns {extensions.api.cast_channel.DeviceAuthMessage} DeviceAuthMessage
+                 * @returns {extensions.api.cast_channel.DeviceAuthMessage & extensions.api.cast_channel.DeviceAuthMessage.$Shape} DeviceAuthMessage
                  * @throws {Error} If the payload is not a reader or valid buffer
                  * @throws {$protobuf.util.ProtocolError} If required fields are missing
                  */
-                DeviceAuthMessage.decodeDelimited = function decodeDelimited(reader) {
+                DeviceAuthMessage.decodeDelimited = function(reader) {
                     if (!(reader instanceof $Reader))
                         reader = new $Reader(reader);
                     return this.decode(reader, reader.uint32());
@@ -1313,21 +1567,25 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} message Plain object to verify
                  * @returns {string|null} `null` if valid, otherwise the reason why it is not
                  */
-                DeviceAuthMessage.verify = function verify(message) {
+                DeviceAuthMessage.verify = function (message, _depth) {
                     if (typeof message !== "object" || message === null)
                         return "object expected";
-                    if (message.challenge != null && message.hasOwnProperty("challenge")) {
-                        var error = $root.extensions.api.cast_channel.AuthChallenge.verify(message.challenge);
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        return "max depth exceeded";
+                    if (message.challenge != null && $Object.hasOwnProperty.call(message, "challenge")) {
+                        var error = $root.extensions.api.cast_channel.AuthChallenge.verify(message.challenge, _depth + 1);
                         if (error)
                             return "challenge." + error;
                     }
-                    if (message.response != null && message.hasOwnProperty("response")) {
-                        var error = $root.extensions.api.cast_channel.AuthResponse.verify(message.response);
+                    if (message.response != null && $Object.hasOwnProperty.call(message, "response")) {
+                        var error = $root.extensions.api.cast_channel.AuthResponse.verify(message.response, _depth + 1);
                         if (error)
                             return "response." + error;
                     }
-                    if (message.error != null && message.hasOwnProperty("error")) {
-                        var error = $root.extensions.api.cast_channel.AuthError.verify(message.error);
+                    if (message.error != null && $Object.hasOwnProperty.call(message, "error")) {
+                        var error = $root.extensions.api.cast_channel.AuthError.verify(message.error, _depth + 1);
                         if (error)
                             return "error." + error;
                     }
@@ -1342,24 +1600,30 @@ $root.extensions = (function() {
                  * @param {Object.<string,*>} object Plain object
                  * @returns {extensions.api.cast_channel.DeviceAuthMessage} DeviceAuthMessage
                  */
-                DeviceAuthMessage.fromObject = function fromObject(object) {
+                DeviceAuthMessage.fromObject = function (object, _depth) {
                     if (object instanceof $root.extensions.api.cast_channel.DeviceAuthMessage)
                         return object;
+                    if (!$util.isObject(object))
+                        throw $TypeError(".extensions.api.cast_channel.DeviceAuthMessage: object expected");
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     var message = new $root.extensions.api.cast_channel.DeviceAuthMessage();
                     if (object.challenge != null) {
-                        if (typeof object.challenge !== "object")
-                            throw TypeError(".extensions.api.cast_channel.DeviceAuthMessage.challenge: object expected");
-                        message.challenge = $root.extensions.api.cast_channel.AuthChallenge.fromObject(object.challenge);
+                        if (!$util.isObject(object.challenge))
+                            throw $TypeError(".extensions.api.cast_channel.DeviceAuthMessage.challenge: object expected");
+                        message.challenge = $root.extensions.api.cast_channel.AuthChallenge.fromObject(object.challenge, _depth + 1);
                     }
                     if (object.response != null) {
-                        if (typeof object.response !== "object")
-                            throw TypeError(".extensions.api.cast_channel.DeviceAuthMessage.response: object expected");
-                        message.response = $root.extensions.api.cast_channel.AuthResponse.fromObject(object.response);
+                        if (!$util.isObject(object.response))
+                            throw $TypeError(".extensions.api.cast_channel.DeviceAuthMessage.response: object expected");
+                        message.response = $root.extensions.api.cast_channel.AuthResponse.fromObject(object.response, _depth + 1);
                     }
                     if (object.error != null) {
-                        if (typeof object.error !== "object")
-                            throw TypeError(".extensions.api.cast_channel.DeviceAuthMessage.error: object expected");
-                        message.error = $root.extensions.api.cast_channel.AuthError.fromObject(object.error);
+                        if (!$util.isObject(object.error))
+                            throw $TypeError(".extensions.api.cast_channel.DeviceAuthMessage.error: object expected");
+                        message.error = $root.extensions.api.cast_channel.AuthError.fromObject(object.error, _depth + 1);
                     }
                     return message;
                 };
@@ -1373,21 +1637,25 @@ $root.extensions = (function() {
                  * @param {$protobuf.IConversionOptions} [options] Conversion options
                  * @returns {Object.<string,*>} Plain object
                  */
-                DeviceAuthMessage.toObject = function toObject(message, options) {
+                DeviceAuthMessage.toObject = function (message, options, _depth) {
                     if (!options)
                         options = {};
+                    if (_depth === $undefined)
+                        _depth = 0;
+                    if (_depth > $util.recursionLimit)
+                        throw $Error("max depth exceeded");
                     var object = {};
                     if (options.defaults) {
                         object.challenge = null;
                         object.response = null;
                         object.error = null;
                     }
-                    if (message.challenge != null && message.hasOwnProperty("challenge"))
-                        object.challenge = $root.extensions.api.cast_channel.AuthChallenge.toObject(message.challenge, options);
-                    if (message.response != null && message.hasOwnProperty("response"))
-                        object.response = $root.extensions.api.cast_channel.AuthResponse.toObject(message.response, options);
-                    if (message.error != null && message.hasOwnProperty("error"))
-                        object.error = $root.extensions.api.cast_channel.AuthError.toObject(message.error, options);
+                    if (message.challenge != null && $Object.hasOwnProperty.call(message, "challenge"))
+                        object.challenge = $root.extensions.api.cast_channel.AuthChallenge.toObject(message.challenge, options, _depth + 1);
+                    if (message.response != null && $Object.hasOwnProperty.call(message, "response"))
+                        object.response = $root.extensions.api.cast_channel.AuthResponse.toObject(message.response, options, _depth + 1);
+                    if (message.error != null && $Object.hasOwnProperty.call(message, "error"))
+                        object.error = $root.extensions.api.cast_channel.AuthError.toObject(message.error, options, _depth + 1);
                     return object;
                 };
 
@@ -1398,23 +1666,22 @@ $root.extensions = (function() {
                  * @instance
                  * @returns {Object.<string,*>} JSON object
                  */
-                DeviceAuthMessage.prototype.toJSON = function toJSON() {
-                    return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+                DeviceAuthMessage.prototype.toJSON = function() {
+                    return DeviceAuthMessage.toObject(this, $protobuf.util.toJSONOptions);
                 };
 
                 /**
-                 * Gets the default type url for DeviceAuthMessage
+                 * Gets the type url for DeviceAuthMessage
                  * @function getTypeUrl
                  * @memberof extensions.api.cast_channel.DeviceAuthMessage
                  * @static
-                 * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-                 * @returns {string} The default type url
+                 * @param {string} [prefix] Custom type url prefix, defaults to `"type.googleapis.com"`
+                 * @returns {string} The type url
                  */
-                DeviceAuthMessage.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
-                    if (typeUrlPrefix === undefined) {
-                        typeUrlPrefix = "type.googleapis.com";
-                    }
-                    return typeUrlPrefix + "/extensions.api.cast_channel.DeviceAuthMessage";
+                DeviceAuthMessage.getTypeUrl = function(prefix) {
+                    if (prefix === $undefined)
+                        prefix = "type.googleapis.com";
+                    return prefix + "/extensions.api.cast_channel.DeviceAuthMessage";
                 };
 
                 return DeviceAuthMessage;

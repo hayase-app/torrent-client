@@ -27,8 +27,8 @@ importers:
         specifier: ^1.0.3
         version: 1.0.3
       fast-xml-parser:
-        specifier: ^5.8.0
-        version: 5.8.0
+        specifier: ^5.9.0
+        version: 5.9.0
       matroska-metadata:
         specifier: ^1.0.12
         version: 1.0.12
@@ -37,38 +37,38 @@ importers:
         version: 7.2.5
       native:
         specifier: github:hayase-app/native
-        version: https://codeload.github.com/hayase-app/native/tar.gz/de8461642d749b4fa29482564fe5039cd934b487
+        version: https://codeload.github.com/hayase-app/native/tar.gz/09ec3876f2a9122c9c59dfc1a1b14becbd2cd1b3
       network-address:
         specifier: ^1.1.2
         version: 1.1.2
       nzb-file:
-        specifier: ^1.1.16
-        version: 1.1.16
+        specifier: ^1.1.18
+        version: 1.1.18
       nzb-parser:
-        specifier: 1.0.3
-        version: 1.0.3
+        specifier: 1.0.4
+        version: 1.0.4
       protobufjs:
-        specifier: ^8.0.1
-        version: 8.4.2
+        specifier: ^8.6.3
+        version: 8.6.3
       webtorrent:
         specifier: ^3.0.16
         version: 3.0.16(bare-url@2.4.3)
     devDependencies:
       '@types/node':
-        specifier: ^25.8.0
-        version: 25.9.1
+        specifier: ^25.9.3
+        version: 25.9.3
       eslint-config-standard-universal:
         specifier: ^1.0.10
         version: 1.0.10(@typescript-eslint/parser@8.60.0(eslint@9.39.4)(typescript@6.0.3))
       protobufjs-cli:
-        specifier: ^2.0.1
-        version: 2.4.2(protobufjs@8.4.2)
+        specifier: ^2.5.4
+        version: 2.5.4(protobufjs@8.6.3)
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
       undici-types:
-        specifier: ^8.3.0
-        version: 8.3.0
+        specifier: ^8.5.0
+        version: 8.5.0
 
 packages:
 
@@ -171,8 +171,8 @@ packages:
   '@leichtgewicht/ip-codec@2.0.5':
     resolution: {integrity: sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==}
 
-  '@nodable/entities@2.1.0':
-    resolution: {integrity: sha512-nyT7T3nbMyBI/lvr6L5TyWbFJAI9FTgVRakNoBqCD+PmID8DzFrrNdLLtHMwMszOtqZa8PAOV24ZqDnQrhQINA==}
+  '@nodable/entities@2.2.0':
+    resolution: {integrity: sha512-9uGyhaQavEUMC8AIddIjau4NsnsXhou+j5sBAGojCM1oxmQpVKTWR/9JxABD6UAv12vpIms55fPZKFQEhG6uBg==}
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
@@ -228,8 +228,8 @@ packages:
   '@types/multicast-dns@7.2.4':
     resolution: {integrity: sha512-ib5K4cIDR4Ro5SR3Sx/LROkMDa0BHz0OPaCBL/OSPDsAXEGZ3/KQeS6poBKYVN7BfjXDL9lWNwzyHVgt/wkyCw==}
 
-  '@types/node@25.9.1':
-    resolution: {integrity: sha512-xfrlY7UD5rMJk3ZVJP8BNzS28J36YJg+xp+LPXV1TdWxr8uMH5A860QNxYDGQe/ylDSgjxE52Q9VnO7p75tJxg==}
+  '@types/node@25.9.3':
+    resolution: {integrity: sha512-603BddQMv3pUcr4U2dhujk83N2tTDVr/34wII2B6bJy6g+8WD6yUb11jszNs0gdi4PesVWl7ABt8nYMVpnLUcg==}
 
   '@typescript-eslint/eslint-plugin@8.60.0':
     resolution: {integrity: sha512-QYb/sa74/s7OKMbACMjrYnGspj9Hs5YI5aaffSL65UfeBUzVzBJfVo3oWSpbzPurvm7yaCCo2Lk7lVj610HqKw==}
@@ -307,6 +307,11 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+  acorn@8.17.0:
+    resolution: {integrity: sha512-xRQbDb9BnwDafYNn6Vwl839DYVjqXYb1XVGtWAZ1kcDc6iwAL4hg3B1dZlRiuENFeO2H53gFG3in621AdERVAg==}
+    engines: {node: '>=0.4.0'}
+    hasBin: true
+
   addr-to-ip-port@2.0.0:
     resolution: {integrity: sha512-9bYbtjamtdLHZSqVIUXhilOryNPiL+x+Q5J/Unpg4VY3ZIkK3fT52UoErj1NdUeVm3J1t2iBEAur4Ywbl/bahw==}
     engines: {node: '>=12.20.0'}
@@ -317,6 +322,9 @@ packages:
   ansi-styles@4.3.0:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
     engines: {node: '>=8'}
+
+  anynum@1.0.0:
+    resolution: {integrity: sha512-xjR9/zBVnUOP6ztMIIgShjsxui80nQUQH+5xJnvrYLs+90bF25/KJqaAi8mk+B4RDtX1Nspi6fmp4YTEts8SfA==}
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
@@ -889,12 +897,8 @@ packages:
   fast-xml-builder@1.2.0:
     resolution: {integrity: sha512-00aAWieqff+ZJhsXA4g1g7M8k+7AYoMUUHF+/zFb5U6Uv/P0Vl4QZo84/IcufzYalLuEj9928bXN9PbbFzMF0Q==}
 
-  fast-xml-parser@4.5.6:
-    resolution: {integrity: sha512-Yd4vkROfJf8AuJrDIVMVmYfULKmIJszVsMv7Vo71aocsKgFxpdlpSHXSaInvyYfgw2PRuObQSW2GFpVMUjxu9A==}
-    hasBin: true
-
-  fast-xml-parser@5.8.0:
-    resolution: {integrity: sha512-6bIM7fsJxeo3uXv7OncQYsBAMPJ7V16Slahl/6M98C/i2q+vB1+4a0MtrvYwDFEUrwDSbAmeLDRXsOBwrL7yAg==}
+  fast-xml-parser@5.9.0:
+    resolution: {integrity: sha512-duBuXbyIhEeNO4GjFuVqr0nF047oNwr18aum+zJyqo0MUG/n7Afgs3Qv3D6VN3ONedUKxiuFlPiMGIa0Z11chA==}
     hasBin: true
 
   fdir@6.5.0:
@@ -1218,6 +1222,9 @@ packages:
     resolution: {integrity: sha512-p3EcsicXjit7SaskXHs1hA91QxgTw46Fv6EFKKGS5DRFLD8yKnohjF3hxoju94b/OcMZoQukzpPpBE9uLVKzgQ==}
     engines: {node: '>= 0.4'}
 
+  is-unsafe@1.0.1:
+    resolution: {integrity: sha512-CLK2+VdgERgD96EYm5lUQssZYlRg2tkZnbsxZoacmSiRxiFJ4Nk4SzjCl+Ur+v3kXIY9dTIdb3IH22y1mZ56LA==}
+
   is-weakmap@2.0.2:
     resolution: {integrity: sha512-K5pXYOm9wqY1RgjpL3YTkF39tni1XajUIkawTLUo9EZEVUFga5gSQJF8nNS7ZwJQ02y+1YCNYcMh+HIf1ZqE+w==}
     engines: {node: '>= 0.4'}
@@ -1434,8 +1441,8 @@ packages:
   napi-macros@2.2.2:
     resolution: {integrity: sha512-hmEVtAGYzVQpCKdbQea4skABsdXW4RUh5t5mJ2zzqowJS2OyXZTU1KhDVFhx+NlWZ4ap9mqR9TcDO3LTTttd+g==}
 
-  native@https://codeload.github.com/hayase-app/native/tar.gz/de8461642d749b4fa29482564fe5039cd934b487:
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/hayase-app/native/tar.gz/de8461642d749b4fa29482564fe5039cd934b487}
+  native@https://codeload.github.com/hayase-app/native/tar.gz/09ec3876f2a9122c9c59dfc1a1b14becbd2cd1b3:
+    resolution: {tarball: https://codeload.github.com/hayase-app/native/tar.gz/09ec3876f2a9122c9c59dfc1a1b14becbd2cd1b3}
     version: 1.0.0
 
   natural-compare@1.4.0:
@@ -1449,8 +1456,8 @@ packages:
     resolution: {integrity: sha512-Q6878fmvItA1mE7H9Il46lONgFgTzX2f98zkS0c2YlkCACzNjwvum/8Kq693IQpxe9zy+w+Zm/4p0wQreLEtZw==}
     hasBin: true
 
-  nntp-js@1.0.4:
-    resolution: {integrity: sha512-EqtWNHyRhaV9q+sWm/EKe67Zc3MZ006HSFnn2zFs+SltspH/41IM5czFKCqvVozy9LfH238wo2i8i+cyRHoHxA==}
+  nntp-js@1.0.5:
+    resolution: {integrity: sha512-TPveprMEedWtAUPSbCBkJWajbIVUaxRRrIKIqfsNCuSl0P456G1Yn8GnZscEvb+hAeFP9ry+W4EDwXPviysErQ==}
 
   node-abi@3.92.0:
     resolution: {integrity: sha512-KdHvFWZjEKDf0cakgFjebl371GPsISX2oZHcuyKqM7DtogIsHrqKeLTo8wBHxaXRAQlY2PsPlZmfo+9ZCxEREQ==}
@@ -1481,11 +1488,11 @@ packages:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  nzb-file@1.1.16:
-    resolution: {integrity: sha512-njnzjCGbrirfkA/Nb+ydcriuNy1kyJSoZZjxGaOaJBD68z9SY+5Inre8+GY/aJDznJ1ysEcFb2dVIfkbb3xYiw==}
+  nzb-file@1.1.18:
+    resolution: {integrity: sha512-e7RLPqm4iuipXg+Zb+VPf1RVQIEFzi56gewm5PBIWTjzcoQSJIFZNfXfyysgB1ppKll+bsVknLVomcQ6xmmh7g==}
 
-  nzb-parser@1.0.3:
-    resolution: {integrity: sha512-U3xUQnmI1Qb7SxvooKo7GWTRLGr0GXQ/BX9QxYBH4hM7gLYt3unhTHo9Vk1/7ZGHroAPCCCx4C3niVSH4MItRg==}
+  nzb-parser@1.0.4:
+    resolution: {integrity: sha512-MyN/NP+DUu6CUBzvUNbS2EDmpykyEoCRbnfOUZ7xR7SgHimGAZ9rh0fEyVGbbhzSQfv6wSVXSuYxtqe0x5QMnw==}
 
   object-inspect@1.13.4:
     resolution: {integrity: sha512-W67iLl4J2EXEGTbfeHCffrjDfitvLANg0UlX3wFUUSTx92KXRFegMHUVgSqE+wvhAbi4WqjGg9czysTV2Epbew==}
@@ -1636,15 +1643,15 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  protobufjs-cli@2.4.2:
-    resolution: {integrity: sha512-dz7TvVs+tf0CQqS7wU+MsUH/5mNZAXmRD6PxxbjBk7DaL0AbjAJzVnV+B1w4qslCnL5TwlwCfPchd/us8AmfBQ==}
+  protobufjs-cli@2.5.4:
+    resolution: {integrity: sha512-EfQ8CmU0tLv/nL6SuXpr1gH2KUJRlJgMWx82E7+U9O4SwrEk5Husl+YRZHbQr8ZdD4NdxQgj522CIcXrf5L+tg==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     peerDependencies:
-      protobufjs: ^8.4.2
+      protobufjs: ^8.6.3
 
-  protobufjs@8.4.2:
-    resolution: {integrity: sha512-64rfNzkWOZAIazXzpBFPWq6F9up6gMvTzjE2oWIzApx2N/dqVUEE7+bCn2+40780dFVtKOUab8QfxJ6KJDWbqA==}
+  protobufjs@8.6.3:
+    resolution: {integrity: sha512-alQyzT0j401LGBtwsqu6uprjR6pfNH1UJf9N6GBFMjIcd+HzTe0/HrjAbFCqun+zvnfLarrxAtMM2xvZ+kFZ5A==}
     engines: {node: '>=12.0.0'}
 
   pump@3.0.4:
@@ -1867,11 +1874,8 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  strnum@1.1.2:
-    resolution: {integrity: sha512-vrN+B7DBIoTTZjnPNewwhx6cBA/H+IS7rfW68n7XxC1y7uoiGQBxaKzqucGUgavX15dJgiGztLJ8vxuEzwqBdA==}
-
-  strnum@2.3.0:
-    resolution: {integrity: sha512-ums3KNd42PGyx5xaoVTO1mjU1bH3NpY4vsrVlnv9PNGqQj8wd7rJ6nEypLrJ7z5vxK5RP0yMLo6J/Gsm62DI5Q==}
+  strnum@2.4.0:
+    resolution: {integrity: sha512-sHrVyWWdq28RbhjuJdZsA1SnGRJV6NiXbk6AXBxDOsgAcA+lmpUZCYjOdLBxkXMwis6RRe7dlZt4VlIWFVzkmg==}
 
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
@@ -1927,8 +1931,8 @@ packages:
     resolution: {integrity: sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg==}
     engines: {node: '>=12.0.0'}
 
-  tmp@0.2.6:
-    resolution: {integrity: sha512-5sJPdPjfI5Kx+qbrDesxkglRBxW//g7hCsqspEjwkewGvBMGIKMOTKzLt1hFVJzyadba3lDUN20O9qhvbQUSTA==}
+  tmp@0.2.7:
+    resolution: {integrity: sha512-e0votIpp4Uo2AJYSzVHV6xCcawuiez3DzqDAbrTc3YxBkplN6e+dM13ZeIcZnDg/QpSuU2zfZ3rzwY8ukEnaXw==}
     engines: {node: '>=14.14'}
 
   torrent-discovery@11.0.21:
@@ -2000,11 +2004,6 @@ packages:
   uc.micro@2.1.0:
     resolution: {integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==}
 
-  uglify-js@3.19.3:
-    resolution: {integrity: sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ==}
-    engines: {node: '>=0.8.0'}
-    hasBin: true
-
   uint8-util@2.2.6:
     resolution: {integrity: sha512-r+ZjS8CzPhtPF771ROOadUoqC40OVdiMKBI8lTfJQWb4W7+73sMBwMYmai/uvNcmZ7tBJJyZSad03yMWIt3RQg==}
 
@@ -2018,8 +2017,8 @@ packages:
   undici-types@7.24.6:
     resolution: {integrity: sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg==}
 
-  undici-types@8.3.0:
-    resolution: {integrity: sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ==}
+  undici-types@8.5.0:
+    resolution: {integrity: sha512-+FxhD+5RUdCZHlVPt+pd0DaYYHBPsgoHovxhMnFq9R1SOejHGE4ma0swzuRoKhOisEzsjFWdFedyD0JQmftrHg==}
 
   unordered-array-remove@1.0.2:
     resolution: {integrity: sha512-45YsfD6svkgaCBNyvD+dFHm4qFX9g3wRSIVgWVPtm2OCnphvPxzJoe20ATsiNpNJrmzHifnxm+BN5F7gFT/4gw==}
@@ -2230,7 +2229,7 @@ snapshots:
 
   '@leichtgewicht/ip-codec@2.0.5': {}
 
-  '@nodable/entities@2.1.0': {}
+  '@nodable/entities@2.2.0': {}
 
   '@rtsao/scc@1.1.0': {}
 
@@ -2293,7 +2292,7 @@ snapshots:
 
   '@types/dns-packet@5.6.5':
     dependencies:
-      '@types/node': 25.9.1
+      '@types/node': 25.9.3
 
   '@types/estree@1.0.9': {}
 
@@ -2313,9 +2312,9 @@ snapshots:
   '@types/multicast-dns@7.2.4':
     dependencies:
       '@types/dns-packet': 5.6.5
-      '@types/node': 25.9.1
+      '@types/node': 25.9.3
 
-  '@types/node@25.9.1':
+  '@types/node@25.9.3':
     dependencies:
       undici-types: 7.24.6
 
@@ -2423,7 +2422,13 @@ snapshots:
     dependencies:
       acorn: 8.16.0
 
+  acorn-jsx@5.3.2(acorn@8.17.0):
+    dependencies:
+      acorn: 8.17.0
+
   acorn@8.16.0: {}
+
+  acorn@8.17.0: {}
 
   addr-to-ip-port@2.0.0: {}
 
@@ -2437,6 +2442,8 @@ snapshots:
   ansi-styles@4.3.0:
     dependencies:
       color-convert: 2.0.1
+
+  anynum@1.0.0: {}
 
   argparse@2.0.1: {}
 
@@ -3134,8 +3141,8 @@ snapshots:
 
   espree@9.6.1:
     dependencies:
-      acorn: 8.16.0
-      acorn-jsx: 5.3.2(acorn@8.16.0)
+      acorn: 8.17.0
+      acorn-jsx: 5.3.2(acorn@8.17.0)
       eslint-visitor-keys: 3.4.3
 
   esprima@4.0.1: {}
@@ -3197,16 +3204,13 @@ snapshots:
       path-expression-matcher: 1.5.0
       xml-naming: 0.1.0
 
-  fast-xml-parser@4.5.6:
+  fast-xml-parser@5.9.0:
     dependencies:
-      strnum: 1.1.2
-
-  fast-xml-parser@5.8.0:
-    dependencies:
-      '@nodable/entities': 2.1.0
+      '@nodable/entities': 2.2.0
       fast-xml-builder: 1.2.0
+      is-unsafe: 1.0.1
       path-expression-matcher: 1.5.0
-      strnum: 2.3.0
+      strnum: 2.4.0
       xml-naming: 0.1.0
 
   fdir@6.5.0(picomatch@4.0.4):
@@ -3529,6 +3533,8 @@ snapshots:
     dependencies:
       which-typed-array: 1.1.21
 
+  is-unsafe@1.0.1: {}
+
   is-weakmap@2.0.2: {}
 
   is-weakref@1.1.1:
@@ -3748,7 +3754,7 @@ snapshots:
   napi-macros@2.2.2:
     optional: true
 
-  native@https://codeload.github.com/hayase-app/native/tar.gz/de8461642d749b4fa29482564fe5039cd934b487:
+  native@https://codeload.github.com/hayase-app/native/tar.gz/09ec3876f2a9122c9c59dfc1a1b14becbd2cd1b3:
     dependencies:
       '@types/chromecast-caf-receiver': 6.0.26
 
@@ -3758,7 +3764,7 @@ snapshots:
 
   network-address@1.1.2: {}
 
-  nntp-js@1.0.4: {}
+  nntp-js@1.0.5: {}
 
   node-abi@3.92.0:
     dependencies:
@@ -3789,16 +3795,16 @@ snapshots:
     dependencies:
       path-key: 4.0.0
 
-  nzb-file@1.1.16:
+  nzb-file@1.1.18:
     dependencies:
       '@thaunknown/yencode': 1.5.5
       mime: 4.1.0
-      nntp-js: 1.0.4
-      nzb-parser: 1.0.3
+      nntp-js: 1.0.5
+      nzb-parser: 1.0.4
 
-  nzb-parser@1.0.3:
+  nzb-parser@1.0.4:
     dependencies:
-      fast-xml-parser: 4.5.6
+      fast-xml-parser: 5.9.0
 
   object-inspect@1.13.4: {}
 
@@ -3964,7 +3970,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  protobufjs-cli@2.4.2(protobufjs@8.4.2):
+  protobufjs-cli@2.5.4(protobufjs@8.6.3):
     dependencies:
       chalk: 4.1.2
       escodegen: 1.14.3
@@ -3973,12 +3979,10 @@ snapshots:
       glob: 8.1.0
       jsdoc: 4.0.5
       minimist: 1.2.8
-      protobufjs: 8.4.2
-      semver: 7.8.1
-      tmp: 0.2.6
-      uglify-js: 3.19.3
+      protobufjs: 8.6.3
+      tmp: 0.2.7
 
-  protobufjs@8.4.2:
+  protobufjs@8.6.3:
     dependencies:
       long: 5.3.2
 
@@ -4276,9 +4280,9 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  strnum@1.1.2: {}
-
-  strnum@2.3.0: {}
+  strnum@2.4.0:
+    dependencies:
+      anynum: 1.0.0
 
   supports-color@7.2.0:
     dependencies:
@@ -4359,7 +4363,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
 
-  tmp@0.2.6: {}
+  tmp@0.2.7: {}
 
   torrent-discovery@11.0.21:
     dependencies:
@@ -4455,8 +4459,6 @@ snapshots:
 
   uc.micro@2.1.0: {}
 
-  uglify-js@3.19.3: {}
-
   uint8-util@2.2.6:
     dependencies:
       base64-arraybuffer: 1.0.2
@@ -4472,7 +4474,7 @@ snapshots:
 
   undici-types@7.24.6: {}
 
-  undici-types@8.3.0: {}
+  undici-types@8.5.0: {}
 
   unordered-array-remove@1.0.2: {}
 

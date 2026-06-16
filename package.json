@@ -7,11 +7,11 @@
 	"version": "1.0.0",
 	"packageManager": "pnpm@10.28.0",
 	"devDependencies": {
-		"@types/node": "^25.8.0",
+		"@types/node": "^25.9.3",
 		"eslint-config-standard-universal": "^1.0.10",
-		"protobufjs-cli": "^2.0.1",
+		"protobufjs-cli": "^2.5.4",
 		"typescript": "^5.9.3",
-		"undici-types": "^8.3.0"
+		"undici-types": "^8.5.0"
 	},
 	"scripts": {
 		"build": "tsc",
@@ -25,14 +25,14 @@
 		"bittorrent-dht": "^11.0.11",
 		"bittorrent-peerid": "^2.0.2",
 		"cross-fetch-ponyfill": "^1.0.3",
-		"fast-xml-parser": "^5.8.0",
+		"fast-xml-parser": "^5.9.0",
 		"matroska-metadata": "^1.0.12",
 		"multicast-dns": "^7.2.5",
 		"native": "github:hayase-app/native",
 		"network-address": "^1.1.2",
-		"nzb-file": "^1.1.16",
-		"nzb-parser": "1.0.3",
-		"protobufjs": "^8.0.1",
+		"nzb-file": "^1.1.18",
+		"nzb-parser": "1.0.4",
+		"protobufjs": "^8.6.3",
 		"webtorrent": "^3.0.16"
 	}
 }
