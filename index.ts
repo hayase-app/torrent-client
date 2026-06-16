@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { once } from 'node:events'
 import { readFile, writeFile, statfs, unlink, mkdir, readdir, access, constants } from 'node:fs/promises'
 import { join } from 'node:path'
-import { exit } from 'node:process'
+import { exit, platform } from 'node:process'
 import querystring from 'querystring'
 
 import NatAPI from '@silentbot1/nat-api'
@@ -190,6 +190,9 @@ process.on('uncaughtException', err => console.error(err))
 // this could... be a bad idea and needs to be verified
 const peerId = concat([[45, 113, 66, 53, 48, 51, 48, 45], randomBytes(12)])
 
+// @ts-expect-error nodejs mobile
+const secure = platform === 'ios' ? 0 : 1
+
 export default class TorrentClient {
   [client]: WebTorrent
   [server]: Server
@@ -219,7 +222,8 @@ export default class TorrentClient {
       torrentPort: settings.torrentPort,
       dhtPort: settings.dhtPort,
       maxConns: settings.maxConns,
-      peerId
+      peerId,
+      secure
     }
     this[client] = new WebTorrent(this[opts])
     if (settings.nzbDomain && settings.nzbPort && settings.nzbLogin && settings.nzbPassword && settings.nzbPoolSize) {
@@ -252,7 +256,8 @@ export default class TorrentClient {
       torrentPort: settings.torrentPort,
       dhtPort: settings.dhtPort,
       maxConns: settings.maxConns,
-      peerId
+      peerId,
+      secure
     }
     this[path] = settings.path || this[tmp]
     this[nzb]?.destroy()
@@ -439,6 +444,7 @@ export default class TorrentClient {
       downloadLimit: 0,
       maxConns: 0,
       peerId,
+      secure,
       tracker: {},
       natUpnp: false,
       natPmp: false,
@@ -491,6 +497,7 @@ export default class TorrentClient {
       downloadLimit: 0,
       maxConns: 0,
       peerId,
+      secure,
       tracker: {},
       natUpnp: false,
       natPmp: false,
