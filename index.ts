@@ -639,7 +639,9 @@ export default class TorrentClient {
       const progress = this._wireProgress(wire, torrent)
 
       return {
+        // @ts-expect-error bad typedefs
         ip: wire.type === 'webSeed' ? wire.domain : wire.remoteAddress.replace(/^::ffff:/, '') + ':' + wire.remotePort,
+        // @ts-expect-error bad typedefs
         seeder: wire.isSeeder,
         client: wire.type === 'webSeed' ? 'nntp' : `${parsed.client} ${parsed.version ?? ''}`,
         progress,
@@ -706,6 +708,7 @@ export default class TorrentClient {
   }
 
   makeStats (torrent: Torrent): TorrentInfo {
+    // @ts-expect-error bad typedefs
     const seeders = torrent.wires.filter(wire => wire.isSeeder).length
     const leechers = torrent.wires.length - seeders
     const wires = torrent._peersLength

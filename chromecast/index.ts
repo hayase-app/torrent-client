@@ -131,7 +131,6 @@ export class ChromeCasts extends EventEmitter<{display: [Array<{ friendlyName: s
     const player = this.players.get(host)
     if (!player) throw new Error('No such player')
     const conn = await player.connect()
-    media.customData = { hash, id }
     await conn.media.load(media)
     const tracks = await this.attachments.tracks(hash, id)
     conn.url.channel.send({ type: 'tracks', tracks })
