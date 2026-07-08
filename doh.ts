@@ -84,7 +84,7 @@ export default class DoHResolver {
     // @ts-expect-error compat
     dns.lookup = lookup
 
-    if (Agent) withDispatcher[globalDispatcher] = new Agent({ connect: { lookup } })
+    if (Agent) withDispatcher[globalDispatcher] = new Agent({ connect: { lookup }, allowH2: true })
     https.globalAgent = new https.Agent({ lookup, keepAlive: true })
     http.globalAgent = new http.Agent({ lookup, keepAlive: true })
   }

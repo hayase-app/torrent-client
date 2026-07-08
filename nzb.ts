@@ -127,6 +127,7 @@ class NZBWebSeed extends Wire {
   _files = new Map<TorrentFile, NNTPFile[]>()
   lt_donthave!: InstanceType<ReturnType<typeof ltDontHave>>
   _bitfield
+
   constructor (torrent: Torrent, id: string) {
     super()
 
