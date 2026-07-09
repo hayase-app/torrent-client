@@ -77,10 +77,7 @@ export class HTTPManager {
       if (match) {
         map.set(match, [{ url, authorization }])
       } else {
-        // Full-torrent URL – map to all files
-        for (const file of files) {
-          map.set(file, [{ url, authorization }])
-        }
+        return
       }
     }
 
@@ -101,6 +98,8 @@ export class HTTPManager {
       const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
       // @ts-expect-error non-standard hacky, dont care
       newPeer.wire!.domain = domain
+      // @ts-expect-error non-standard hacky, dont care
+      newPeer.wire!.webSeedType = 'http'
 
       torrent._registerPeer(newPeer)
       peers.push(conn)
@@ -195,7 +194,7 @@ class HTTPWebSeed extends Wire {
       }
     }
 
-    this.bitfield(this._bitfield)
+    if (this._handshakeSent) this.bitfield(this._bitfield)
   }
 
   async request (pieceIndex: number, offset: number, length: number) {

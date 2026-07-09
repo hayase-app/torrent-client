@@ -99,6 +99,8 @@ export class NZBManager {
       const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
       // @ts-expect-error non-standard hacky, dont care
       newPeer.wire!.domain = domain
+      // @ts-expect-error non-standard hacky, dont care
+      newPeer.wire!.webSeedType = 'nntp'
 
       torrent._registerPeer(newPeer)
       peers.push(conn)
@@ -188,7 +190,7 @@ class NZBWebSeed extends Wire {
       }
     }
 
-    this.bitfield(this._bitfield)
+    if (this._handshakeSent) this.bitfield(this._bitfield)
   }
 
   async request (pieceIndex: number, offset: number, length: number) {
