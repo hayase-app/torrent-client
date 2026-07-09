@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { Agent as HttpAgent } from 'node:http'
 import { Agent as HttpsAgent } from 'node:https'
+import { setTimeout } from 'node:timers/promises'
 
 import BitField from 'bitfield'
 import Wire from 'bittorrent-protocol'
@@ -28,7 +29,7 @@ try {
   if (Agent) undiciAgent = new Agent({ allowH2: true })
 } catch {}
 
-async function fetchRange (url: string, start: number, end: number, authorization?: string): Promise<Uint8Array> {
+async function fetchRange (url: string, start: number, end: number, authorization?: string, retries = 5): Promise<Uint8Array> {
   const headers: Record<string, string> = {
     range: `bytes=${start}-${end}`,
     'cache-control': 'no-store'
@@ -48,6 +49,11 @@ async function fetchRange (url: string, start: number, end: number, authorizatio
 
   if (!res.ok) {
     if (res.status === 416) throw new Error('Range not satisfiable')
+    if (res.status === 429 && retries > 0) {
+      const retryAfter = res.headers.get('retry-after')
+      await setTimeout(retryAfter ? (parseInt(retryAfter, 10) + 1) * 1000 : 5000 * (6 - retries), { ref: false })
+      return await fetchRange(url, start, end, authorization, retries - 1)
+    }
     throw new Error(`HTTP ${res.status}`)
   }
 
@@ -58,8 +64,12 @@ type TorrentFile = File & EventEmitter & { _startPiece: number, _endPiece: numbe
 
 export class HTTPManager {
   registeredTorrents = new Map<string, HTTPWebSeed[]>()
+  addedURLs = new Set<string>()
 
   async addHTTPPeers (torrent: Torrent, url: string, authorization?: string, fileIndex?: number) {
+    if (this.addedURLs.has(url + torrent.infoHash)) return
+    this.addedURLs.add(url + torrent.infoHash)
+
     if (torrent.destroyed || torrent.done) return
     if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
     if (torrent.destroyed || torrent.done) return
@@ -92,22 +102,20 @@ export class HTTPManager {
 
     // register
     const peers: HTTPWebSeed[] = []
-    for (let i = 0; i < 2; i++) {
-      const id = domain + '-' + (i + 1)
-      const conn = new HTTPWebSeed(torrent, id)
-      const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
-      // @ts-expect-error non-standard hacky, dont care
-      newPeer.wire!.domain = domain
-      // @ts-expect-error non-standard hacky, dont care
-      newPeer.wire!.webSeedType = 'http'
+    const id = domain
+    const conn = new HTTPWebSeed(torrent, id)
+    const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
+    // @ts-expect-error non-standard hacky, dont care
+    newPeer.wire!.domain = domain
+    // @ts-expect-error non-standard hacky, dont care
+    newPeer.wire!.webSeedType = 'http'
 
-      torrent._registerPeer(newPeer)
-      peers.push(conn)
+    torrent._registerPeer(newPeer)
+    peers.push(conn)
 
-      torrent.emit('peer', id)
+    torrent.emit('peer', id)
 
-      conn._mergeFileList(map)
-    }
+    conn._mergeFileList(map)
     this.registeredTorrents.set(torrent.infoHash, peers)
     torrent.once('destroyed', () => {
       this.registeredTorrents.delete(torrent.infoHash)
