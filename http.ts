@@ -91,15 +91,16 @@ export class HTTPManager {
       }
       return
     }
+    const domain = new URL(url).hostname
 
     // register
     const peers: HTTPWebSeed[] = []
     for (let i = 0; i < 2; i++) {
-      const id = await hash(url + (authorization ?? '') + i, 'hex')
-      const conn = new HTTPWebSeed(torrent)
+      const id = domain + '-' + (i + 1)
+      const conn = new HTTPWebSeed(torrent, id)
       const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
       // @ts-expect-error non-standard hacky, dont care
-      newPeer.wire!.domain = new URL(url).hostname
+      newPeer.wire!.domain = domain
 
       torrent._registerPeer(newPeer)
       peers.push(conn)
@@ -135,10 +136,10 @@ class HTTPWebSeed extends Wire {
   lt_donthave!: InstanceType<ReturnType<typeof ltDontHave>>
   _bitfield
 
-  constructor (torrent: Torrent) {
+  constructor (torrent: Torrent, id: string) {
     super()
 
-    this.connId = torrent.infoHash
+    this.connId = id
     this._torrent = torrent
 
     this.setKeepAlive(true)
@@ -151,7 +152,7 @@ class HTTPWebSeed extends Wire {
     }
 
     this.once('handshake', async (infoHash, peerId) => {
-      const hex = await hash(this.connId, 'hex')
+      const hex = await hash(this.connId, 'hex') // Used as the peerId for this fake remote peer
       if (this.destroyed) return
       this.handshake(infoHash, hex, {})
 
@@ -175,6 +176,7 @@ class HTTPWebSeed extends Wire {
         const data = await this.request(pieceIndex, offset, length)
         queueMicrotask(() => callback(null, data))
       } catch (error) {
+        // Cancel all in progress requests for this piece
         this.lt_donthave.donthave(pieceIndex)
         queueMicrotask(() => callback(error))
       }
