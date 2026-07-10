@@ -60,13 +60,39 @@ async function fetchRange (url: string, start: number, end: number, authorizatio
   return new Uint8Array(await res.arrayBuffer())
 }
 
+class RateLimiter {
+  nextTimes = new Map<string, number>()
+  limits = new Map<string, number>()
+
+  setLimit (key: string, limit: number) {
+    this.limits.set(key, limit)
+  }
+
+  async wait (key: string): Promise<void> {
+    const limitPerMinute = this.limits.get(key)
+    if (!limitPerMinute || limitPerMinute <= 0) return
+
+    const interval = 60_000 / limitPerMinute
+    const now = performance.now()
+    let next = this.nextTimes.get(key) ?? now
+    if (now > next) next = now
+
+    this.nextTimes.set(key, next + interval)
+
+    if (next > now) {
+      await setTimeout(next - now, { ref: false })
+    }
+  }
+}
+
 type TorrentFile = File & EventEmitter & { _startPiece: number, _endPiece: number }
 
 export class HTTPManager {
+  _rateLimiter = new RateLimiter()
   registeredTorrents = new Map<string, HTTPWebSeed[]>()
   addedURLs = new Set<string>()
 
-  async addHTTPPeers (torrent: Torrent, url: string, authorization?: string, fileIndex?: number) {
+  async addHTTPPeers (torrent: Torrent, url: string, authorization?: string, fileIndex?: number, rateLimit?: number) {
     if (this.addedURLs.has(url + torrent.infoHash)) return
     this.addedURLs.add(url + torrent.infoHash)
 
@@ -103,7 +129,11 @@ export class HTTPManager {
     // register
     const peers: HTTPWebSeed[] = []
     const id = domain
-    const conn = new HTTPWebSeed(torrent, id)
+    const rateLimitKey = authorization ?? domain
+    if (rateLimit && rateLimit > 0) {
+      this._rateLimiter.setLimit(rateLimitKey, rateLimit)
+    }
+    const conn = new HTTPWebSeed(torrent, id, this._rateLimiter, rateLimitKey)
     const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
     // @ts-expect-error non-standard hacky, dont care
     newPeer.wire!.domain = domain
@@ -142,12 +172,16 @@ class HTTPWebSeed extends Wire {
   _files = new Map<TorrentFile, Array<{ url: string, authorization?: string }>>()
   lt_donthave!: InstanceType<ReturnType<typeof ltDontHave>>
   _bitfield
+  _rateLimiter
+  _rateLimitKey
 
-  constructor (torrent: Torrent, id: string) {
+  constructor (torrent: Torrent, id: string, rateLimiter: RateLimiter, rateLimitKey: string) {
     super()
 
     this.connId = id
     this._torrent = torrent
+    this._rateLimiter = rateLimiter
+    this._rateLimitKey = rateLimitKey
 
     this.setKeepAlive(true)
 
@@ -257,6 +291,7 @@ class HTTPWebSeed extends Wire {
 
       for (const { url, authorization } of urlConfigs) {
         try {
+          await this._rateLimiter.wait(this._rateLimitKey)
           const data = await fetchRange(url, start, end, authorization)
           debug('Got data of length %d', data.length)
           return data

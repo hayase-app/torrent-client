@@ -619,11 +619,11 @@ export default class TorrentClient {
     await this[nzb]?.addNZBPeers(torrent, url)
   }
 
-  async createHTTPWebSeed (id: string, url: string, authorization?: string, fileIndex?: number) {
+  async createHTTPWebSeed (id: string, url: string, authorization?: string, fileIndex?: number, rateLimit?: number) {
     const torrent = await this[client].get(id)
     if (!torrent) throw new Error('Torrent not found')
 
-    await this[http].addHTTPPeers(torrent, url, authorization, fileIndex)
+    await this[http].addHTTPPeers(torrent, url, authorization, fileIndex, rateLimit)
   }
 
   async torrentInfo (id: string) {
