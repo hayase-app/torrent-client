@@ -1,15 +1,15 @@
 import { createServer } from 'node:http'
 
-import Metadata from 'matroska-metadata'
 import networkAddress from 'network-address'
 
-import type EventEmitter from 'node:events'
-import type { AddressInfo } from 'node:net'
+import Metadata from './metadata.ts'
+
+import type File from 'webtorrent/lib/file'
 
 export default new class Attachments {
   destroyed = false
-  filemap = new Map<string, File & EventEmitter>()
-  metadatamap = new Map<File & EventEmitter, Metadata & EventEmitter>()
+  filemap = new Map<string, File>()
+  metadatamap = new Map<File, Metadata>()
   server = createServer(async (req, res) => {
     try {
       const { pathname } = new URL(req.url!, 'http://localhost')
@@ -25,11 +25,11 @@ export default new class Attachments {
       const attachment = (await metadata.getAttachments())[Number(number)]
       if (!attachment) throw new Error('Attachment not found')
 
-      res.writeHead(200, { 'Content-Type': attachment.mimetype, 'Access-Control-Allow-Origin': '*' })
-      res.end(attachment.data)
+      res.writeHead(200, { 'Content-Type': String(attachment.mimetype), 'Access-Control-Allow-Origin': '*' })
+      res.end(attachment.data instanceof Buffer ? attachment.data : Buffer.from(''))
     } catch (err) {
       res.writeHead(500, { 'Content-Type': 'application/json' })
-      res.end(JSON.stringify({ error: (err as Error).message }))
+      res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }))
     }
   }).listen()
 
@@ -38,7 +38,7 @@ export default new class Attachments {
     if (!file) return
     const meta = this.metadatamap.get(file)
     if (meta) return meta
-    const metadata = new Metadata(file) as Metadata & EventEmitter
+    const metadata = new Metadata(file)
     this.metadatamap.set(file, metadata)
     return metadata
   }
@@ -50,9 +50,10 @@ export default new class Attachments {
     metadata.on('subtitle', (a, b) => cb(a, b))
   }
 
-  register (files: Array<File & EventEmitter>, hash: string) {
+  register (files: File[], hash: string) {
     this.filemap.clear()
     files.forEach((file, id) => {
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       if (file.name.endsWith('.mkv') || file.name.endsWith('.webm')) {
         this.filemap.set(hash + id, file)
         file.on('iterator', ({ iterator }: { iterator: AsyncIterable<Uint8Array> }, cb: (it: AsyncIterable<Uint8Array>) => void) => {
@@ -69,7 +70,9 @@ export default new class Attachments {
 
     const lan = networkAddress()
     return (await metadata.getAttachments()).map(({ filename, mimetype }, number) => {
-      const suffix = ':' + (this.server.address() as AddressInfo).port + '/' + hash + id + '/' + number
+      const addr = this.server.address()
+      if (!addr || typeof addr === 'string') throw new Error('Server not listening')
+      const suffix = ':' + addr.port + '/' + hash + id + '/' + number
       return { filename, mimetype, id, url: 'http://localhost' + suffix, lan: 'http://' + lan + suffix }
     })
   }

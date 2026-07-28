@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { Agent as HttpAgent } from 'node:http'
 import { Agent as HttpsAgent } from 'node:https'
 import { setTimeout } from 'node:timers/promises'
@@ -13,6 +12,7 @@ import Peer from 'webtorrent/lib/peer.js'
 
 import type EventEmitter from 'node:events'
 import type { Agent as AgentType } from 'undici-types'
+import type File from 'webtorrent/lib/file'
 import type Torrent from 'webtorrent/lib/torrent.js'
 
 const debug = debugFactory('webtorrent:httpwebseed')
@@ -104,9 +104,9 @@ export class HTTPManager {
     const map = new Map<TorrentFile, Array<{ url: string, authorization?: string }>>()
 
     if (files.length === 1) {
-      map.set(files[0], [{ url, authorization }])
+      map.set(files[0]!, [{ url, authorization }])
     } else if (fileIndex !== undefined && fileIndex >= 0 && fileIndex < files.length) {
-      map.set(files[fileIndex], [{ url, authorization }])
+      map.set(files[fileIndex]!, [{ url, authorization }])
     } else {
       const name = decodeURIComponent(url.split('/').pop() ?? url)
       const match = files.find(f => f.name === name || f.path === name)
@@ -162,10 +162,6 @@ export class HTTPManager {
   }
 }
 
-interface HTTPWebSeed extends EventEmitter {
-  destroyed: boolean
-}
-
 class HTTPWebSeed extends Wire {
   connId
   _torrent
@@ -195,7 +191,7 @@ class HTTPWebSeed extends Wire {
     this.once('handshake', async (infoHash, peerId) => {
       const hex = await hash(this.connId, 'hex') // Used as the peerId for this fake remote peer
       if (this.destroyed) return
-      this.handshake(infoHash, hex, {})
+      this.handshake(infoHash as string, hex, {})
 
       this.bitfield(this._bitfield)
     })
@@ -205,16 +201,16 @@ class HTTPWebSeed extends Wire {
       this.unchoke()
     })
 
-    this.on('uninterested', () => { debug('uninterested') })
-    this.on('choke', () => { debug('choke') })
-    this.on('unchoke', () => { debug('unchoke') })
-    this.on('bitfield', () => { debug('bitfield') })
-    this.lt_donthave.on('donthave', () => { debug('donthave') })
+    this.on('uninterested', () => debug('uninterested'))
+    this.on('choke', () => debug('choke'))
+    this.on('unchoke', () => debug('unchoke'))
+    this.on('bitfield', () => debug('bitfield'))
+    this.lt_donthave.on('donthave', () => debug('donthave'))
 
     this.on('request', async (pieceIndex, offset, length, callback) => {
       debug('request pieceIndex=%d offset=%d length=%d', pieceIndex, offset, length)
       try {
-        const data = await this.request(pieceIndex, offset, length)
+        const data = await this.request(pieceIndex as number, offset as number, length as number)
         queueMicrotask(() => callback(null, data))
       } catch (error) {
         // Cancel all in progress requests for this piece

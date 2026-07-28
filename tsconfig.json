@@ -3,7 +3,7 @@
   "extends": "eslint-config-standard-universal/tsconfig.json",
   "compilerOptions": {
     "outDir": null,
-    "maxNodeModuleJsDepth": 1,
+    "maxNodeModuleJsDepth": 3,
     "types": [
       "node",
       "multicast-dns"

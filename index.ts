@@ -18,11 +18,11 @@ import parseTorrent from 'parse-torrent'
 import { hex2bin, arr2hex, text2arr, concat } from 'uint8-util'
 import WebTorrent from 'webtorrent'
 
-import attachments from './attachments.ts'
 // import DoHResolver from './doh'
 import { ChromeCasts } from './chromecast/index.ts'
 import { DLNAs } from './dlna/index.ts'
 import DoHResolver from './doh'
+import attachments from './ebml/attachments.ts'
 import { HTTPManager } from './http.ts'
 import { NZBManager } from './nzb.ts'
 
@@ -134,7 +134,7 @@ class Store {
       const data = await readFile(join(await this.cacheFolder, key))
       if (!data.length) return
       // this double decoded bencoded data, unfortunate, but I wish to preserve my sanity
-      const bencoded: TorrentData = bencode.decode(data)
+      const bencoded = bencode.decode(data) as TorrentData
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/await-thenable
       const torrent: any = await parseTorrent(data)
 
@@ -573,7 +573,7 @@ export default class TorrentClient {
     const torrent = await this[client].get(id)
     if (!torrent) throw new Error('Torrent not found')
 
-    torrent.discovery.tracker.scrape({
+    torrent.discovery?.tracker.scrape({
       infoHash: torrent.infoHash,
       announce: torrent.announce,
       peerId: torrent.client.peerId,
@@ -581,17 +581,17 @@ export default class TorrentClient {
     })
 
     const responses: Array<{ complete: number, downloaded: number, incomplete: number, announce: string, failed?: boolean }> = []
-    torrent.discovery.tracker.on('scrape', (res: { complete: number, downloaded: number, incomplete: number, announce: string }) => {
+    torrent.discovery?.tracker.on('scrape', (res: { complete: number, downloaded: number, incomplete: number, announce: string }) => {
       responses.push(res)
     })
 
     await sleep(5_000)
 
-    torrent.discovery.tracker.removeAllListeners('scrape')
+    torrent.discovery?.tracker.removeAllListeners('scrape')
 
     const mappedResponses = Object.fromEntries(responses.map(({ complete, downloaded, incomplete, announce }) => [announce, { complete, downloaded, incomplete, failed: false }]))
 
-    for (const { announceUrl } of torrent.discovery.tracker._trackers) {
+    for (const { announceUrl } of torrent.discovery?.tracker._trackers) {
       mappedResponses[announceUrl] ??= { complete: 0, downloaded: 0, incomplete: 0, failed: true }
     }
 

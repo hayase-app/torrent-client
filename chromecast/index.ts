@@ -9,7 +9,7 @@ import { PlatformSender } from './lib/senders/platform.ts'
 import { UrlCast } from './lib/senders/url-cast.ts'
 import Ssdp from './lib/ssdp.ts'
 
-import type Attachments from '../attachments.ts'
+import type Attachments from '../ebml/attachments.ts'
 import type { MediaInformation } from 'chromecast-caf-receiver/cast.framework.messages'
 
 class Cast {

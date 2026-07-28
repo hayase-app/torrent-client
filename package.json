@@ -7,11 +7,11 @@
 	"version": "1.0.0",
 	"packageManager": "pnpm@10.28.0",
 	"devDependencies": {
-		"@types/node": "^25.9.3",
+		"@types/node": "^26.1.2",
 		"eslint-config-standard-universal": "^1.0.10",
-		"protobufjs-cli": "^2.5.4",
+		"protobufjs-cli": "^2.6.1",
 		"typescript": "^5.9.3",
-		"undici-types": "^8.5.0"
+		"undici-types": "^8.9.0"
 	},
 	"scripts": {
 		"build": "tsc",
@@ -25,6 +25,8 @@
 		"bittorrent-dht": "^11.0.11",
 		"bittorrent-peerid": "^2.0.2",
 		"cross-fetch-ponyfill": "^1.0.3",
+		"ebml-iterator": "^1.0.5",
+		"ebml-stream": "^1.0.3",
 		"fast-xml-parser": "^5.9.0",
 		"matroska-metadata": "^1.0.12",
 		"multicast-dns": "^7.2.5",
@@ -33,6 +35,7 @@
 		"nzb-file": "^1.1.18",
 		"nzb-parser": "1.0.4",
 		"protobufjs": "8.6.2",
-		"webtorrent": "^3.0.16"
+		"uint8-util": "^2.3.2",
+		"webtorrent": "^3.0.21"
 	}
 }

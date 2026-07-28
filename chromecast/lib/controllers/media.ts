@@ -1,11 +1,10 @@
 import { RequestResponseController, type AnyRequestMessage, type AnyResponseMessage } from './request-response.ts'
 
 import type { Sender } from '../senders/sender'
-import type { MediaStatusMessage } from 'castv2'
-import type { LoadRequestData } from 'chromecast-caf-receiver/cast.framework.messages'
+import type { LoadRequestData, MediaStatus } from 'chromecast-caf-receiver/cast.framework.messages'
 
 export class MediaController extends RequestResponseController {
-  currentSession?: MediaStatusMessage['status'][0]
+  currentSession?: MediaStatus
   constructor (sender: Sender) {
     super(sender, 'urn:x-cast:com.google.cast.media')
 
