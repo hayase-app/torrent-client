@@ -10,15 +10,12 @@ import type { EbmlDataTag, EbmlMasterTag } from './iterator'
 import type File from 'webtorrent/lib/file'
 import 'fast-readable-async-iterator'
 
-function getChild <T extends EbmlTagId> (chunk: EbmlMasterTag | EbmlDataTag, tag: T) {
-  if (!('Children' in chunk)) return undefined
-  const child = chunk.Children.find(child => child.id === tag)
-  if (!child) return undefined
-  if ('data' in child) return child
-  return undefined
+function getChild <T extends EbmlTagId> (chunk?: EbmlMasterTag | EbmlDataTag, tag?: T): EbmlMasterTag | EbmlDataTag | undefined {
+  // @ts-expect-error w/e
+  return chunk?.Children?.find(child => child.id === tag)
 }
 
-function getData <T extends EbmlTagId> (chunk: EbmlMasterTag | EbmlDataTag, tag: T) {
+function getData <T extends EbmlTagId> (chunk?: EbmlMasterTag | EbmlDataTag, tag?: T) {
   return getChild(chunk, tag)?.data
 }
 
@@ -119,15 +116,15 @@ export default class Metadata extends Util {
 
     const chapters: Array<{ start: number, end: number, text: string, language: string }> = []
     for (let i = atoms.length - 1; i >= 0; --i) {
-      const start = Number(getData(atoms[i]!, EbmlTagId.ChapterTimeStart)) / timecodeScale / 1000000
-      const end = Number(getData(atoms[i]!, EbmlTagId.ChapterTimeEnd)) / timecodeScale / 1000000 || chapters[i + 1]?.start || await this.duration || 0
-      const disp = getChild(atoms[i]!, EbmlTagId.ChapterDisplay)
+      const start = Number(getData(atoms[i], EbmlTagId.ChapterTimeStart)) / timecodeScale / 1000000
+      const end = Number(getData(atoms[i], EbmlTagId.ChapterTimeEnd)) / timecodeScale / 1000000 || chapters[i + 1]?.start || await this.duration || 0
+      const disp = getChild(atoms[i], EbmlTagId.ChapterDisplay)
 
       chapters[i] = {
         start,
         end,
-        text: getData(disp!, EbmlTagId.ChapString)?.toString() ?? '',
-        language: getData(disp!, EbmlTagId.ChapLanguage)?.toString() ?? ''
+        text: getData(disp, EbmlTagId.ChapString)?.toString() ?? '',
+        language: getData(disp, EbmlTagId.ChapLanguage)?.toString() ?? ''
       }
     }
 

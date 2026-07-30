@@ -9,6 +9,7 @@ import type EbmlTagId from '../enums/EbmlTagId.js'
 
 export default class EbmlMasterTag extends EbmlTag {
   _children: Array<EbmlMasterTag | EbmlDataTag> = []
+  data = undefined
 
   constructor (id: EbmlTagId, position: EbmlTagPosition = EbmlTagPosition.Content) {
     super(id, EbmlElementType.Master, position)
