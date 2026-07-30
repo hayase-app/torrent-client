@@ -5,11 +5,13 @@ import networkAddress from 'network-address'
 import Metadata from './metadata.ts'
 
 import type File from 'webtorrent/lib/file'
+import type Torrent from 'webtorrent/lib/torrent.js'
 
 export default new class Attachments {
   destroyed = false
   filemap = new Map<string, File>()
-  metadatamap = new Map<File, Metadata>()
+  metadatamap = new WeakMap<File, Metadata>()
+  registered = new Set<string>()
   server = createServer(async (req, res) => {
     try {
       const { pathname } = new URL(req.url!, 'http://localhost')
@@ -50,9 +52,12 @@ export default new class Attachments {
     metadata.on('subtitle', (a, b) => cb(a, b))
   }
 
-  register (files: File[], hash: string) {
-    this.filemap.clear()
-    files.forEach((file, id) => {
+  register (torrent: Torrent) {
+    const hash = torrent.infoHash
+    if (this.registered.has(hash)) return
+    this.registered.add(hash)
+
+    torrent.files.forEach((file, id) => {
       // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       if (file.name.endsWith('.mkv') || file.name.endsWith('.webm')) {
         this.filemap.set(hash + id, file)
@@ -60,6 +65,12 @@ export default new class Attachments {
           if (this.destroyed) return cb(iterator)
           cb(this._metadata(hash, id)?.parseStream(iterator) ?? iterator)
         })
+      }
+    })
+    torrent.once('close', () => {
+      this.registered.delete(hash)
+      for (const [key] of [...this.filemap]) {
+        if (key.startsWith(hash)) this.filemap.delete(key)
       }
     })
   }

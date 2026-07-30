@@ -14,7 +14,7 @@
 		"undici-types": "^8.9.0"
 	},
 	"scripts": {
-		"build": "tsc",
+		"build": "tsc --noEmit",
 		"proto": "pbjs -t static-module -w commonjs -o chromecast/lib/castproto/proto.cjs chromecast/lib/castproto/cast_channel.proto",
 		"protots": "pbts -o chromecast/lib/castproto/proto.d.cts chromecast/lib/castproto/proto.cjs"
 	},
@@ -25,10 +25,8 @@
 		"bittorrent-dht": "^11.0.11",
 		"bittorrent-peerid": "^2.0.2",
 		"cross-fetch-ponyfill": "^1.0.3",
-		"ebml-iterator": "^1.0.5",
 		"ebml-stream": "^1.0.3",
 		"fast-xml-parser": "^5.9.0",
-		"matroska-metadata": "^1.0.12",
 		"multicast-dns": "^7.2.5",
 		"native": "github:hayase-app/native",
 		"network-address": "^1.1.2",
@@ -36,6 +34,6 @@
 		"nzb-parser": "1.0.4",
 		"protobufjs": "8.6.2",
 		"uint8-util": "^2.3.2",
-		"webtorrent": "^3.0.21"
+		"webtorrent": "github:thaunknown/webtorrent#aio"
 	}
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import EventEmitter from 'events'
 
 import { EbmlIteratorDecoder, Tools, EbmlTagId, EbmlElementType } from './iterator'
@@ -14,7 +13,7 @@ function getChild <T extends EbmlTagId> (chunk: EbmlMasterTag | EbmlDataTag, tag
   return undefined
 }
 
-export default class Util extends EventEmitter {
+export default class Util extends EventEmitter<{subtitle: [{ text: string, time: number, duration: number }, number]}> {
   file!: File
 
   destroyed = false

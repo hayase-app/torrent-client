@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { once } from 'node:events'
 import { readFile, writeFile, statfs, unlink, mkdir, readdir, access, constants } from 'node:fs/promises'
 import { join } from 'node:path'
-import { exit, platform } from 'node:process'
+import { exit } from 'node:process'
 import querystring from 'querystring'
 
 import NatAPI from '@silentbot1/nat-api'
@@ -61,6 +61,7 @@ interface TorrentMetadata {
   date: number
   mediaID: number
   episode: number
+  background?: boolean
 }
 
 interface TorrentData {
@@ -73,9 +74,10 @@ interface TorrentData {
   date: number
   mediaID: number
   episode: number
+  background?: number
 }
 
-function structTorrent ({ info, urlList, bitfield, announce, private: priv, mediaID, episode, date }: TorrentMetadata) {
+function structTorrent ({ info, urlList, bitfield, announce, private: priv, mediaID, episode, date, background }: TorrentMetadata) {
   const torrent: TorrentData = {
     info,
     'url-list': urlList ?? [],
@@ -87,6 +89,7 @@ function structTorrent ({ info, urlList, bitfield, announce, private: priv, medi
   }
   torrent.announce ??= announce?.[0]
   if (priv !== undefined) torrent.private = Number(priv)
+  if (background !== undefined) torrent.background = Number(background)
 
   return torrent
 }
@@ -134,6 +137,7 @@ class Store {
       const data = await readFile(join(await this.cacheFolder, key))
       if (!data.length) return
       // this double decoded bencoded data, unfortunate, but I wish to preserve my sanity
+      // @ts-expect-error bad typedefs
       const bencoded = bencode.decode(data) as TorrentData
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/await-thenable
       const torrent: any = await parseTorrent(data)
@@ -146,6 +150,7 @@ class Store {
 
   async set (key: string, value: TorrentData) {
     try {
+      // @ts-expect-error bad typedefs
       return await writeFile(join(await this.cacheFolder, key), bencode.encode(value), { mode: 0o666 })
     } catch (e) {
       console.error(e)
@@ -188,13 +193,13 @@ class Store {
 const megaBitsToBytes = 1024 * 1024 / 8
 
 process.on('uncaughtException', err => console.error(err))
+process.on('unhandledRejection', err => console.error(err))
 
 // this could... be a bad idea and needs to be verified
 const peerId = concat([[45, 113, 66, 53, 48, 51, 48, 45], randomBytes(12)])
 
-// @ts-expect-error nodejs mobile
-const secure = platform === 'ios' ? 0 : 1
-
+// this is what we in the industry call shitcode
+// if you want to improve it, don't. re-write it from scratch
 export default class TorrentClient {
   [client]: WebTorrent
   [server]: Server
@@ -205,6 +210,13 @@ export default class TorrentClient {
   [doh]?: DoHResolver
   [nzb]?: NZBManager
   [http] = new HTTPManager()
+  sessions = new Map<string, string>()
+  torrentState = new Map<string, {
+    background: boolean
+    mediaID: number
+    episode: number
+    torrent: Torrent
+  }>()
 
   attachments = attachments
 
@@ -226,7 +238,7 @@ export default class TorrentClient {
       dhtPort: settings.dhtPort,
       maxConns: settings.maxConns,
       peerId,
-      secure
+      secure: 1
     }
     this[client] = new WebTorrent(this[opts])
     if (settings.nzbDomain && settings.nzbPort && settings.nzbLogin && settings.nzbPassword && settings.nzbPoolSize) {
@@ -245,6 +257,7 @@ export default class TorrentClient {
     // }
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
+    this.loadBackgroundDownloads()
   }
 
   updateSettings (settings: ClientSettings & { path: string }) {
@@ -260,7 +273,7 @@ export default class TorrentClient {
       dhtPort: settings.dhtPort,
       maxConns: settings.maxConns,
       peerId,
-      secure
+      secure: 1
     }
     this[path] = settings.path || this[tmp]
     this[nzb]?.destroy()
@@ -375,63 +388,28 @@ export default class TorrentClient {
     return parsed?.infoHash
   }
 
-  async playTorrent (id: string | ArrayBufferView, mediaID: number, episode: number): Promise<TorrentFile[]> {
-    const existing = await this[client].get(id)
+  async playTorrent (
+    id: string | ArrayBufferView,
+    mediaID: number,
+    episode: number,
+    sessionID: string,
+    background?: boolean
+  ): Promise<TorrentFile[]> {
+    const infoHash = await this.toInfoHash(id)
+    if (!infoHash) throw new Error('Invalid torrent identifier')
+    background = !!background
 
-    // race condition hell, if some1 added a torrent Z in path A, switched torrents, then changed to path B and played torrent Z again, and that torrent was cached in path B, we want that cache data before its removed by non-existing check
-    const storeData = !existing ? await this[store].get(await this.toInfoHash(id)) : undefined
+    const oldHash = !background ? this.sessions.get(sessionID) : undefined
+    if (!background) this.sessions.set(sessionID, infoHash)
 
-    if (!existing && this[client].torrents[0]) {
-      const hash = this[client].torrents[0].infoHash
-      // @ts-expect-error bad typedefs
-      await this[client].remove(this[client].torrents[0], { destroyStore: !this.persist })
-      if (!this.persist) await this[store].delete(hash)
-    }
+    const torrent = await this.initTorrent(infoHash, id, !background && this.streamed, background, mediaID, episode)
 
-    const torrent: Torrent = existing ?? this[client].add(storeData?.torrent ?? id, {
-      path: this[path],
-      announce: ANNOUNCE,
-      bitfield: storeData?.bencoded._bitfield,
-      deselect: this.streamed
-    })
-    // torrent._drain = () => undefined
+    if (oldHash && oldHash !== infoHash) await this.evictOrphan(oldHash)
 
-    if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
-
-    this.attachments.register(torrent.files, torrent.infoHash)
-    this[nzb]?.addedNZBs.clear()
-    this[nzb]?.register(torrent)
-
-    const baseInfo = structTorrent({
-      // @ts-expect-error bad typedefs
-      info: torrent.info,
-      announce: torrent.announce,
-      private: torrent.private,
-      urlList: torrent.urlList,
-      bitfield: torrent.bitfield!.buffer,
-      date: Date.now(),
-      mediaID,
-      episode
-    })
-
-    // store might be updated during the torrent download, but the torrent won't be magically moved, so we want to persist this cached store location
-    const cachedStore = this[store]
-    const savebitfield = () => cachedStore.set(torrent.infoHash, baseInfo)
-    const finish = () => {
-      savebitfield()
-      clearInterval(interval)
-    }
-
-    const interval = setInterval(savebitfield, 1000 * 20).unref()
-
-    // so the cached() function is populated and can be called instantly after the torrent is added
-    await savebitfield()
-
-    torrent.on('done', finish)
-    torrent.on('close', finish)
+    this.updateTorrentPriority(infoHash)
+    this.updateTorrentPriority(oldHash)
 
     const lan = networkAddress()
-
     return torrent.files.map(({ name, type, size, path, streamURL }, id) => {
       const suffix = ':' + (this[server].address() as AddressInfo).port + streamURL
       return {
@@ -447,7 +425,7 @@ export default class TorrentClient {
       downloadLimit: 0,
       maxConns: 0,
       peerId,
-      secure,
+      secure: 1,
       tracker: {},
       natUpnp: false,
       natPmp: false,
@@ -459,10 +437,10 @@ export default class TorrentClient {
 
     const cachedStore = this[store]
 
-    const currentHash = this[client].torrents[0]?.infoHash
+    const activeHashes = new Set(this[client].torrents.map(t => t.infoHash))
 
     for (const hash of hashes) {
-      if (hash === currentHash) continue
+      if (activeHashes.has(hash)) continue
       promises.push(
         (async () => {
           const storeData = await cachedStore.get(hash)
@@ -500,7 +478,7 @@ export default class TorrentClient {
       downloadLimit: 0,
       maxConns: 0,
       peerId,
-      secure,
+      secure: 1,
       tracker: {},
       natUpnp: false,
       natPmp: false,
@@ -512,10 +490,10 @@ export default class TorrentClient {
 
     const promises: Array<Promise<void>> = []
 
-    const currentHash = this[client].torrents[0]?.infoHash
+    const activeHashes = new Set(this[client].torrents.map(t => t.infoHash))
 
     for (const hash of hashes) {
-      if (hash === currentHash) continue
+      if (activeHashes.has(hash)) continue
       promises.push(
         (async () => {
           const storeData = await cachedStore.get(hash)
@@ -695,6 +673,152 @@ export default class TorrentClient {
     }
     // @ts-expect-error bad typedefs
     return torrent.length ? downloaded / torrent.length : 0
+  }
+
+  async evictOrphan (infoHash: string) {
+    const entry = this.torrentState.get(infoHash)
+    if (!entry || entry.background) return
+
+    if (this.sessions.values().some(h => h === infoHash)) return
+
+    if (entry.torrent.destroyed) {
+      this.torrentState.delete(infoHash)
+      return
+    }
+
+    await new Promise(resolve => this[client].remove(entry.torrent, { destroyStore: !this.persist }, resolve))
+    if (!this.persist) await this[store].delete(infoHash)
+  }
+
+  setupBitfieldSave (torrent: Torrent, mediaID: number, episode: number, background = false) {
+    if (torrent.done) return
+
+    const cachedStore = this[store]
+    const savebitfield = () => cachedStore.set(torrent.infoHash, structTorrent({
+      // @ts-expect-error bad typedefs
+      info: torrent.info,
+      announce: torrent.announce,
+      private: torrent.private,
+      urlList: torrent.urlList,
+      bitfield: torrent.bitfield!.buffer,
+      date: Date.now(),
+      mediaID,
+      episode,
+      background
+    }))
+
+    const interval = setInterval(savebitfield, 1000 * 20).unref()
+    savebitfield()
+
+    torrent.on('done', () => {
+      savebitfield()
+      clearInterval(interval)
+    })
+    torrent.once('close', () => clearInterval(interval))
+  }
+
+  updateTorrentPriority (infoHash?: string) {
+    if (!infoHash) return
+    const entry = this.torrentState.get(infoHash)
+    if (!entry) return
+
+    const { torrent, background } = entry
+    if (torrent.destroyed) return
+
+    const sessionCount = [...this.sessions.values()].filter(h => h === infoHash).length
+    const downloadLimit = this[opts].downloadLimit as number
+
+    if (background) {
+      torrent.select()
+    } else if (this.streamed) {
+      torrent.deselect()
+    }
+
+    if (sessionCount === 0) {
+      if (background) {
+        torrent.setPriority(1)
+        torrent.throttleDownloadSpeed(downloadLimit === -1 ? -1 : Math.round(downloadLimit * 0.3))
+      }
+      return
+    }
+
+    // if (background) {
+    //   // background download with active sessions
+    //   torrent.setPriority(7)
+    //   torrent.throttleDownloadSpeed(-1)
+    //   torrent.throttleUploadSpeed(-1)
+    //   return
+    // }
+    torrent.setPriority(sessionCount > 1 ? 10 : 5)
+    torrent.throttleDownloadSpeed(-1)
+  }
+
+  async initTorrent (infoHash: string, source: string | ArrayBufferView | object, deselect: boolean, background: boolean, mediaID: number, episode: number): Promise<Torrent> {
+    const existing = await this[client].get(infoHash)
+    const storeData = !existing ? await this[store].get(infoHash) : undefined
+
+    const torrent = existing ?? this[client].add(storeData?.torrent ?? source, {
+      path: this[path],
+      announce: ANNOUNCE,
+      bitfield: storeData?.bencoded._bitfield,
+      deselect
+    })
+
+    if (!torrent.ready) await once(torrent, 'ready')
+
+    if (this.torrentState.has(infoHash)) {
+      const prev = this.torrentState.get(infoHash)!
+      prev.mediaID = mediaID
+      prev.episode = episode
+      prev.background ||= background
+    } else {
+      this.torrentState.set(infoHash, { background, mediaID, episode, torrent })
+      torrent.once('close', () => {
+        if (this.torrentState.get(infoHash)?.torrent === torrent) {
+          this.torrentState.delete(infoHash)
+        }
+      })
+      this.setupBitfieldSave(torrent, mediaID, episode, background)
+      this.attachments.register(torrent)
+      await this[nzb]?.register(torrent)
+    }
+
+    return torrent
+  }
+
+  async loadBackgroundDownloads () {
+    for await (const { bencoded, torrent: parsed } of this[store].entries()) {
+      if (!bencoded.background) continue
+      if (this.torrentState.has(parsed.infoHash)) continue
+
+      await this.initTorrent(parsed.infoHash, parsed, false, true, bencoded.mediaID, bencoded.episode)
+    }
+  }
+
+  async stopSession (sessionID: string) {
+    const infoHash = this.sessions.get(sessionID)
+    if (!infoHash) return
+    this.sessions.delete(sessionID)
+    this.updateTorrentPriority(infoHash)
+    await this.evictOrphan(infoHash)
+  }
+
+  activeTorrents () {
+    return this[client].torrents.map(t => {
+      const state = this.torrentState.get(t.infoHash)
+      return {
+        hash: t.infoHash,
+        name: t.name,
+        progress: t.progress,
+        downloadSpeed: t.downloadSpeed,
+        uploadSpeed: t.uploadSpeed,
+        size: t.length,
+        peers: t.wires.length,
+        background: state?.background ?? false,
+        mediaID: state?.mediaID,
+        episode: state?.episode
+      }
+    })
   }
 
   async fileInfo (id: string) {

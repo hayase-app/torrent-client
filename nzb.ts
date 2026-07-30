@@ -107,8 +107,11 @@ export class NZBManager {
     }
 
     this.registeredTorrents.set(torrent.infoHash, peers)
-    torrent.once('destroyed', () => {
+    torrent.once('close', () => {
       this.registeredTorrents.delete(torrent.infoHash)
+      for (const key of [...this.addedNZBs]) {
+        if (key.endsWith(torrent.infoHash)) this.addedNZBs.delete(key)
+      }
     })
   }
 
@@ -162,11 +165,13 @@ class NZBWebSeed extends Wire {
       debug('request pieceIndex=%d offset=%d length=%d', pieceIndex, offset, length)
       try {
         const data = await this.request(pieceIndex as number, offset as number, length as number)
+        // @ts-expect-error bad typedefs
         queueMicrotask(() => callback(null, data))
       } catch (error) {
         // Cancel all in progress requests for this piece
         this.lt_donthave.donthave(pieceIndex)
 
+        // @ts-expect-error bad typedefs
         queueMicrotask(() => callback(error))
       }
     })

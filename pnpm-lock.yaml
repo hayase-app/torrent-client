@@ -26,18 +26,12 @@ importers:
       cross-fetch-ponyfill:
         specifier: ^1.0.3
         version: 1.0.3
-      ebml-iterator:
-        specifier: ^1.0.5
-        version: 1.0.5
       ebml-stream:
         specifier: ^1.0.3
         version: 1.0.3
       fast-xml-parser:
         specifier: ^5.9.0
         version: 5.9.0
-      matroska-metadata:
-        specifier: ^1.0.12
-        version: 1.0.12
       multicast-dns:
         specifier: ^7.2.5
         version: 7.2.5
@@ -60,8 +54,8 @@ importers:
         specifier: ^2.3.2
         version: 2.3.2
       webtorrent:
-        specifier: ^3.0.21
-        version: 3.0.21(bare-url@2.4.6)
+        specifier: github:thaunknown/webtorrent#aio
+        version: https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e(bare-url@2.4.6)
     devDependencies:
       '@types/node':
         specifier: ^26.1.2
@@ -205,6 +199,11 @@ packages:
   '@thaunknown/thirty-two@1.0.6':
     resolution: {integrity: sha512-Uz2kFb0cNeHg7hds8BtI/umcwzaSMUdbkeQgZrIZQbp3gWRFjrvrvBHNEB6SQYChVxC3rWHovKx1Ya/vSRRMYA==}
     engines: {node: '>=0.2.6'}
+
+  '@thaunknown/utp-native@2.5.7':
+    resolution: {integrity: sha512-RJaIs6xbRKt/ydKGoBk29CiDFHySNWTucYxoHk3Pwc8ia5FMq/S6tkF3CI6609c9jJXgSBzFFNjti42mm/rymw==}
+    engines: {node: '>=8.12'}
+    hasBin: true
 
   '@thaunknown/yencode@1.5.5':
     resolution: {integrity: sha512-Xb2StCQfmOFUixyGX8sgIcnK80sI60vHIrHko0/yrlwSLfxe+9p48kY1JCRtT5HN6V3jRmCKT1oSs+htRHPiXg==}
@@ -510,6 +509,9 @@ packages:
   buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
 
+  buffer@6.0.3:
+    resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
+
   bufferutil@4.1.0:
     resolution: {integrity: sha512-ZMANVnAixE6AWWnPzlW2KpUrxhm9woycYvPOo67jWHyFowASTEd9s+QN1EIMsSDtwhIxN4sWE1jotpuDUIgyIw==}
     engines: {node: '>=6.14.2'}
@@ -667,9 +669,6 @@ packages:
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
-
-  ebml-iterator@1.0.5:
-    resolution: {integrity: sha512-UsZ8EEk8vAIgYYX9a6Wqwy/cJEd/fKiCVHOXJIpwJBdcQxSHi9llKNxALl5mw2WaqZAhiir0feahWfEY5dj4+Q==}
 
   ebml-stream@1.0.3:
     resolution: {integrity: sha512-A+jCBY5NNAH/CQlcjLWN9txgv3uNiz+UAmMqDHPxFxoMNnuerV0RLhkE0YI9aNhdS3JVfcEQ9jFWq39fAR2W5g==}
@@ -869,6 +868,10 @@ packages:
   events-universal@1.0.1:
     resolution: {integrity: sha512-LUd5euvbMLpwOF8m6ivPCbhQeSiYVNb8Vs0fQ8QjXo0JTkEHpz8pxdQf0gStltaPpw0Cca8b39KxvK9cfKRiAw==}
 
+  events@3.3.0:
+    resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
+    engines: {node: '>=0.8.x'}
+
   execa@7.2.0:
     resolution: {integrity: sha512-UduyVP7TLB5IcAQl+OzLyLcS/l32W/GLg+AhHJ+ow40FOk2U3SAllPwR44v4vmdFwIWqpdwxxpQbF1n5ta9seA==}
     engines: {node: ^14.18.0 || ^16.14.0 || >=18.0.0}
@@ -888,9 +891,6 @@ packages:
 
   fast-levenshtein@2.0.6:
     resolution: {integrity: sha512-DCXu6Ifhqcks7TZKY3Hxp3y6qphY5SJZmrWMDrKcERSOXWQdMhU9Ig/PYrzyw/ul9jOIyh0N4M0tbC5hodg8dw==}
-
-  fast-readable-async-iterator@1.1.2:
-    resolution: {integrity: sha512-RvoeUNYOmXLr3j6ZcThapEWw8xoXZe0DHHIOvqJH2VOzbJ9lYLDSIpJg0hqoSkh9yzFPvR1aocuWl67ECPZrdQ==}
 
   fast-readable-async-iterator@2.0.0:
     resolution: {integrity: sha512-8Sld+DuyWRIftl86ZguJxR2oXCBccOiJxrY/Rj9/7ZBynW8pYMWzIcqxFL1da+25jaWJZVa+HHX/8SsA21JdTA==}
@@ -1365,9 +1365,6 @@ packages:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
     engines: {node: '>= 0.4'}
 
-  matroska-metadata@1.0.12:
-    resolution: {integrity: sha512-3SHluJgh0GW/kBmkLP+E946ozQg/uXM00xjDaRVBCrCrqLeScweasjaCtcheTrkMSfbx35fvHS/9hKDBY8OaxQ==}
-
   mdn-data@2.0.30:
     resolution: {integrity: sha512-GaqWWShW4kv/G9IEucWScBx9G1/vsFZZJUO+tD26M8J8z3Kw5RDQjaoZe03YAClgeS/SWPOcb4nkFBTEi5DUEA==}
 
@@ -1542,9 +1539,6 @@ packages:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
     engines: {node: '>=10'}
 
-  pako@2.1.0:
-    resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
-
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
@@ -1632,6 +1626,10 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
+  process@0.11.10:
+    resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
+    engines: {node: '>= 0.6.0'}
+
   protobufjs-cli@2.6.1:
     resolution: {integrity: sha512-ty8A5JKY/mRTlV/eW7bRoUmOxgzBL66CIBDv7wq8rQUady60rwPwAgqqumcy+oxIkUV6wWTAcxsZjLZKwNsFog==}
     engines: {node: '>=12.0.0'}
@@ -1683,6 +1681,10 @@ packages:
   readable-stream@3.6.2:
     resolution: {integrity: sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==}
     engines: {node: '>= 6'}
+
+  readable-stream@4.7.0:
+    resolution: {integrity: sha512-oIGGmcpTLwPga8Bn6/Z75SVaH1z5dUut2ibSyAMVhmUggWpmDn2dapB0n7f8nwaSiRtepAsfJyfXIO5DCVAODg==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
   record-cache@1.2.0:
     resolution: {integrity: sha512-kyy3HWCez2WrotaL3O4fTn0rsIdfRKOdQQcEJ9KpvmKmbffKVvwsloX063EgRUlpJIXHiDQFhJcTbZequ2uTZw==}
@@ -1915,9 +1917,6 @@ packages:
   thunky@1.1.0:
     resolution: {integrity: sha512-eHY7nBftgThBqOyHGVN+l8gF0BucP09fMo0oO/Lb0w1OF80dJv+lDVpXG60WMQvkcxAkNybKsrEIE3ZtKGmPrA==}
 
-  timeout-refresh@1.0.3:
-    resolution: {integrity: sha512-Mz0CX4vBGM5lj8ttbIFt7o4ZMxk/9rgudJRh76EvB7xXZMur7T/cjRiH2w4Fmkq0zxf2QpM8IFvOSRn8FEu3gA==}
-
   tinyglobby@0.2.16:
     resolution: {integrity: sha512-pn99VhoACYR8nFHhxqix+uvsbXineAasWm5ojXoN8xEwK5Kd3/TrhNn1wByuD52UxWRLy8pu+kRMniEi6Eq9Zg==}
     engines: {node: '>=12.0.0'}
@@ -2010,9 +2009,6 @@ packages:
   unordered-array-remove@1.0.2:
     resolution: {integrity: sha512-45YsfD6svkgaCBNyvD+dFHm4qFX9g3wRSIVgWVPtm2OCnphvPxzJoe20ATsiNpNJrmzHifnxm+BN5F7gFT/4gw==}
 
-  unordered-set@2.0.1:
-    resolution: {integrity: sha512-eUmNTPzdx+q/WvOHW0bgGYLWvWHNT3PTKEQLg0MAQhc0AHASHVHoP/9YytYd4RBVariqno/mEUhVZN98CmD7bg==}
-
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
@@ -2031,11 +2027,6 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  utp-native@2.5.3:
-    resolution: {integrity: sha512-sWTrWYXPhhWJh+cS2baPzhaZc89zwlWCfwSthUjGhLkZztyPhcQllo+XVVCbNGi7dhyRlxkWxN4NKU6FbA9Y8w==}
-    engines: {node: '>=8.12'}
-    hasBin: true
-
   web-streams-polyfill@3.3.3:
     resolution: {integrity: sha512-d2JWLCivmZYTSIoge9MsgFCZrt571BikcWGYkjC1khllbTeDlGqZ2D8vD8E/lJa8WGWbb7Plm8/XJYV7IJHZZw==}
     engines: {node: '>= 8'}
@@ -2044,8 +2035,9 @@ packages:
     resolution: {integrity: sha512-t/H2OySa7lZSq2f5j4whmr+IWCl5TqF4daGotE8VhPP7U+E4x5x8MK1wqOkqlb4xxRlag4kBB9enU4oxNk//+g==}
     engines: {node: '>=16.0.0'}
 
-  webtorrent@3.0.21:
-    resolution: {integrity: sha512-PFgLphma0dsUWmbWrZ016Cja+j+3D3DXuhk09A5u9qVAzH1T4Vj1VZd8j+zb8sDwPv7NA7+qgPtDEN4iFd6wdw==}
+  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e:
+    resolution: {tarball: https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e}
+    version: 3.0.21
     engines: {node: '>=22'}
 
   which-boxed-primitive@1.1.1:
@@ -2270,6 +2262,13 @@ snapshots:
   '@thaunknown/thirty-two@1.0.6':
     dependencies:
       uint8-util: 2.3.2
+
+  '@thaunknown/utp-native@2.5.7':
+    dependencies:
+      napi-macros: 2.2.2
+      node-gyp-build: 4.8.4
+      readable-stream: 4.7.0
+    optional: true
 
   '@thaunknown/yencode@1.5.5':
     dependencies:
@@ -2655,6 +2654,12 @@ snapshots:
       base64-js: 1.5.1
       ieee754: 1.2.1
 
+  buffer@6.0.3:
+    dependencies:
+      base64-js: 1.5.1
+      ieee754: 1.2.1
+    optional: true
+
   bufferutil@4.1.0:
     dependencies:
       node-gyp-build: 4.8.4
@@ -2834,8 +2839,6 @@ snapshots:
       call-bind-apply-helpers: 1.0.2
       es-errors: 1.3.0
       gopd: 1.2.0
-
-  ebml-iterator@1.0.5: {}
 
   ebml-stream@1.0.3: {}
 
@@ -3154,6 +3157,9 @@ snapshots:
     transitivePeerDependencies:
       - bare-abort-controller
 
+  events@3.3.0:
+    optional: true
+
   execa@7.2.0:
     dependencies:
       cross-spawn: 7.0.6
@@ -3175,8 +3181,6 @@ snapshots:
   fast-json-stable-stringify@2.1.0: {}
 
   fast-levenshtein@2.0.6: {}
-
-  fast-readable-async-iterator@1.1.2: {}
 
   fast-readable-async-iterator@2.0.0: {}
 
@@ -3673,13 +3677,6 @@ snapshots:
 
   math-intrinsics@1.1.0: {}
 
-  matroska-metadata@1.0.12:
-    dependencies:
-      ebml-iterator: 1.0.5
-      fast-readable-async-iterator: 1.1.2
-      pako: 2.1.0
-      uint8-util: 2.3.2
-
   mdn-data@2.0.30: {}
 
   mdurl@2.1.0: {}
@@ -3853,8 +3850,6 @@ snapshots:
     dependencies:
       p-limit: 3.1.0
 
-  pako@2.1.0: {}
-
   parent-module@1.0.1:
     dependencies:
       callsites: 3.1.0
@@ -3935,6 +3930,9 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
+  process@0.11.10:
+    optional: true
+
   protobufjs-cli@2.6.1(protobufjs@8.6.2):
     dependencies:
       escodegen: 2.1.0
@@ -4003,6 +4001,15 @@ snapshots:
       inherits: 2.0.4
       string_decoder: 1.3.0
       util-deprecate: 1.0.2
+
+  readable-stream@4.7.0:
+    dependencies:
+      abort-controller: 3.0.0
+      buffer: 6.0.3
+      events: 3.3.0
+      process: 0.11.10
+      string_decoder: 1.3.0
+    optional: true
 
   record-cache@1.2.0:
     dependencies:
@@ -4312,9 +4319,6 @@ snapshots:
 
   thunky@1.1.0: {}
 
-  timeout-refresh@1.0.3:
-    optional: true
-
   tinyglobby@0.2.16:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.4)
@@ -4429,9 +4433,6 @@ snapshots:
 
   unordered-array-remove@1.0.2: {}
 
-  unordered-set@2.0.1:
-    optional: true
-
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
@@ -4458,22 +4459,13 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  utp-native@2.5.3:
-    dependencies:
-      napi-macros: 2.2.2
-      node-gyp-build: 4.8.4
-      readable-stream: 3.6.2
-      timeout-refresh: 1.0.3
-      unordered-set: 2.0.1
-    optional: true
-
   web-streams-polyfill@3.3.3: {}
 
   webrtc-polyfill@1.2.2:
     dependencies:
       node-datachannel: 0.32.3
 
-  webtorrent@3.0.21(bare-url@2.4.6):
+  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e(bare-url@2.4.6):
     dependencies:
       '@silentbot1/nat-api': 0.4.9
       '@thaunknown/simple-peer': 10.1.2
@@ -4515,7 +4507,7 @@ snapshots:
       ut_metadata: 5.0.1
       ut_pex: 5.0.2
     optionalDependencies:
-      utp-native: 2.5.3
+      '@thaunknown/utp-native': 2.5.7
     transitivePeerDependencies:
       - bare-abort-controller
       - bare-buffer
