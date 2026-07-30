@@ -42,9 +42,9 @@ export default class Metadata extends Util {
 
   async getAttachments () {
     return (await this.readSeekHeadTag('Attachments'))?.Children?.map(chunk => ({
-      filename: getData(chunk, EbmlTagId.FileName),
-      mimetype: getData(chunk, EbmlTagId.FileMimeType),
-      data: getData(chunk, EbmlTagId.FileData)
+      filename: getData(chunk, EbmlTagId.FileName)?.toString() ?? '',
+      mimetype: getData(chunk, EbmlTagId.FileMimeType)?.toString() ?? '',
+      data: getData(chunk, EbmlTagId.FileData)?.toString() ?? ''
     })) ?? []
   }
 
@@ -117,7 +117,7 @@ export default class Metadata extends Util {
       ? defaultEdition.Children.filter(c => c.id === EbmlTagId.ChapterAtom && !getData(c, EbmlTagId.ChapterFlagHidden))
       : []
 
-    const chapters: Array<{ start: number, end: number, text: string | number | undefined, language: string | number | undefined }> = []
+    const chapters: Array<{ start: number, end: number, text: string, language: string }> = []
     for (let i = atoms.length - 1; i >= 0; --i) {
       const start = Number(getData(atoms[i]!, EbmlTagId.ChapterTimeStart)) / timecodeScale / 1000000
       const end = Number(getData(atoms[i]!, EbmlTagId.ChapterTimeEnd)) / timecodeScale / 1000000 || chapters[i + 1]?.start || await this.duration || 0
@@ -126,8 +126,8 @@ export default class Metadata extends Util {
       chapters[i] = {
         start,
         end,
-        text: getData(disp!, EbmlTagId.ChapString) as string | number | undefined,
-        language: getData(disp!, EbmlTagId.ChapLanguage) as string | number | undefined
+        text: getData(disp!, EbmlTagId.ChapString)?.toString() ?? '',
+        language: getData(disp!, EbmlTagId.ChapLanguage)?.toString() ?? ''
       }
     }
 
