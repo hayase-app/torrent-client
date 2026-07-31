@@ -804,21 +804,7 @@ export default class TorrentClient {
   }
 
   activeTorrents () {
-    return this[client].torrents.map(t => {
-      const state = this.torrentState.get(t.infoHash)
-      return {
-        hash: t.infoHash,
-        name: t.name,
-        progress: t.progress,
-        downloadSpeed: t.downloadSpeed,
-        uploadSpeed: t.uploadSpeed,
-        size: t.length,
-        peers: t.wires.length,
-        background: state?.background ?? false,
-        mediaID: state?.mediaID,
-        episode: state?.episode
-      }
-    })
+    return this[client].torrents.map(t => this.makeStats(t))
   }
 
   async fileInfo (id: string) {
