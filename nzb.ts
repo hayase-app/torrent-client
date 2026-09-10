@@ -94,7 +94,7 @@ export class NZBManager {
     for (let i = 0; i < poolSize; i++) {
       const id = domain + '-' + (i + 1)
       const conn = new NZBWebSeed(torrent, id)
-      const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
+      const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.throttleGroups, torrent.client.throttleGroups)
       // @ts-expect-error non-standard hacky, dont care
       newPeer.wire!.domain = domain
       // @ts-expect-error non-standard hacky, dont care

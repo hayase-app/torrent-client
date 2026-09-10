@@ -134,7 +134,7 @@ export class HTTPManager {
       this._rateLimiter.setLimit(rateLimitKey, rateLimit)
     }
     const conn = new HTTPWebSeed(torrent, id, this._rateLimiter, rateLimitKey)
-    const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.client.throttleGroups)
+    const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.throttleGroups, torrent.client.throttleGroups)
     // @ts-expect-error non-standard hacky, dont care
     newPeer.wire!.domain = domain
     // @ts-expect-error non-standard hacky, dont care
