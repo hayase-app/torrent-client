@@ -41,7 +41,7 @@ export default class Metadata extends Util {
     return (await this.readSeekHeadTag('Attachments'))?.Children?.map(chunk => ({
       filename: getData(chunk, EbmlTagId.FileName)?.toString() ?? '',
       mimetype: getData(chunk, EbmlTagId.FileMimeType)?.toString() ?? '',
-      data: getData(chunk, EbmlTagId.FileData)?.toString() ?? ''
+      data: getData(chunk, EbmlTagId.FileData) ?? ''
     })) ?? []
   }
 
