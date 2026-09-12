@@ -489,12 +489,18 @@ export default class TorrentClient {
 
     const promises: Array<Promise<void>> = []
 
-    const activeHashes = new Set(this[client].torrents.map(t => t.infoHash))
+    const activeHashes = new Set(this.sessions.values())
 
     for (const hash of hashes) {
       if (activeHashes.has(hash)) continue
       promises.push(
         (async () => {
+          if (await this[client].get(hash)) {
+            await new Promise(resolve => this[client].remove(hash, { destroyStore: true }, resolve))
+            await cachedStore.delete(hash)
+            return
+          }
+
           const storeData = await cachedStore.get(hash)
           if (!storeData) return
 
@@ -690,8 +696,6 @@ export default class TorrentClient {
   }
 
   setupBitfieldSave (torrent: Torrent, mediaID: number, episode: number, background = false) {
-    if (torrent.done) return
-
     const cachedStore = this[store]
     const savebitfield = () => cachedStore.set(torrent.infoHash, structTorrent({
       // @ts-expect-error bad typedefs
@@ -706,8 +710,11 @@ export default class TorrentClient {
       background
     }))
 
-    const interval = setInterval(savebitfield, 1000 * 20).unref()
     savebitfield()
+
+    if (torrent.done) return
+
+    const interval = setInterval(savebitfield, 1000 * 20).unref()
 
     torrent.on('done', () => {
       savebitfield()
