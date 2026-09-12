@@ -14,7 +14,7 @@ import debug from 'debug'
 // @ts-expect-error no export
 import HTTPTracker from 'http-tracker'
 import networkAddress from 'network-address'
-import parseTorrent from 'parse-torrent'
+import parseTorrent, { remote } from 'parse-torrent'
 import { hex2bin, arr2hex, text2arr, concat } from 'uint8-util'
 import WebTorrent from 'webtorrent'
 
@@ -383,8 +383,7 @@ export default class TorrentClient {
   async toInfoHash (torrentId: string | ArrayBufferView) {
     let parsed: { infoHash: string } | undefined
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/await-thenable
-    try { parsed = await parseTorrent(torrentId) as any } catch (err) {}
+    try { parsed = await new Promise(resolve => remote(torrentId, (_err: Error | null, val: { infoHash: string }) => resolve(val))) } catch (err) {}
     return parsed?.infoHash
   }
 
