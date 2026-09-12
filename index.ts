@@ -7,7 +7,7 @@ import { remote } from 'parse-torrent'
 import WebTorrent from 'webtorrent'
 
 import { ChromeCasts } from './chromecast/index.ts'
-import { DHT_BOOTSTRAP, megaBitsToBytes, peerId } from './common/constants.ts'
+import { ACTIVE_STORE_CACHE_SLOTS, BACKGROUND_STORE_CACHE_SLOTS, DHT_BOOTSTRAP, megaBitsToBytes, peerId } from './common/constants.ts'
 import { DLNAs } from './dlna/index.ts'
 import attachments from './ebml/attachments.ts'
 import { checkAvailableSpace, verifyDirectoryPermissions } from './filesystem/index.ts'
@@ -433,6 +433,22 @@ export default class TorrentClient {
     torrent.once('close', () => clearInterval(interval))
   }
 
+  updateStoreCache (torrent: Torrent, active: boolean) {
+    if (torrent.destroyed) return
+
+    const { store } = torrent as unknown as {
+      store?: { store?: { cache?: { max: number, length: number, evict: () => void } } } | null
+    }
+
+    const slots = active ? ACTIVE_STORE_CACHE_SLOTS : BACKGROUND_STORE_CACHE_SLOTS
+
+    const cache = store?.store?.cache
+    if (!cache) return
+
+    cache.max = slots
+    while (cache.length > slots) cache.evict()
+  }
+
   updateTorrentPriority (infoHash?: string) {
     if (!infoHash) return
     const entry = this.torrentState.get(infoHash)
@@ -443,6 +459,8 @@ export default class TorrentClient {
 
     const sessionCount = [...this.sessions.values()].filter(h => h === infoHash).length
     const downloadLimit = this[opts].downloadLimit as number
+
+    this.updateStoreCache(torrent, sessionCount > 0)
 
     if (background) {
       torrent.select()
@@ -477,7 +495,8 @@ export default class TorrentClient {
       path: this[path],
       announce: ANNOUNCE,
       bitfield: storeData?.bencoded._bitfield,
-      deselect
+      deselect,
+      storeCacheSlots: background ? BACKGROUND_STORE_CACHE_SLOTS : ACTIVE_STORE_CACHE_SLOTS
     })
 
     if (!torrent.ready) await once(torrent, 'ready')
@@ -498,6 +517,8 @@ export default class TorrentClient {
       this.attachments.register(torrent)
       await this[nzb]?.register(torrent)
     }
+
+    this.updateStoreCache(torrent, !background)
 
     return torrent
   }

@@ -12,5 +12,8 @@ export const DHT_TEST_INFOHASH = Buffer.from('dd8255ecd7ca55fb0bbf81323d87062db1
 
 export const megaBitsToBytes = 1024 * 1024 / 8
 
+export const ACTIVE_STORE_CACHE_SLOTS = 20
+export const BACKGROUND_STORE_CACHE_SLOTS = 1
+
 // this could... be a bad idea and needs to be verified
 export const peerId = concat([[45, 113, 66, 53, 48, 51, 48, 45], randomBytes(12)])
