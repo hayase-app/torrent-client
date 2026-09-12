@@ -520,6 +520,42 @@ export default class TorrentClient {
     await new Promise(resolve => tmpclient.destroy(resolve))
   }
 
+  async removeBackgroundTorrents (hashes: string[]) {
+    const activeHashes = new Set(this.sessions.values())
+
+    await Promise.allSettled(hashes.map(async hash => {
+      if (activeHashes.has(hash)) return
+
+      const entry = this.torrentState.get(hash)
+      if (!entry?.background) return
+
+      if (entry.torrent.destroyed) {
+        return this.torrentState.delete(hash)
+      }
+
+      const { torrent, mediaID, episode } = entry
+
+      await new Promise(resolve => this[client].remove(torrent, { destroyStore: !this.persist }, resolve))
+
+      if (this.persist) {
+        await this[store].set(hash, structTorrent({
+          // @ts-expect-error bad typedefs
+          info: torrent.info,
+          announce: torrent.announce,
+          private: torrent.private,
+          urlList: torrent.urlList,
+          bitfield: torrent.bitfield!.buffer,
+          date: Date.now(),
+          mediaID,
+          episode,
+          background: false
+        }))
+      } else {
+        await this[store].delete(hash)
+      }
+    }))
+  }
+
   async cached () {
     return await this[store].list()
   }
