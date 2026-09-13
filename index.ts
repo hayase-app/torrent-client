@@ -78,6 +78,7 @@ export default class TorrentClient {
       torrentPort: settings.torrentPort,
       dhtPort: settings.dhtPort,
       maxConns: settings.maxConns,
+      connectionBudget: settings.connectionBudget,
       peerId,
       secure: 1
     }
@@ -104,15 +105,19 @@ export default class TorrentClient {
   updateSettings (settings: ClientSettings & { path: string }) {
     this[client].throttleDownload(Math.round(settings.torrentSpeed * megaBitsToBytes))
     this[client].throttleUpload(Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2))
+    if (settings.maxConns) this[client].maxConns = settings.maxConns
+    if (settings.connectionBudget) this[client].connectionBudget = settings.connectionBudget
     this[opts] = {
       dht: !settings.torrentDHT && { bootstrap: DHT_BOOTSTRAP },
       utPex: !settings.torrentPeX,
       downloadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes),
       uploadLimit: Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2),
       natUpnp: 'permanent',
+      userAgent: 'curl/7.81.0',
       torrentPort: settings.torrentPort,
       dhtPort: settings.dhtPort,
       maxConns: settings.maxConns,
+      connectionBudget: settings.connectionBudget,
       peerId,
       secure: 1
     }
