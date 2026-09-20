@@ -29,7 +29,6 @@
 		"ebml-stream": "^1.0.3",
 		"fast-xml-parser": "^5.9.0",
 		"multicast-dns": "^7.2.5",
-		"network-address": "^1.1.2",
 		"nzb-file": "^1.1.18",
 		"nzb-parser": "1.0.4",
 		"protobufjs": "8.6.2",

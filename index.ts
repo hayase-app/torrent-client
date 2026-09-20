@@ -2,7 +2,6 @@ import { once } from 'node:events'
 import { exit } from 'node:process'
 
 import debug from 'debug'
-import networkAddress from 'network-address'
 import { remote } from 'parse-torrent'
 import WebTorrent from 'webtorrent'
 
@@ -12,6 +11,7 @@ import { DLNAs } from './dlna/index.ts'
 import attachments from './ebml/attachments.ts'
 import { checkAvailableSpace, verifyDirectoryPermissions } from './filesystem/index.ts'
 import { Store, structTorrent } from './filesystem/store.ts'
+import { networkAddress } from './network/address.ts'
 import DoHResolver from './network/doh.ts'
 import { checkIncomingConnections } from './network/index.ts'
 import { getFileInfo, getLibraryEntry, getPeerInfo, getProtocolStatus, getStats } from './torrent/info.ts'
@@ -296,7 +296,7 @@ export default class TorrentClient {
   async removeBackgroundTorrents (hashes: string[]) {
     const activeHashes = new Set(this.sessions.values())
 
-    await Promise.allSettled(hashes.map(async hash => {
+    await Promise.all(hashes.map(async hash => {
       if (activeHashes.has(hash)) return
 
       const entry = this.torrentState.get(hash)

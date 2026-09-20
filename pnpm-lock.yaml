@@ -35,9 +35,6 @@ importers:
       multicast-dns:
         specifier: ^7.2.5
         version: 7.2.5
-      network-address:
-        specifier: ^1.1.2
-        version: 1.1.2
       nzb-file:
         specifier: ^1.1.18
         version: 1.1.18
@@ -1445,10 +1442,6 @@ packages:
   netmask@2.1.1:
     resolution: {integrity: sha512-eonl3sLUha+S1GzTPxychyhnUzKyeQkZ7jLjKrBagJgPla13F+uQ71HgpFefyHgqrjEbCPkDArxYsjY8/+gLKA==}
     engines: {node: '>= 0.4.0'}
-
-  network-address@1.1.2:
-    resolution: {integrity: sha512-Q6878fmvItA1mE7H9Il46lONgFgTzX2f98zkS0c2YlkCACzNjwvum/8Kq693IQpxe9zy+w+Zm/4p0wQreLEtZw==}
-    hasBin: true
 
   nntp-js@1.0.5:
     resolution: {integrity: sha512-TPveprMEedWtAUPSbCBkJWajbIVUaxRRrIKIqfsNCuSl0P456G1Yn8GnZscEvb+hAeFP9ry+W4EDwXPviysErQ==}
@@ -3734,8 +3727,6 @@ snapshots:
   natural-compare@1.4.0: {}
 
   netmask@2.1.1: {}
-
-  network-address@1.1.2: {}
 
   nntp-js@1.0.5: {}
 

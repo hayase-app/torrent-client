@@ -1,6 +1,6 @@
 import { createServer } from 'node:http'
 
-import networkAddress from 'network-address'
+import { networkAddress } from '../network/address.ts'
 
 import Metadata from './metadata.ts'
 
