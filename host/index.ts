@@ -1,8 +1,7 @@
 import { EventEmitter, on, once } from 'node:events'
-import { createServer as createHttpServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
-import { createServer as createHttpsServer } from 'node:https'
+import { createSecureServer, type Http2SecureServer, type Http2ServerRequest, type Http2ServerResponse } from 'node:http2'
 import { hostname, userInfo } from 'node:os'
-import { json } from 'node:stream/consumers'
+import { buffer } from 'node:stream/consumers'
 import { setInterval } from 'node:timers/promises'
 
 import NatAPI from '@silentbot1/nat-api'
@@ -13,7 +12,7 @@ import { generate, type SubjectAltNameEntry } from 'selfsigned'
 import { isPrivateAddress } from '../network/address.ts'
 
 import { Channel } from './channel.ts'
-import { abort, cors, CHANNEL_ID_LENGTH, HOSTNAME, HTTP_PORT, HTTPS_PORT, localAddress, PROBE_TIMEOUT, recordType, send } from './util.ts'
+import { abort, cors, CHANNEL_ID_LENGTH, decrypt, HOST_KEY, HOSTNAME, localAddress, PORT, PROBE_TIMEOUT, recordType, send } from './util.ts'
 
 import type { Answer, Question } from 'dns-packet'
 
@@ -21,13 +20,18 @@ import type { Answer, Question } from 'dns-packet'
 
 const debug = _debug('host')
 
-export default new class HayaseHost extends EventEmitter<{ channel: [channel: Channel] }> {
+// a browser navigation loads this page after the user accepts the certificate
+// a popup closes. a manual visit returns to the app, so it is not a dead end
+const APP_RETURN = 'https://hayase.app/#/local-sync'
+const ACCEPT_PAGE = `<!doctype html><meta charset="utf-8"><title>Hayase</title><script>window.close();location.replace(${JSON.stringify(APP_RETURN)})</script>`
+
+export default class HayaseHost extends EventEmitter<{ channel: [channel: Channel] }> {
   _name = `${userInfo().username} (${hostname()})`
   _local = false
   _external: { ip: string, port: number, url: string } | undefined
   _mdns = multicastDns()
   _channels = new Map<string, Channel>()
-  _servers: Server[] = []
+  _server: Http2SecureServer | undefined
   _nat: NatAPI | undefined
   _ctrl = new AbortController()
   _ready
@@ -53,7 +57,7 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
     return channel
   }
 
-  // stop the servers, the responder and the open event streams, so the process can exit
+  // stop the server, the responder and the open event streams, so the process can exit
   async destroy () {
     if (this._destroyed) return
     this._ctrl.abort()
@@ -62,10 +66,7 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
     }
     this._channels.clear()
     await Promise.allSettled([
-      ...this._servers.map(server => {
-        server.closeAllConnections()
-        return server[Symbol.asyncDispose]()
-      }),
+      this._server?.[Symbol.asyncDispose](),
       new Promise<void>(resolve => this._mdns.destroy(resolve)),
       this._nat?.destroy()
     ])
@@ -77,19 +78,15 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
 
   async _start () {
     if (await abort(this._probe())) {
-      // external access authenticates with the key handed out locally, so it is pointless without local access
-      debug('%s is already announced on this network, local and external access disabled', HOSTNAME)
+      debug('%s is already announced on this network, access disabled', HOSTNAME)
       return
     }
     if (this._destroyed) return
     try {
-      await this._serveLocal()
-      if (this._destroyed) return
-      this._local = true
+      await this._serve()
     } catch (error) {
-      debug('local access failed: %s', error)
+      debug('access failed: %s', error)
     }
-    // await this._serveExternal()
   }
 
   // ask the network if another device already answers for our name. our own responder is not listening yet
@@ -102,55 +99,57 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
     }
   }
 
-  async _serveLocal () {
-    const server = createHttpServer(this._handleRequest)
-    this._servers.push(server)
-    server.listen(HTTP_PORT, '0.0.0.0')
+  // one http2 listener serves the private network and, through the wan port mapper, the internet
+  async _serve () {
+    const cert = await this._createCertificate()
+    if (this._destroyed) return
+
+    const server = createSecureServer({ ...cert, allowHTTP1: false }, this._handleRequest)
+    this._server = server
+    server.listen(PORT, '0.0.0.0')
     // once rejects on the error event, so a taken port fails the start
     await abort(once(server, 'listening', { signal: this._ctrl.signal }))
     if (this._destroyed) return
-    server.on('error', error => debug('http failed: %s', error))
+    server.on('error', error => debug('http2 failed: %s', error))
+
     abort(this._serveMdns())
-    debug('local http on http://%s:%d', HOSTNAME, HTTP_PORT)
-  }
+    this._local = true
+    debug('http2 on https://%s:%d', HOSTNAME, PORT)
 
-  async _serveExternal () {
-    this._nat = new NatAPI({ enablePMP: true, enableUPNP: true, upnpPermanentFallback: true })
+    // external access is optional. a failed nat step must not take local access down
     try {
-      const ip = await this._nat.externalIp()
-      if (this._destroyed) return
-      if (!ip) throw new Error('could not read the external ip')
-
-      const cert = await this._createCertificate(ip)
-      if (this._destroyed) return
-
-      const https = createHttpsServer(cert, this._handleRequest)
-      this._servers.push(https)
-      https.on('error', error => debug('https failed: %s', error))
-      https.listen(HTTPS_PORT, '0.0.0.0')
-
-      await this._nat.map({ publicPort: HTTPS_PORT, privatePort: HTTPS_PORT, protocol: 'TCP' })
-      if (this._destroyed) return
-
-      this._external = { ip, port: HTTPS_PORT, url: `https://${ip}:${HTTPS_PORT}` }
-      debug('external https on %s', this._external.url)
+      await this._mapExternal(server)
     } catch (error) {
-      if (this._destroyed) return
       debug('external access failed: %s', error)
     }
   }
 
-  // the external address is a bare ip, so the certificate carries an ip SAN. the browser accepts it once
-  async _createCertificate (ip: string) {
+  // map the listener on the wan, so a device outside the network reaches it. the certificate gains the public ip
+  async _mapExternal (server: Http2SecureServer) {
+    this._nat = new NatAPI({ enablePMP: true, enableUPNP: true, upnpPermanentFallback: true })
+    const ip = await this._nat.externalIp()
+    if (this._destroyed || !ip) return
+
+    server.setSecureContext(await this._createCertificate(ip))
+    if (this._destroyed) return
+    await this._nat.map({ publicPort: PORT, privatePort: PORT, protocol: 'TCP' })
+
+    this._external = { ip, port: PORT, url: `https://${ip}:${PORT}` }
+    debug('external http2 on %s', this._external.url)
+  }
+
+  // the certificate is self signed. the browser accepts it once
+  async _createCertificate (ip?: string) {
     const altNames: SubjectAltNameEntry[] = [
-      { type: 7, ip },
+      { type: 2, value: HOSTNAME },
       { type: 2, value: 'localhost' },
       { type: 7, ip: '127.0.0.1' },
       { type: 7, ip: localAddress }
     ]
     if (recordType === 'A') altNames.push({ type: 2, value: localAddress })
+    if (ip) altNames.push({ type: 7, ip })
     const pems = await generate(
-      [{ name: 'commonName', value: ip }],
+      [{ name: 'commonName', value: HOSTNAME }],
       {
         notAfterDate: new Date(Date.now() + 3650 * 24 * 60 * 60 * 1000),
         keySize: 2048,
@@ -189,14 +188,13 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
     }
   }
 
-  // the page opens an event stream on this endpoint. channel.postMessage sends a message on it
-  async _serveEvents (id: string, request: IncomingMessage, response: ServerResponse) {
+  // the page opens an event stream on this endpoint. channel.postMessage sends an encrypted message on it
+  async _serveEvents (id: string, request: Http2ServerRequest, response: Http2ServerResponse) {
     const channel = this.channel(id)
     response.setHeader('content-type', 'text/event-stream')
     response.setHeader('cache-control', 'no-cache')
-    response.setHeader('connection', 'keep-alive')
-    // flush the headers, so the page sees an open stream before the first message
-    response.flushHeaders()
+    // writeHead flushes the headers, so the page sees an open stream before the first message
+    response.writeHead(response.statusCode)
     channel._attach(response)
     try {
       await once(request, 'close')
@@ -206,36 +204,38 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
     }
   }
 
-  // the page posts a message to this endpoint. the host emits it on the message event of the channel
-  async _serveMessage (id: string, request: IncomingMessage, response: ServerResponse) {
+  // the page posts an encrypted message to this endpoint. the host emits it on the message event of the channel
+  async _serveMessage (id: string, request: Http2ServerRequest, response: Http2ServerResponse) {
     const channel = this._channels.get(id)
     if (!channel) {
       return send(response, 404)
     }
 
     try {
-      channel.emit('message', await json(request))
+      channel.emit('message', await decrypt(await channel._key, await buffer(request)))
       send(response, 204)
     } catch {
-      send(response, 400, 'the request body is not valid json')
+      send(response, 400, 'the request body failed to decrypt')
     }
   }
 
-  _handleRequest = async (request: IncomingMessage, response: ServerResponse) => {
+  _handleRequest = async (request: Http2ServerRequest, response: Http2ServerResponse) => {
     cors(request, response)
-
-    // the plain http listener is local only. a request that arrives through the wan port mapper has a public remote address
-    if (request.socket.localPort === HTTP_PORT && !isPrivateAddress(request.socket.remoteAddress ?? '')) {
-      return send(response, 404)
-    }
 
     if (request.method === 'OPTIONS') return send(response, 204)
 
     // every page connection uses its own channel. the id is part of the url
-    const [route, id] = new URL(request.url ?? '/', `http://${HOSTNAME}`).pathname.split('/').slice(1)
+    const [route, id] = new URL(request.url || '/', `https://${HOSTNAME}`).pathname.split('/').slice(1)
 
     if (id?.length !== CHANNEL_ID_LENGTH || (route !== 'events' && route !== 'message')) {
-      return send(response, 200, { host: HOSTNAME, address: localAddress, port: HTTP_PORT, external: this._external })
+      // a browser navigation asks for html. it is the pairing popup, so the page closes itself
+      if (request.headers.accept?.includes('text/html')) {
+        response.setHeader('content-type', 'text/html')
+        return send(response, 200, ACCEPT_PAGE)
+      }
+      // only a local page receives the secret that derives the channel message keys
+      const local = isPrivateAddress(request.socket.remoteAddress ?? '')
+      return send(response, 200, { host: HOSTNAME, address: localAddress, port: PORT, external: this._external, key: local ? HOST_KEY : undefined })
     }
 
     try {
@@ -251,4 +251,4 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
       debug('channel %s failed: %s', id, error)
     }
   }
-}()
+}

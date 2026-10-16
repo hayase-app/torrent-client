@@ -11,6 +11,7 @@ import { DLNAs } from './dlna/index.ts'
 import attachments from './ebml/attachments.ts'
 import { checkAvailableSpace, verifyDirectoryPermissions } from './filesystem/index.ts'
 import { Store, structTorrent } from './filesystem/store.ts'
+import RemoteHost from './host'
 import { networkAddress } from './network/address.ts'
 import DoHResolver from './network/doh.ts'
 import { checkIncomingConnections } from './network/index.ts'
@@ -35,6 +36,7 @@ const tmp = Symbol('tmp')
 const doh = Symbol('doh')
 const nzb = Symbol('nzb')
 const http = Symbol('http')
+const host = Symbol('remote')
 
 process.on('uncaughtException', err => console.error(err))
 process.on('unhandledRejection', err => console.error(err))
@@ -50,6 +52,7 @@ export default class TorrentClient {
   [tmp]: string
   [doh]?: DoHResolver
   [nzb]?: NZBManager
+  [host]?: RemoteHost
   [http] = new HTTPManager()
   sessions = new Map<string, string>()
   torrentState = new Map<string, {
@@ -67,7 +70,7 @@ export default class TorrentClient {
   streamed = false
   persist = false
 
-  constructor (settings: ClientSettings & {path: string }, temp: string) {
+  constructor (settings: ClientSettings & { path: string }, temp: string) {
     this[opts] = {
       dht: !settings.torrentDHT && { bootstrap: DHT_BOOTSTRAP },
       utPex: !settings.torrentPeX,
@@ -92,6 +95,7 @@ export default class TorrentClient {
     this[tmp] = temp
     this[path] = settings.path || temp
     this[store] = new Store(this[path])
+    this[host] = new RemoteHost()
     // try {
     //   if (settings.doh) this[doh] = new DoHResolver(settings.doh)
     // } catch (error) {
