@@ -38,6 +38,9 @@ const nzb = Symbol('nzb')
 const http = Symbol('http')
 const host = Symbol('remote')
 
+export const updateSettings = Symbol('updateSettings')
+export const destroy = Symbol('destroy')
+
 process.on('uncaughtException', err => console.error(err))
 process.on('unhandledRejection', err => console.error(err))
 
@@ -95,7 +98,7 @@ export default class TorrentClient {
     this[tmp] = temp
     this[path] = settings.path || temp
     this[store] = new Store(this[path])
-    this[host] = new RemoteHost()
+    if (settings.remoteAccess !== 'off') this[host] = new RemoteHost(this, settings.remoteAccess === 'localAndRemote')
     // try {
     //   if (settings.doh) this[doh] = new DoHResolver(settings.doh)
     // } catch (error) {
@@ -106,7 +109,7 @@ export default class TorrentClient {
     this.loadBackgroundDownloads()
   }
 
-  updateSettings (settings: ClientSettings & { path: string }) {
+  [updateSettings] (settings: ClientSettings & { path: string }) {
     this[client].throttleDownload(Math.round(settings.torrentSpeed * megaBitsToBytes))
     this[client].throttleUpload(Math.round(settings.torrentSpeed * megaBitsToBytes * 1.2))
     if (settings.maxConns) this[client].maxConns = settings.maxConns
@@ -131,6 +134,13 @@ export default class TorrentClient {
       this[nzb] = new NZBManager(settings.nzbDomain, settings.nzbPort, settings.nzbLogin, settings.nzbPassword, settings.nzbPoolSize)
     }
     this[store] = new Store(this[path])
+    if (settings.remoteAccess === 'off') {
+      this[host]?.destroy()
+      this[host] = undefined
+    } else {
+      this[host] ??= new RemoteHost(this, settings.remoteAccess === 'localAndRemote')
+      this[host].setRemote(settings.remoteAccess === 'localAndRemote')
+    }
     this.streamed = settings.torrentStreamedDownload
     this.persist = settings.torrentPersist
   }
@@ -592,7 +602,7 @@ export default class TorrentClient {
     }
   }
 
-  async destroy () {
+  async [destroy] () {
     await Promise.allSettled([
       this.attachments.destroy(),
       this.chromecasts.destroy(),
@@ -601,7 +611,8 @@ export default class TorrentClient {
       new Promise(resolve => tracker.destroy(resolve)),
       this[nzb]?.destroy(),
       this[http].destroy(),
-      this[doh]?.destroy()
+      this[doh]?.destroy(),
+      this[host]?.destroy()
     ])
     exit()
   }

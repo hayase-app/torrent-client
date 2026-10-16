@@ -1,10 +1,12 @@
-import { EventEmitter, on, once } from 'node:events'
+import { on, once } from 'node:events'
 import { createSecureServer, type Http2SecureServer, type Http2ServerRequest, type Http2ServerResponse } from 'node:http2'
+import { connect } from 'node:net'
 import { hostname, userInfo } from 'node:os'
 import { buffer } from 'node:stream/consumers'
 import { setInterval } from 'node:timers/promises'
 
 import NatAPI from '@silentbot1/nat-api'
+import { expose } from 'abslink'
 import _debug from 'debug'
 import multicastDns from 'multicast-dns'
 import { generate, type SubjectAltNameEntry } from 'selfsigned'
@@ -16,17 +18,27 @@ import { abort, cors, CHANNEL_ID_LENGTH, decrypt, HOST_KEY, HOSTNAME, localAddre
 
 import type { Answer, Question } from 'dns-packet'
 
-// TODO: implement key exchange for local
-
 const debug = _debug('host')
 
-// a browser navigation loads this page after the user accepts the certificate
-// a popup closes. a manual visit returns to the app, so it is not a dead end
-const APP_RETURN = 'https://hayase.app/#/local-sync'
-const ACCEPT_PAGE = `<!doctype html><meta charset="utf-8"><title>Hayase</title><script>window.close();location.replace(${JSON.stringify(APP_RETURN)})</script>`
+async function reachable (host: string) {
+  const socket = connect({ host, port: PORT })
+  try {
+    await once(socket, 'connect', { signal: AbortSignal.timeout(PROBE_TIMEOUT) })
+    return true
+  } catch {
+    return false
+  } finally {
+    socket.destroy()
+  }
+}
 
-export default class HayaseHost extends EventEmitter<{ channel: [channel: Channel] }> {
+const APP_RETURN = 'https://hayase.app/#/local/'
+const ACCEPT_PAGE = /* html */`<!doctype html><meta charset="utf-8"><title>Hayase</title><script>window.close();location.replace(${JSON.stringify(APP_RETURN)})</script>`
+
+export default class HayaseHost {
   _name = `${userInfo().username} (${hostname()})`
+  _client: object
+  _remote: boolean
   _local = false
   _external: { ip: string, port: number, url: string } | undefined
   _mdns = multicastDns()
@@ -36,8 +48,9 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
   _ctrl = new AbortController()
   _ready
 
-  constructor () {
-    super()
+  constructor (client: object, remote = false) {
+    this._client = client
+    this._remote = remote
     this._ready = this._start()
   }
 
@@ -46,18 +59,15 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
     return { local: this._local, external: this._external, name: this._name }
   }
 
-  // return the channel of an id. the page creates the channel with its first request
   channel (id: string) {
-    let channel = this._channels.get(id)
-    if (!channel) {
-      channel = new Channel(id)
-      this._channels.set(id, channel)
-      this.emit('channel', channel)
-    }
+    const existing = this._channels.get(id)
+    if (existing) return existing
+    const channel = new Channel(id)
+    expose(this._client, channel)
+    this._channels.set(id, channel)
     return channel
   }
 
-  // stop the server, the responder and the open event streams, so the process can exit
   async destroy () {
     if (this._destroyed) return
     this._ctrl.abort()
@@ -65,9 +75,11 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
       for (const client of _clients) client.end()
     }
     this._channels.clear()
+    // a ttl of 0 tells the resolvers to drop the cached record, so the name stops answering
+    await new Promise(resolve => this._mdns.respond([{ name: HOSTNAME, type: recordType, ttl: 0, flush: true, data: localAddress }], resolve))
     await Promise.allSettled([
-      this._server?.[Symbol.asyncDispose](),
       new Promise<void>(resolve => this._mdns.destroy(resolve)),
+      this._server?.[Symbol.asyncDispose](),
       this._nat?.destroy()
     ])
   }
@@ -89,12 +101,14 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
     }
   }
 
-  // ask the network if another device already answers for our name. our own responder is not listening yet
   async _probe () {
     this._mdns.query(HOSTNAME)
     for await (const [{ answers, additionals }] of on(this._mdns, 'response', { signal: AbortSignal.timeout(PROBE_TIMEOUT) }) as AsyncIterable<[{ answers: Answer[], additionals: Answer[] }]>) {
-      for (const { type, name } of [...answers, ...additionals]) {
-        if ((type === 'A' || type === 'AAAA') && name.toLowerCase() === HOSTNAME) return true
+      for (const answer of [...answers, ...additionals]) {
+        const { type, name } = answer
+        if ((type === 'A' || type === 'AAAA') && name.toLowerCase() === HOSTNAME && 'data' in answer && typeof answer.data === 'string') {
+          if (await reachable(answer.data)) return true
+        }
       }
     }
   }
@@ -107,7 +121,6 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
     const server = createSecureServer({ ...cert, allowHTTP1: false }, this._handleRequest)
     this._server = server
     server.listen(PORT, '0.0.0.0')
-    // once rejects on the error event, so a taken port fails the start
     await abort(once(server, 'listening', { signal: this._ctrl.signal }))
     if (this._destroyed) return
     server.on('error', error => debug('http2 failed: %s', error))
@@ -116,21 +129,35 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
     this._local = true
     debug('http2 on https://%s:%d', HOSTNAME, PORT)
 
-    // external access is optional. a failed nat step must not take local access down
+    // the wan mapping is optional. a failed nat step must not take local access down
+    if (this._remote) {
+      try {
+        await this._mapRemote()
+      } catch (error) {
+        debug('external access failed: %s', error)
+      }
+    }
+  }
+
+  async setRemote (remote: boolean) {
+    await this._ready
+    if (this._destroyed || remote === this._remote) return
+    this._remote = remote
     try {
-      await this._mapExternal(server)
+      if (remote) await this._mapRemote()
+      else await this._unmapRemote()
     } catch (error) {
       debug('external access failed: %s', error)
     }
   }
 
-  // map the listener on the wan, so a device outside the network reaches it. the certificate gains the public ip
-  async _mapExternal (server: Http2SecureServer) {
-    this._nat = new NatAPI({ enablePMP: true, enableUPNP: true, upnpPermanentFallback: true })
+  async _mapRemote () {
+    if (!this._local || this._external) return
+    this._nat ??= new NatAPI({ enablePMP: true, enableUPNP: true, upnpPermanentFallback: true })
     const ip = await this._nat.externalIp()
     if (this._destroyed || !ip) return
 
-    server.setSecureContext(await this._createCertificate(ip))
+    this._server?.setSecureContext(await this._createCertificate(ip))
     if (this._destroyed) return
     await this._nat.map({ publicPort: PORT, privatePort: PORT, protocol: 'TCP' })
 
@@ -138,7 +165,13 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
     debug('external http2 on %s', this._external.url)
   }
 
-  // the certificate is self signed. the browser accepts it once
+  async _unmapRemote () {
+    if (!this._external) return
+    this._external = undefined
+    await this._nat?.unmap({ publicPort: PORT, privatePort: PORT, protocol: 'TCP' })
+    debug('external access off')
+  }
+
   async _createCertificate (ip?: string) {
     const altNames: SubjectAltNameEntry[] = [
       { type: 2, value: HOSTNAME },
@@ -169,7 +202,6 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
   _records: [Answer] = [{ name: HOSTNAME, type: recordType, ttl: 120, flush: true, data: localAddress }]
 
   async _serveMdns () {
-    // the first announcement primes the resolver caches. later lookups reach us through their queries
     this._mdns.respond(this._records)
     abort(this._announce())
     for await (const [{ questions }, rinfo] of on(this._mdns, 'query', this._ctrl) as AsyncIterable<[{ questions: Question[] }, { port: number }]>) {
@@ -181,14 +213,12 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
     }
   }
 
-  // refresh the record before its ttl runs out, so the resolver cache of the name stays warm. ref: false keeps the process free to exit
   async _announce () {
     for await (const records of setInterval(20_000, this._records, { ref: false, signal: this._ctrl.signal })) {
       this._mdns.respond(records)
     }
   }
 
-  // the page opens an event stream on this endpoint. channel.postMessage sends an encrypted message on it
   async _serveEvents (id: string, request: Http2ServerRequest, response: Http2ServerResponse) {
     const channel = this.channel(id)
     response.setHeader('content-type', 'text/event-stream')
@@ -199,12 +229,10 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
     try {
       await once(request, 'close')
     } finally {
-      // drop the channel when its last event stream closes
       if (channel._detach(response)) this._channels.delete(id)
     }
   }
 
-  // the page posts an encrypted message to this endpoint. the host emits it on the message event of the channel
   async _serveMessage (id: string, request: Http2ServerRequest, response: Http2ServerResponse) {
     const channel = this._channels.get(id)
     if (!channel) {
@@ -224,7 +252,6 @@ export default class HayaseHost extends EventEmitter<{ channel: [channel: Channe
 
     if (request.method === 'OPTIONS') return send(response, 204)
 
-    // every page connection uses its own channel. the id is part of the url
     const [route, id] = new URL(request.url || '/', `https://${HOSTNAME}`).pathname.split('/').slice(1)
 
     if (id?.length !== CHANNEL_ID_LENGTH || (route !== 'events' && route !== 'message')) {

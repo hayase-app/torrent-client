@@ -5,7 +5,7 @@ import { networkAddress } from '../network/address.ts'
 import type { Http2ServerRequest, Http2ServerResponse } from 'node:http2'
 
 export const HOSTNAME = 'hayase.local'
-export const PROBE_TIMEOUT = 1500
+export const PROBE_TIMEOUT = 200
 // the port is fixed, so a browser can find the host. HAYASE_PORT overrides it
 export const PORT = Number(process.env.HAYASE_PORT) || 41734
 export const ALLOWED_ORIGINS = new Set(['http://localhost:7344', 'https://hayase.app'])
