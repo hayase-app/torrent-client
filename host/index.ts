@@ -2,13 +2,13 @@ import { EventEmitter, on, once } from 'node:events'
 import { createServer as createHttpServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import { createServer as createHttpsServer } from 'node:https'
 import { hostname, userInfo } from 'node:os'
-import { text } from 'node:stream/consumers'
+import { json } from 'node:stream/consumers'
 import { setInterval } from 'node:timers/promises'
 
 import NatAPI from '@silentbot1/nat-api'
 import _debug from 'debug'
 import multicastDns from 'multicast-dns'
-import selfsigned, { type SubjectAltNameEntry } from 'selfsigned'
+import { generate, type SubjectAltNameEntry } from 'selfsigned'
 
 import { isPrivateAddress } from '../network/address.ts'
 
@@ -149,7 +149,7 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
       { type: 7, ip: localAddress }
     ]
     if (recordType === 'A') altNames.push({ type: 2, value: localAddress })
-    const pems = await selfsigned.generate(
+    const pems = await generate(
       [{ name: 'commonName', value: ip }],
       {
         notAfterDate: new Date(Date.now() + 3650 * 24 * 60 * 60 * 1000),
@@ -208,15 +208,13 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
 
   // the page posts a message to this endpoint. the host emits it on the message event of the channel
   async _serveMessage (id: string, request: IncomingMessage, response: ServerResponse) {
-    const body = await text(request)
-
     const channel = this._channels.get(id)
     if (!channel) {
       return send(response, 404)
     }
 
     try {
-      channel.emit('message', JSON.parse(body))
+      channel.emit('message', await json(request))
       send(response, 204)
     } catch {
       send(response, 400, 'the request body is not valid json')
@@ -233,9 +231,8 @@ export default new class HayaseHost extends EventEmitter<{ channel: [channel: Ch
 
     if (request.method === 'OPTIONS') return send(response, 204)
 
-    const { pathname } = new URL(request.url ?? '/', `http://${HOSTNAME}`)
     // every page connection uses its own channel. the id is part of the url
-    const [route, id] = pathname.split('/').slice(1)
+    const [route, id] = new URL(request.url ?? '/', `http://${HOSTNAME}`).pathname.split('/').slice(1)
 
     if (id?.length !== CHANNEL_ID_LENGTH || (route !== 'events' && route !== 'message')) {
       return send(response, 200, { host: HOSTNAME, address: localAddress, port: HTTP_PORT, external: this._external })
