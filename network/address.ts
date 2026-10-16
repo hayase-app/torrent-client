@@ -48,6 +48,18 @@ function rank6 (address: string) {
   return 7
 }
 
+// return true if a LAN peer can reach this address directly, without NAT
+export function isPrivateAddress (address: string) {
+  if (address.startsWith('::ffff:')) return isPrivateAddress(address.slice(7))
+  if (address.includes(':')) {
+    if (address === '::1') return true
+    if (isLinkLocal6(address)) return true
+    return rank6(address) === 2 // fc00::/7 unique local
+  }
+  if (address.startsWith('127.') || isLinkLocal4(address)) return true
+  return rank4(toInt(address)) < 5
+}
+
 // return the address that a LAN device can most likely reach
 export function networkAddress () {
   const candidates: Array<{ address: string, rank: number }> = []
