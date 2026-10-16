@@ -262,7 +262,7 @@ export default class HayaseHost {
       }
       // only a local page receives the secret that derives the channel message keys
       const local = isPrivateAddress(request.socket.remoteAddress ?? '')
-      return send(response, 200, { host: HOSTNAME, address: localAddress, port: PORT, external: this._external, key: local ? HOST_KEY : undefined })
+      return send(response, 200, { name: this._name, port: PORT, external: this._external, key: local ? HOST_KEY : undefined })
     }
 
     try {
