@@ -6,10 +6,10 @@ import { buffer } from 'node:stream/consumers'
 import { setInterval } from 'node:timers/promises'
 
 import NatAPI from '@silentbot1/nat-api'
+import { createRootCA, generateCertificate, type Certificate } from '@stacksjs/tlsx'
 import { expose } from 'abslink'
 import _debug from 'debug'
 import multicastDns from 'multicast-dns'
-import { generate } from 'selfsigned'
 
 import { isPrivateAddress } from '../network/address.ts'
 
@@ -44,6 +44,7 @@ export default class HayaseHost {
   _mdns = multicastDns()
   _channels = new Map<string, Channel>()
   _server: Http2SecureServer | undefined
+  _ca: Certificate | undefined
   _nat: NatAPI | undefined
   _ctrl = new AbortController()
   _ready
@@ -173,28 +174,20 @@ export default class HayaseHost {
   }
 
   async _createCertificate (ip?: string) {
-    const altNames = [
-      { type: 2, value: HOSTNAME },
-      { type: 2, value: 'localhost' },
-      { type: 7, ip: '127.0.0.1' },
-      { type: 7, ip: localAddress }
-    ]
-    if (recordType === 'A') altNames.push({ type: 2, value: localAddress })
-    if (ip) altNames.push({ type: 7, ip })
-    const pems = await generate(
-      [{ name: 'commonName', value: HOSTNAME }],
-      {
-        keySize: 2048,
-        algorithm: 'sha256',
-        extensions: [
-          { name: 'basicConstraints', cA: false },
-          { name: 'keyUsage', digitalSignature: true, keyEncipherment: true },
-          { name: 'extKeyUsage', serverAuth: true },
-          { name: 'subjectAltName', altNames }
-        ]
-      }
-    )
-    return { key: pems.private, cert: pems.cert }
+    // reuse one CA, so every certificate change keeps a valid chain
+    this._ca ??= await createRootCA({ commonName: `${HOSTNAME} CA` })
+    const domains = [HOSTNAME]
+    if (recordType === 'A') domains.push(localAddress)
+    const altNameIPs = [localAddress]
+    if (ip) altNameIPs.push(ip)
+    const { certificate, privateKey } = await generateCertificate({
+      domain: HOSTNAME,
+      domains,
+      altNameIPs,
+      rootCA: this._ca
+    })
+    // the server must send the CA certificate, so a client can build the chain
+    return { key: privateKey, cert: `${certificate}\n${this._ca.certificate}` }
   }
 
   // flush marks the record as the unique answer for the name, so resolvers cache it
