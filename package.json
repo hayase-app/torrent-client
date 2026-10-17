@@ -33,7 +33,7 @@
 		"nzb-file": "^1.1.18",
 		"nzb-parser": "1.0.4",
 		"protobufjs": "8.6.2",
-		"selfsigned": "^5.5.0",
+		"selfsigned": "^2.4.1",
 		"uint8-util": "^2.3.2",
 		"webtorrent": "github:thaunknown/webtorrent#aio"
 	}

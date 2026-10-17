@@ -1,3 +1,5 @@
+import { env } from 'node:process'
+
 import { arr2hex, arr2text, concat, randomBytes, text2arr } from 'uint8-util'
 
 import { networkAddress } from '../network/address.ts'
@@ -7,7 +9,7 @@ import type { Http2ServerRequest, Http2ServerResponse } from 'node:http2'
 export const HOSTNAME = 'hayase.local'
 export const PROBE_TIMEOUT = 200
 // the port is fixed, so a browser can find the host. HAYASE_PORT overrides it
-export const PORT = Number(process.env.HAYASE_PORT) || 41734
+export const PORT = Number(env.HAYASE_PORT) || 41734
 export const ALLOWED_ORIGINS = new Set(['http://localhost:7344', 'https://hayase.app'])
 // crypto.randomUUID() returns 36 characters
 export const CHANNEL_ID_LENGTH = 36
@@ -16,7 +18,7 @@ export const CHANNEL_ID_LENGTH = 36
 export const localAddress = networkAddress().replace(/^\[|\]$/g, '')
 export const recordType = localAddress.includes(':') ? 'AAAA' : 'A'
 
-const pinnedKey = process.env.HAYASE_KEY?.trim()
+const pinnedKey = env.HAYASE_KEY?.trim()
 export const HOST_KEY = pinnedKey?.length ? pinnedKey : arr2hex(randomBytes(32))
 
 const secret = crypto.subtle.importKey('raw', text2arr(HOST_KEY), 'HKDF', false, ['deriveKey'])

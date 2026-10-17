@@ -9,7 +9,7 @@ import NatAPI from '@silentbot1/nat-api'
 import { expose } from 'abslink'
 import _debug from 'debug'
 import multicastDns from 'multicast-dns'
-import { generate, type SubjectAltNameEntry } from 'selfsigned'
+import { generate } from 'selfsigned'
 
 import { isPrivateAddress } from '../network/address.ts'
 
@@ -173,7 +173,7 @@ export default class HayaseHost {
   }
 
   async _createCertificate (ip?: string) {
-    const altNames: SubjectAltNameEntry[] = [
+    const altNames = [
       { type: 2, value: HOSTNAME },
       { type: 2, value: 'localhost' },
       { type: 7, ip: '127.0.0.1' },
@@ -184,7 +184,6 @@ export default class HayaseHost {
     const pems = await generate(
       [{ name: 'commonName', value: HOSTNAME }],
       {
-        notAfterDate: new Date(Date.now() + 3650 * 24 * 60 * 60 * 1000),
         keySize: 2048,
         algorithm: 'sha256',
         extensions: [
