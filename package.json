@@ -11,7 +11,6 @@
 		"eslint-config-standard-universal": "^1.0.10",
 		"native": "github:hayase-app/native",
 		"protobufjs-cli": "^2.6.1",
-		"selfsigned": "5.5.0",
 		"typescript": "^5.9.3",
 		"undici-types": "^8.9.0"
 	},
@@ -34,6 +33,7 @@
 		"nzb-file": "^1.1.18",
 		"nzb-parser": "1.0.4",
 		"protobufjs": "8.6.2",
+		"selfsigned": "^5.5.0",
 		"uint8-util": "^2.3.2",
 		"webtorrent": "github:thaunknown/webtorrent#aio"
 	}

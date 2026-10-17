@@ -47,6 +47,9 @@ importers:
       protobufjs:
         specifier: 8.6.2
         version: 8.6.2
+      selfsigned:
+        specifier: ^5.5.0
+        version: 5.5.0
       uint8-util:
         specifier: ^2.3.2
         version: 2.3.2
@@ -66,9 +69,6 @@ importers:
       protobufjs-cli:
         specifier: ^2.6.1
         version: 2.6.1(protobufjs@8.6.2)
-      selfsigned:
-        specifier: 5.5.0
-        version: 5.5.0
       typescript:
         specifier: ^5.9.3
         version: 5.9.3
