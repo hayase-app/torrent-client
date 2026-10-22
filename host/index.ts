@@ -40,7 +40,7 @@ export default class HayaseHost {
   _client: object
   _remote: boolean
   _local = false
-  _external: { ip: string, port: number, url: string } | undefined
+  _external?: string
   _mdns = multicastDns()
   _channels = new Map<string, Channel>()
   _server: Http2SecureServer | undefined
@@ -162,8 +162,8 @@ export default class HayaseHost {
     if (this._destroyed) return
     await this._nat.map({ publicPort: PORT, privatePort: PORT, protocol: 'TCP' })
 
-    this._external = { ip, port: PORT, url: `https://${ip}:${PORT}` }
-    debug('external http2 on %s', this._external.url)
+    this._external = ip
+    debug('external http2 on %s', this._external)
   }
 
   async _unmapRemote () {
@@ -254,7 +254,7 @@ export default class HayaseHost {
       }
       // only a local page receives the secret that derives the channel message keys
       const local = isPrivateAddress(request.socket.remoteAddress ?? '')
-      return send(response, 200, { name: this._name, port: PORT, external: this._external, key: local ? HOST_KEY : undefined })
+      return send(response, 200, { name: this._name, external: this._external, key: local ? HOST_KEY : undefined })
     }
 
     try {
