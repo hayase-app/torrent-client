@@ -34,6 +34,7 @@
 		"nzb-file": "^1.1.18",
 		"nzb-parser": "1.0.4",
 		"protobufjs": "8.6.2",
+		"pump": "^3.0.4",
 		"uint8-util": "^2.3.2",
 		"webtorrent": "github:thaunknown/webtorrent#aio"
 	}

@@ -27,7 +27,7 @@ import type { Server } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import type Torrent from 'webtorrent/lib/torrent.js'
 
-const client = Symbol('client')
+export const client = Symbol('client')
 const server = Symbol('server')
 const store = Symbol('store')
 const path = Symbol('path')

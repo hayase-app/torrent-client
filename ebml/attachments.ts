@@ -1,9 +1,10 @@
-import { createServer } from 'node:http'
+import { createServer, type ServerResponse } from 'node:http'
 
 import { networkAddress } from '../network/address.ts'
 
 import Metadata from './metadata.ts'
 
+import type { Http2ServerResponse } from 'node:http2'
 import type File from 'webtorrent/lib/file'
 import type Torrent from 'webtorrent/lib/torrent.js'
 
@@ -12,9 +13,11 @@ export default new class Attachments {
   filemap = new Map<string, File>()
   metadatamap = new WeakMap<File, Metadata>()
   registered = new Set<string>()
-  server = createServer(async (req, res) => {
+  server = createServer((req, res) => this.serve(req.url ?? '/', res)).listen()
+
+  async serve (url: string, res: ServerResponse | Http2ServerResponse) {
     try {
-      const { pathname } = new URL(req.url!, 'http://localhost')
+      const { pathname } = new URL(url, 'http://localhost')
       const [hashid, number] = pathname.split('/').slice(1)
       if (!hashid || !number) throw new Error('Invalid request')
 
@@ -27,13 +30,15 @@ export default new class Attachments {
       const attachment = (await metadata.getAttachments())[Number(number)]
       if (!attachment) throw new Error('Attachment not found')
 
+      // @ts-expect-error weird http2 assert
       res.writeHead(200, { 'Content-Type': String(attachment.mimetype), 'Access-Control-Allow-Origin': '*' })
       res.end(attachment.data instanceof Buffer ? attachment.data : Buffer.from(''))
     } catch (err) {
+      // @ts-expect-error weird http2 assert
       res.writeHead(500, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ error: err instanceof Error ? err.message : String(err) }))
     }
-  }).listen()
+  }
 
   _metadata (hash: string, id: number) {
     const file = this.filemap.get(hash + id)

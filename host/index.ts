@@ -10,13 +10,18 @@ import { createRootCA, generateCertificate, type Certificate } from '@stacksjs/t
 import { expose } from 'abslink'
 import _debug from 'debug'
 import multicastDns from 'multicast-dns'
+import pump from 'pump'
 
+import attachments from '../ebml/attachments.ts'
+import { client } from '../index.ts'
 import { isPrivateAddress } from '../network/address.ts'
 
 import { Channel } from './channel.ts'
 import { abort, cors, CHANNEL_ID_LENGTH, decrypt, HOST_KEY, HOSTNAME, localAddress, PORT, PROBE_TIMEOUT, recordType, send } from './util.ts'
 
+import type TorrentClient from '../index.ts'
 import type { Answer, Question } from 'dns-packet'
+import type { Readable } from 'streamx'
 
 const debug = _debug('host')
 
@@ -35,9 +40,15 @@ async function reachable (host: string) {
 const APP_RETURN = 'https://hayase.app/#/local/'
 const ACCEPT_PAGE = /* html */`<!doctype html><meta charset="utf-8"><title>Hayase</title><script>window.close();location.replace(${JSON.stringify(APP_RETURN)})</script>`
 
+interface WebTorrentResponse {
+  status: number
+  headers: Record<string, string | number>
+  body: Readable & { _readableState?: unknown, _writableState?: unknown } | string
+}
+
 export default class HayaseHost {
   _name = `${userInfo().username} (${hostname()})`
-  _client: object
+  _client: TorrentClient
   _remote: boolean
   _local = false
   _external?: string
@@ -49,7 +60,7 @@ export default class HayaseHost {
   _ctrl = new AbortController()
   _ready
 
-  constructor (client: object, remote = false) {
+  constructor (client: TorrentClient, remote = false) {
     this._client = client
     this._remote = remote
     this._ready = this._start()
@@ -239,6 +250,37 @@ export default class HayaseHost {
     }
   }
 
+  _serveWebTorrent (id: string, request: Http2ServerRequest, response: Http2ServerResponse) {
+    if (!this._channels.has(id)) return send(response, 404)
+    if (request.method !== 'GET' && request.method !== 'HEAD') return send(response, 405)
+
+    // the torrent server expects the torrent hash directly after its own route
+    const upstream = Object.create(request) as Http2ServerRequest
+    Object.defineProperty(upstream, 'url', {
+      value: request.url.replace(`/webtorrent/${id}`, '/webtorrent'),
+      enumerable: true
+    })
+    this._client[client]._server!.onRequest(upstream, (result: WebTorrentResponse) => {
+      response.writeHead(result.status, result.headers)
+
+      if (typeof result.body !== 'string' && (result.body._readableState ?? result.body._writableState)) {
+        pump(result.body, response)
+      } else if (typeof result.body === 'string' && result.body) {
+        response.end(result.body)
+      } else {
+        response.end()
+      }
+    })
+  }
+
+  async _serveAttachments (id: string, url: string, request: Http2ServerRequest, response: Http2ServerResponse) {
+    if (!this._channels.has(id)) return send(response, 404)
+    if (request.method !== 'GET' && request.method !== 'HEAD') return send(response, 405)
+
+    // the attachment server has no route prefix, so remove it before the call
+    await attachments.serve(url.slice(`/attachments/${id}`.length) || '/', response)
+  }
+
   _handleRequest = async (request: Http2ServerRequest, response: Http2ServerResponse) => {
     cors(request, response)
 
@@ -246,7 +288,7 @@ export default class HayaseHost {
 
     const [route, id] = new URL(request.url || '/', `https://${HOSTNAME}`).pathname.split('/').slice(1)
 
-    if (id?.length !== CHANNEL_ID_LENGTH || (route !== 'events' && route !== 'message')) {
+    if (id?.length !== CHANNEL_ID_LENGTH || (route !== 'events' && route !== 'message' && route !== 'webtorrent' && route !== 'attachments')) {
       // a browser navigation asks for html. it is the pairing popup, so the page closes itself
       if (request.headers.accept?.includes('text/html')) {
         response.setHeader('content-type', 'text/html')
@@ -258,7 +300,11 @@ export default class HayaseHost {
     }
 
     try {
-      if (route === 'events' && request.method === 'GET') {
+      if (route === 'webtorrent') {
+        this._serveWebTorrent(id, request, response)
+      } else if (route === 'attachments') {
+        await this._serveAttachments(id, request.url, request, response)
+      } else if (route === 'events' && request.method === 'GET') {
         await this._serveEvents(id, request, response)
       } else if (route === 'message' && request.method === 'POST') {
         await this._serveMessage(id, request, response)
