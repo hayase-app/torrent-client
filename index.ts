@@ -10,6 +10,7 @@ import { ACTIVE_STORE_CACHE_SLOTS, BACKGROUND_STORE_CACHE_SLOTS, DHT_BOOTSTRAP, 
 import { DLNAs } from './dlna/index.ts'
 import attachments from './ebml/attachments.ts'
 import { checkAvailableSpace, verifyDirectoryPermissions } from './filesystem/index.ts'
+import { type ImportTorrent, importQBittorrent, qbittorrentLibrary } from './filesystem/qbittorrent.ts'
 import { Store, structTorrent } from './filesystem/store.ts'
 import RemoteHost from './host'
 import { networkAddress } from './network/address.ts'
@@ -354,6 +355,14 @@ export default class TorrentClient {
       torrents.push(getLibraryEntry(torrent, bencoded))
     }
     return torrents
+  }
+
+  async qbittorrentLibrary () {
+    return await qbittorrentLibrary()
+  }
+
+  async importQBittorrent (torrents: ImportTorrent[], move: boolean) {
+    return await importQBittorrent(this[store], this[path], torrents, move)
   }
 
   async trackers (id: string) {
