@@ -12,8 +12,8 @@ export interface TorrentMetadata {
   private?: boolean
   bitfield?: Uint8Array
   date: number
-  mediaID: number
-  episode: number
+  mediaID?: number
+  episode?: number
   background?: boolean
 }
 
@@ -25,8 +25,8 @@ export interface TorrentData {
   _bitfield?: Uint8Array
   announce?: string
   date: number
-  mediaID: number
-  episode: number
+  mediaID?: number
+  episode?: number
   background?: number
 }
 
@@ -36,12 +36,12 @@ export function structTorrent ({ info, urlList, bitfield, announce, private: pri
     'url-list': urlList ?? [],
     _bitfield: bitfield,
     'announce-list': (announce ?? []).map(url => [text2arr(url)]),
-    date,
-    mediaID,
-    episode
+    date
   }
   torrent.announce ??= announce?.[0]
   if (priv !== undefined) torrent.private = Number(priv)
+  if (mediaID !== undefined) torrent.mediaID = mediaID
+  if (episode !== undefined) torrent.episode = episode
   if (background !== undefined) torrent.background = Number(background)
 
   return torrent

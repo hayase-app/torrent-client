@@ -10,7 +10,7 @@ import { ACTIVE_STORE_CACHE_SLOTS, BACKGROUND_STORE_CACHE_SLOTS, DHT_BOOTSTRAP, 
 import { DLNAs } from './dlna/index.ts'
 import attachments from './ebml/attachments.ts'
 import { checkAvailableSpace, verifyDirectoryPermissions } from './filesystem/index.ts'
-import { type ImportTorrent, importQBittorrent, qbittorrentLibrary } from './filesystem/qbittorrent.ts'
+import { importQBittorrent, qbittorrentLibrary } from './filesystem/qbittorrent.ts'
 import { Store, structTorrent } from './filesystem/store.ts'
 import RemoteHost from './host'
 import { networkAddress } from './network/address.ts'
@@ -361,8 +361,8 @@ export default class TorrentClient {
     return await qbittorrentLibrary()
   }
 
-  async importQBittorrent (torrents: ImportTorrent[], move: boolean) {
-    return await importQBittorrent(this[store], this[path], torrents, move)
+  async importQBittorrent (hashes: string[], move: boolean) {
+    await importQBittorrent(this[store], this[path], hashes, move)
   }
 
   async trackers (id: string) {
@@ -556,7 +556,7 @@ export default class TorrentClient {
       if (!bencoded.background) continue
       if (this.torrentState.has(parsed.infoHash)) continue
 
-      await this.initTorrent(parsed.infoHash, parsed, false, true, bencoded.mediaID, bencoded.episode)
+      await this.initTorrent(parsed.infoHash, parsed, false, true, bencoded.mediaID ?? 0, bencoded.episode ?? 0)
     }
   }
 
