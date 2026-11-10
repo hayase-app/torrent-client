@@ -602,18 +602,18 @@ export default class TorrentClient {
     }
   }
 
-  async [destroy] () {
+  async [destroy] (exitProcess = true) {
     await Promise.allSettled([
       this.attachments.destroy(),
       this.chromecasts.destroy(),
       this.dlnas.destroy(),
       new Promise(resolve => this[client].destroy(resolve)),
-      new Promise(resolve => tracker.destroy(resolve)),
+      exitProcess && new Promise(resolve => tracker.destroy(resolve)),
       this[nzb]?.destroy(),
       this[http].destroy(),
       this[doh]?.destroy(),
       this[host]?.destroy()
     ])
-    exit()
+    if (exitProcess) exit()
   }
 }
