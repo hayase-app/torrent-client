@@ -604,7 +604,7 @@ export default class TorrentClient {
 
   async [destroy] (exitProcess = true) {
     await Promise.allSettled([
-      this.attachments.destroy(),
+      exitProcess && this.attachments.destroy(),
       this.chromecasts.destroy(),
       this.dlnas.destroy(),
       new Promise(resolve => this[client].destroy(resolve)),
