@@ -9,7 +9,7 @@ import { ChromeCasts } from './chromecast/index.ts'
 import { ACTIVE_STORE_CACHE_SLOTS, BACKGROUND_STORE_CACHE_SLOTS, DHT_BOOTSTRAP, megaBitsToBytes, peerId } from './common/constants.ts'
 import { DLNAs } from './dlna/index.ts'
 import attachments from './ebml/attachments.ts'
-import { checkAvailableSpace, verifyDirectoryPermissions } from './filesystem/index.ts'
+import { checkAvailableSpace, verifyDirectoryPermissions, SafeFSChunkStore } from './filesystem/index.ts'
 import { Store, structTorrent } from './filesystem/store.ts'
 import RemoteHost from './host'
 import { networkAddress } from './network/address.ts'
@@ -231,7 +231,7 @@ export default class TorrentClient {
         (async () => {
           const storeData = await cachedStore.get(hash)
           if (!storeData) return
-          const torrent = tmpclient.add(storeData.torrent, { path: this[path], announce: [], deselect: true, paused: true })
+          const torrent = tmpclient.add(storeData.torrent, { path: this[path], announce: [], deselect: true, paused: true, store: SafeFSChunkStore })
 
           await new Promise(resolve => torrent.once('ready', resolve))
 
@@ -291,7 +291,7 @@ export default class TorrentClient {
           const storeData = await cachedStore.get(hash)
           if (!storeData) return
 
-          const torrent = tmpclient.add(storeData.torrent, { path: this[path], announce: [], deselect: true, paused: true, skipVerify: true })
+          const torrent = tmpclient.add(storeData.torrent, { path: this[path], announce: [], deselect: true, paused: true, skipVerify: true, store: SafeFSChunkStore })
 
           if (!torrent.ready) await new Promise(resolve => torrent.once('ready', resolve))
 
@@ -515,6 +515,7 @@ export default class TorrentClient {
       announce: ANNOUNCE,
       bitfield: storeData?.bencoded._bitfield,
       deselect,
+      store: SafeFSChunkStore,
       storeCacheSlots: background ? BACKGROUND_STORE_CACHE_SLOTS : ACTIVE_STORE_CACHE_SLOTS
     })
 
