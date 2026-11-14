@@ -145,7 +145,7 @@ export default class TorrentClient {
     this.persist = settings.torrentPersist
   }
 
-  async setDOH (dohServer: `https://${keyof typeof PROVIDERS}`) {
+  async setDOH (dohServer: string) {
     await this[doh]?.destroy()
     try {
       this[doh] = new DoHResolver(dohServer)
