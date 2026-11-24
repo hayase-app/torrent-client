@@ -58,7 +58,7 @@ importers:
         version: 2.3.2
       webtorrent:
         specifier: github:thaunknown/webtorrent#aio
-        version: https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e(bare-url@2.4.6)
+        version: https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d(bare-url@2.4.6)
     devDependencies:
       '@types/node':
         specifier: ^26.6.6
@@ -2047,8 +2047,8 @@ packages:
     resolution: {integrity: sha512-t/H2OySa7lZSq2f5j4whmr+IWCl5TqF4daGotE8VhPP7U+E4x5x8MK1wqOkqlb4xxRlag4kBB9enU4oxNk//+g==}
     engines: {node: '>=16.0.0'}
 
-  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e:
-    resolution: {tarball: https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e}
+  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d:
+    resolution: {tarball: https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d}
     version: 3.0.21
     engines: {node: '>=22'}
 
@@ -4483,7 +4483,7 @@ snapshots:
     dependencies:
       node-datachannel: 0.32.3
 
-  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e(bare-url@2.4.6):
+  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d(bare-url@2.4.6):
     dependencies:
       '@silentbot1/nat-api': 0.4.9
       '@thaunknown/simple-peer': 10.1.2

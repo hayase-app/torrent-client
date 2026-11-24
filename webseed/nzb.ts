@@ -34,6 +34,8 @@ async function urlToContents (url: string) {
   return await res.text()
 }
 
+const ARTICLES_PER_REQUEST = 6
+
 export class NZBManager {
   pool
 
@@ -132,6 +134,8 @@ export class NZBManager {
       newPeer.wire!.domain = domain
       // @ts-expect-error non-standard hacky, dont care
       newPeer.wire!.webSeedType = 'nntp'
+      // the request length depends on the article size, which is known only after the nzb is probed
+      conn._torrentWire = newPeer.wire!
 
       torrent._registerPeer(newPeer)
       peers.push(conn)
@@ -160,6 +164,7 @@ class NZBWebSeed extends Wire {
   lt_donthave!: InstanceType<ReturnType<typeof ltDontHave>>
   _bitfield
   _peers
+  _torrentWire?: Wire
 
   constructor (torrent: Torrent, id: string, peers: NZBWebSeed[]) {
     super()
@@ -221,7 +226,13 @@ class NZBWebSeed extends Wire {
       if (!this._files.has(file)) {
         this._files.set(file, [])
       }
-      this._files.get(file)!.push(nntpfile)
+      const copies = this._files.get(file)!
+
+      // make sure this isnt a dupe
+      if (copies.some(copy => copy.segments.length === nntpfile.segments.length && copy.segments.every((segment, i) => segment.messageId === nntpfile.segments[i]!.messageId))) continue
+      copies.push(nntpfile)
+      // @ts-expect-error webtorrent fork option, not in the typedefs
+      if (this._torrentWire) this._torrentWire.webSeedRequestLength = ARTICLES_PER_REQUEST * nntpfile.segmentSize
 
       for (let i = file._startPiece; i <= file._endPiece; ++i) {
         this._bitfield.set(i, true)
@@ -261,11 +272,10 @@ class NZBWebSeed extends Wire {
       for (const requestedFile of requestedFiles) {
         const nntpfiles = this._files.get(requestedFile)
         if (!nntpfiles) throw new Error('Could not find file corresponding to web seed range request')
-        const fileEnd = requestedFile.offset + requestedFile.length - 1
         requests.push({
           nntpfiles,
           start: Math.max(rangeStart - requestedFile.offset, 0),
-          end: Math.min(fileEnd, rangeEnd - requestedFile.offset)
+          end: Math.min(requestedFile.length - 1, rangeEnd - requestedFile.offset)
         })
       }
     }
@@ -283,7 +293,13 @@ class NZBWebSeed extends Wire {
       for (const nntpfile of nntpfiles) {
         try {
           debug('Trying file %s (size %d)', nntpfile.name, nntpfile.size)
-          const data = await nntpfile.slice(start, end + 1).bytes()
+          const data = new Uint8Array(end + 1 - start)
+          let written = 0
+          for await (const part of nntpfile.slice(start, end + 1)) {
+            if (!this._bitfield.get(pieceIndex)) throw new Error(`Piece ${pieceIndex} was given up`)
+            data.set(part, written)
+            written += part.length
+          }
 
           debug('Got data of length %d', data.length)
 
