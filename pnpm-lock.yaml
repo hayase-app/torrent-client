@@ -42,8 +42,8 @@ importers:
         specifier: ^7.2.5
         version: 7.2.5
       nzb-file:
-        specifier: ^1.1.20
-        version: 1.1.20
+        specifier: ^1.1.21
+        version: 1.1.21
       nzb-parser:
         specifier: 1.0.4
         version: 1.0.4
@@ -1465,8 +1465,8 @@ packages:
     resolution: {integrity: sha512-eonl3sLUha+S1GzTPxychyhnUzKyeQkZ7jLjKrBagJgPla13F+uQ71HgpFefyHgqrjEbCPkDArxYsjY8/+gLKA==}
     engines: {node: '>= 0.4.0'}
 
-  nntp-js@1.0.7:
-    resolution: {integrity: sha512-SaFXUtVZK6b8wLW7uWyk9YnhnIpojAuxMhaLmd7RGD8Cd1Mdu1pCgkOUZa1OX6wnIt/LCgr1ujo/UfzTTp6wGg==}
+  nntp-js@1.0.8:
+    resolution: {integrity: sha512-usOxmlLACjkH+NcQRJeMW/ZiCTeQLM3ly6O/fkPVIOlsu9OfUfrDmA5VfAIPQ4tVK8DXRIdIudwJG9PFIq+QEA==}
 
   node-abi@3.94.0:
     resolution: {integrity: sha512-W5ZNO5KRPB5TkYmGVD9F6YqhsglXJzE6etpbmT+f6EQElhiX/UTG551cnsRGvLG3fyZEg9HwaDmNmj5nwJ4z9g==}
@@ -1497,8 +1497,8 @@ packages:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  nzb-file@1.1.20:
-    resolution: {integrity: sha512-wWig195bwgr/ZEE4sbx6F4/ETUwq9k1JGhDpeXqa4VvLikeWHus2NDwM56TaKOyQt10K24Ca2wL8Yq2TE2FhDw==}
+  nzb-file@1.1.21:
+    resolution: {integrity: sha512-/gKRnVWWLY2TaOifqzxpF+/NligJ9n1B/6Q8zQn1oKjcAKqvMmx1UFoosJqsqBciyXrsHGC5vDboh4WZazS+Jw==}
 
   nzb-parser@1.0.4:
     resolution: {integrity: sha512-MyN/NP+DUu6CUBzvUNbS2EDmpykyEoCRbnfOUZ7xR7SgHimGAZ9rh0fEyVGbbhzSQfv6wSVXSuYxtqe0x5QMnw==}
@@ -3757,7 +3757,7 @@ snapshots:
 
   netmask@2.1.1: {}
 
-  nntp-js@1.0.7: {}
+  nntp-js@1.0.8: {}
 
   node-abi@3.94.0:
     dependencies:
@@ -3788,11 +3788,11 @@ snapshots:
     dependencies:
       path-key: 4.0.0
 
-  nzb-file@1.1.20:
+  nzb-file@1.1.21:
     dependencies:
       '@thaunknown/yencode': 1.5.5
       mime: 4.1.2
-      nntp-js: 1.0.7
+      nntp-js: 1.0.8
       nzb-parser: 1.0.4
 
   nzb-parser@1.0.4:

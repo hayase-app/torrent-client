@@ -31,7 +31,7 @@
 		"ebml-stream": "^1.0.3",
 		"fast-xml-parser": "^5.9.0",
 		"multicast-dns": "^7.2.5",
-		"nzb-file": "^1.1.20",
+		"nzb-file": "^1.1.21",
 		"nzb-parser": "1.0.4",
 		"protobufjs": "8.6.2",
 		"pump": "^3.0.4",
