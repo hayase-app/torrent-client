@@ -14,6 +14,7 @@ import parse from 'nzb-parser'
 import { hash, concat } from 'uint8-util'
 import Peer from 'webtorrent/lib/peer.js'
 
+import type { FileMeta } from 'nzb-parser/src/models'
 import type File from 'webtorrent/lib/file'
 import type Torrent from 'webtorrent/lib/torrent.js'
 
@@ -50,32 +51,64 @@ export class NZBManager {
     await this.pool.ready
     if (torrent.destroyed || torrent.done) return
 
+    const filesByName = new Map<string, File>()
+    for (const file of torrent.files) {
+      filesByName.set(file.name, file)
+      filesByName.set(file.path, file)
+    }
+
     const torrentFileToNZBFileMap = new Map<File, NNTPFile>()
 
-    const fileList: NNTPFile[] = await Promise.all(files.map(async ({ name, segments, datetime }) => {
-      const { data } = await this.pool.body(`<${segments[0]?.messageId}>`)
-      const { props } = fromPost(Buffer.from(data))
-      return new NNTPFile({ name, size: parseInt(props!.begin.size), segments, segmentSize: parseInt(props!.part.end), lastModifiedDate: datetime, pool: this.pool })
-    }))
+    // find files by name or path
+    const namedFiles = await this.probe(files.filter(({ name }) => filesByName.has(name)))
+    for (const nzbFile of namedFiles) {
+      const file = filesByName.get(nzbFile.name)!
+      // an nzb can have multiple entries with the same name, like a repost, so use the first one
+      if (!torrentFileToNZBFileMap.has(file)) torrentFileToNZBFileMap.set(file, nzbFile)
+    }
 
-    if (torrent.destroyed || torrent.done) return
+    // find the remaining files by size, every probe costs an article download, so only probe the other entries if files remain
+    const remainingFiles = torrent.files.filter(file => !torrentFileToNZBFileMap.has(file))
+    if (remainingFiles.length) {
+      const otherFiles = await this.probe(files.filter(({ name }) => !filesByName.has(name)))
 
-    // find files by name or path, of file size if no other files match
-    for (const file of torrent.files) {
-      const nzbFile = fileList.find(f => f.name === file.name || f.name === file.path)
-      if (nzbFile) {
-        torrentFileToNZBFileMap.set(file, nzbFile)
-      } else {
-        const sizeMatch = fileList.filter(f => f.size === file.length)
-        if (sizeMatch.length === 1) {
-          torrentFileToNZBFileMap.set(file, sizeMatch[0]!)
-        }
+      // a size that multiple entries have does not identify a file
+      const filesBySize = new Map<number, NNTPFile | undefined>()
+      for (const nzbFile of otherFiles) {
+        filesBySize.set(nzbFile.size, filesBySize.has(nzbFile.size) ? undefined : nzbFile)
+      }
+      for (const file of remainingFiles) {
+        const nzbFile = filesBySize.get(file.length)
+        if (nzbFile) torrentFileToNZBFileMap.set(file, nzbFile)
       }
     }
+
+    if (torrent.destroyed || torrent.done) return
 
     for (const wire of this.registeredTorrents.get(torrent.infoHash) ?? []) {
       wire._mergeFileList(torrentFileToNZBFileMap)
     }
+  }
+
+  async probe (files: FileMeta[]) {
+    const nzbFiles = await Promise.all(files.map(async ({ name, segments, datetime }) => {
+      // a full segment gives the size and the segment size of the file, articles can be missing or from another upload, and bad ones come in runs,
+      // so try segments spread over the file, except the last, shorter one
+      for (const { messageId, number } of new Set([0, 0.25, 0.5, 0.75].map(at => segments[Math.floor(at * (segments.length - 1))]!))) {
+        try {
+          const { data } = await this.pool.body(`<${messageId}>`)
+          const { begin, part } = fromPost(Buffer.from(data)).props!
+          const segmentSize = parseInt(part.end) - parseInt(part.begin) + 1
+          // an article from another upload won't be at the position of this segment
+          if (parseInt(part.begin) === (number - 1) * segmentSize + 1) {
+            return new NNTPFile({ name, size: parseInt(begin.size), segments, segmentSize, lastModifiedDate: datetime, pool: this.pool })
+          }
+        } catch (error) {
+          debug('Failed to probe article %s of %s: %s', messageId, name, error)
+        }
+      }
+    }))
+    return nzbFiles.filter(nzbFile => nzbFile != null)
   }
 
   registeredTorrents = new Map<string, NZBWebSeed[]>()
@@ -93,7 +126,7 @@ export class NZBManager {
     const peers: NZBWebSeed[] = []
     for (let i = 0; i < poolSize; i++) {
       const id = domain + '-' + (i + 1)
-      const conn = new NZBWebSeed(torrent, id)
+      const conn = new NZBWebSeed(torrent, id, peers)
       const newPeer = Peer.createWebSeedPeer(conn, id, torrent, torrent.throttleGroups, torrent.client.throttleGroups)
       // @ts-expect-error non-standard hacky, dont care
       newPeer.wire!.domain = domain
@@ -126,12 +159,14 @@ class NZBWebSeed extends Wire {
   _files = new Map<File, NNTPFile[]>()
   lt_donthave!: InstanceType<ReturnType<typeof ltDontHave>>
   _bitfield
+  _peers
 
-  constructor (torrent: Torrent, id: string) {
+  constructor (torrent: Torrent, id: string, peers: NZBWebSeed[]) {
     super()
 
     this.connId = id
     this._torrent = torrent
+    this._peers = peers
 
     this.setKeepAlive(true)
 
@@ -168,8 +203,12 @@ class NZBWebSeed extends Wire {
         // @ts-expect-error bad typedefs
         queueMicrotask(() => callback(null, data))
       } catch (error) {
-        // Cancel all in progress requests for this piece
-        this.lt_donthave.donthave(pieceIndex)
+        // Cancel all in progress requests for this piece, on all nntp peers, since they share the same articles
+        for (const peer of this._peers) {
+          // the next bitfield message must not offer this piece again
+          peer._bitfield.set(pieceIndex as number, false)
+          peer.lt_donthave.donthave(pieceIndex)
+        }
 
         // @ts-expect-error bad typedefs
         queueMicrotask(() => callback(error))

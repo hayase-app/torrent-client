@@ -15,8 +15,8 @@ importers:
         specifier: ^0.13.19
         version: 0.13.19
       '@types/chromecast-caf-receiver':
-        specifier: ^6.0.27
-        version: 6.0.27
+        specifier: ^7.0.1
+        version: 7.0.1
       '@types/multicast-dns':
         specifier: ^7.2.4
         version: 7.2.4
@@ -42,8 +42,8 @@ importers:
         specifier: ^7.2.5
         version: 7.2.5
       nzb-file:
-        specifier: ^1.1.18
-        version: 1.1.18
+        specifier: ^1.1.19
+        version: 1.1.19
       nzb-parser:
         specifier: 1.0.4
         version: 1.0.4
@@ -61,14 +61,14 @@ importers:
         version: https://codeload.github.com/thaunknown/webtorrent/tar.gz/942f28ef54fb2c1f0a976db71c5033e2a4d6dc1e(bare-url@2.4.6)
     devDependencies:
       '@types/node':
-        specifier: ^26.6.5
-        version: 26.6.5
+        specifier: ^26.6.6
+        version: 26.6.6
       eslint-config-standard-universal:
         specifier: ^1.0.10
         version: 1.0.10(@typescript-eslint/parser@8.60.0(eslint@9.39.4)(typescript@6.0.3))
       native:
         specifier: github:hayase-app/native
-        version: https://codeload.github.com/hayase-app/native/tar.gz/9405fcc45a4e0fe49933066c1c81aa173ba63ba2
+        version: https://codeload.github.com/hayase-app/native/tar.gz/e406ed9ca5bc91a36de2784820513eb9e4a9cdeb
       protobufjs-cli:
         specifier: ^2.6.1
         version: 2.6.1(protobufjs@8.6.2)
@@ -225,6 +225,9 @@ packages:
   '@types/chromecast-caf-receiver@6.0.27':
     resolution: {integrity: sha512-8iyp1C3Dl5NSKQVl1ZOrTLDZtIqALhOL74IvzsbAOsyATXFPSt9nmtww0jstnqoUtRYc5UjI51uIumEfd3Z+dQ==}
 
+  '@types/chromecast-caf-receiver@7.0.1':
+    resolution: {integrity: sha512-vR8pWpG/1oSY4ZKjuASRjpOl4ODmSiOXct9eQ6zZZxoiA7l5c829rXWbdS97P08ZOpTxM6icRI5GdGu00buS0A==}
+
   '@types/dns-packet@5.6.5':
     resolution: {integrity: sha512-qXOC7XLOEe43ehtWJCMnQXvgcIpv6rPmQ1jXT98Ad8A3TB1Ue50jsCbSSSyuazScEuZ/Q026vHbrOTVkmwA+7Q==}
 
@@ -249,8 +252,8 @@ packages:
   '@types/multicast-dns@7.2.4':
     resolution: {integrity: sha512-ib5K4cIDR4Ro5SR3Sx/LROkMDa0BHz0OPaCBL/OSPDsAXEGZ3/KQeS6poBKYVN7BfjXDL9lWNwzyHVgt/wkyCw==}
 
-  '@types/node@26.6.5':
-    resolution: {integrity: sha512-uMzsv9stDdofIZBx4UGh4Z9ZgXnGC9seRDscilBcTHAeOFk67MZg/k9bWVfO+bk4qZmG+l52hRnLwUiH2LnJTg==}
+  '@types/node@26.6.6':
+    resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
   '@typescript-eslint/eslint-plugin@8.60.0':
     resolution: {integrity: sha512-QYb/sa74/s7OKMbACMjrYnGspj9Hs5YI5aaffSL65UfeBUzVzBJfVo3oWSpbzPurvm7yaCCo2Lk7lVj610HqKw==}
@@ -1398,8 +1401,8 @@ packages:
     engines: {node: '>=10.0.0'}
     hasBin: true
 
-  mime@4.1.0:
-    resolution: {integrity: sha512-X5ju04+cAzsojXKes0B/S4tcYtFAJ6tTMuSPBEn9CPGlrWr8Fiw7qYeLT0XyH80HSoAoqWCaz+MWKh22P7G1cw==}
+  mime@4.1.2:
+    resolution: {integrity: sha512-ikRzZ2RwbUVDyL9SsU0f2Phcmav4yq5r8faH5ZZKHtOZrMBLnrQOrj0uvqZ5R1uQnj+RO7Wcklw/lAf81mP9LQ==}
     engines: {node: '>=16'}
     hasBin: true
 
@@ -1451,8 +1454,8 @@ packages:
   napi-macros@2.2.2:
     resolution: {integrity: sha512-hmEVtAGYzVQpCKdbQea4skABsdXW4RUh5t5mJ2zzqowJS2OyXZTU1KhDVFhx+NlWZ4ap9mqR9TcDO3LTTttd+g==}
 
-  native@https://codeload.github.com/hayase-app/native/tar.gz/9405fcc45a4e0fe49933066c1c81aa173ba63ba2:
-    resolution: {tarball: https://codeload.github.com/hayase-app/native/tar.gz/9405fcc45a4e0fe49933066c1c81aa173ba63ba2}
+  native@https://codeload.github.com/hayase-app/native/tar.gz/e406ed9ca5bc91a36de2784820513eb9e4a9cdeb:
+    resolution: {tarball: https://codeload.github.com/hayase-app/native/tar.gz/e406ed9ca5bc91a36de2784820513eb9e4a9cdeb}
     version: 1.0.0
 
   natural-compare@1.4.0:
@@ -1462,8 +1465,8 @@ packages:
     resolution: {integrity: sha512-eonl3sLUha+S1GzTPxychyhnUzKyeQkZ7jLjKrBagJgPla13F+uQ71HgpFefyHgqrjEbCPkDArxYsjY8/+gLKA==}
     engines: {node: '>= 0.4.0'}
 
-  nntp-js@1.0.5:
-    resolution: {integrity: sha512-TPveprMEedWtAUPSbCBkJWajbIVUaxRRrIKIqfsNCuSl0P456G1Yn8GnZscEvb+hAeFP9ry+W4EDwXPviysErQ==}
+  nntp-js@1.0.6:
+    resolution: {integrity: sha512-syjqF4CISQM6vW/XagpAfuy8VBcDWdmgBw9ahtAoSpEhoYOllGIFe1I7rL0HHZMS9mLbnUvhm2ENTgi+3gE2pQ==}
 
   node-abi@3.94.0:
     resolution: {integrity: sha512-W5ZNO5KRPB5TkYmGVD9F6YqhsglXJzE6etpbmT+f6EQElhiX/UTG551cnsRGvLG3fyZEg9HwaDmNmj5nwJ4z9g==}
@@ -1494,8 +1497,8 @@ packages:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  nzb-file@1.1.18:
-    resolution: {integrity: sha512-e7RLPqm4iuipXg+Zb+VPf1RVQIEFzi56gewm5PBIWTjzcoQSJIFZNfXfyysgB1ppKll+bsVknLVomcQ6xmmh7g==}
+  nzb-file@1.1.19:
+    resolution: {integrity: sha512-wl6WaQE63p3bhn6Sd5PxRcOEfz1cPL4g1hqYo5EFUoltCV8PUyndBM9zUCqinSuB96vcmbSPJsPmJVzdcCyJbw==}
 
   nzb-parser@1.0.4:
     resolution: {integrity: sha512-MyN/NP+DUu6CUBzvUNbS2EDmpykyEoCRbnfOUZ7xR7SgHimGAZ9rh0fEyVGbbhzSQfv6wSVXSuYxtqe0x5QMnw==}
@@ -2291,9 +2294,11 @@ snapshots:
 
   '@types/chromecast-caf-receiver@6.0.27': {}
 
+  '@types/chromecast-caf-receiver@7.0.1': {}
+
   '@types/dns-packet@5.6.5':
     dependencies:
-      '@types/node': 26.6.5
+      '@types/node': 26.6.6
 
   '@types/estree@1.0.9': {}
 
@@ -2313,9 +2318,9 @@ snapshots:
   '@types/multicast-dns@7.2.4':
     dependencies:
       '@types/dns-packet': 5.6.5
-      '@types/node': 26.6.5
+      '@types/node': 26.6.6
 
-  '@types/node@26.6.5':
+  '@types/node@26.6.6':
     dependencies:
       undici-types: 8.9.0
 
@@ -3706,7 +3711,7 @@ snapshots:
 
   mime@3.0.0: {}
 
-  mime@4.1.0: {}
+  mime@4.1.2: {}
 
   mimic-fn@4.0.0: {}
 
@@ -3744,7 +3749,7 @@ snapshots:
   napi-macros@2.2.2:
     optional: true
 
-  native@https://codeload.github.com/hayase-app/native/tar.gz/9405fcc45a4e0fe49933066c1c81aa173ba63ba2:
+  native@https://codeload.github.com/hayase-app/native/tar.gz/e406ed9ca5bc91a36de2784820513eb9e4a9cdeb:
     dependencies:
       '@types/chromecast-caf-receiver': 6.0.27
 
@@ -3752,7 +3757,7 @@ snapshots:
 
   netmask@2.1.1: {}
 
-  nntp-js@1.0.5: {}
+  nntp-js@1.0.6: {}
 
   node-abi@3.94.0:
     dependencies:
@@ -3783,11 +3788,11 @@ snapshots:
     dependencies:
       path-key: 4.0.0
 
-  nzb-file@1.1.18:
+  nzb-file@1.1.19:
     dependencies:
       '@thaunknown/yencode': 1.5.5
-      mime: 4.1.0
-      nntp-js: 1.0.5
+      mime: 4.1.2
+      nntp-js: 1.0.6
       nzb-parser: 1.0.4
 
   nzb-parser@1.0.4:
