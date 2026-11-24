@@ -7,7 +7,7 @@
 	"version": "1.0.0",
 	"packageManager": "pnpm@10.28.0",
 	"devDependencies": {
-		"@types/node": "^26.6.6",
+		"@types/node": "^26.6.7",
 		"eslint-config-standard-universal": "^1.0.10",
 		"native": "github:hayase-app/native",
 		"protobufjs-cli": "^2.6.1",
@@ -31,7 +31,7 @@
 		"ebml-stream": "^1.0.3",
 		"fast-xml-parser": "^5.9.0",
 		"multicast-dns": "^7.2.5",
-		"nzb-file": "^1.1.19",
+		"nzb-file": "^1.1.20",
 		"nzb-parser": "1.0.4",
 		"protobufjs": "8.6.2",
 		"pump": "^3.0.4",

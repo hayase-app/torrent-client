@@ -40,7 +40,7 @@ export class NZBManager {
   pool
 
   constructor (domain: string, port: number, login: string, password: string, _poolSize: number) {
-    this.pool = new Pool(login, password, 'alt.binaries.multimedia.anime.highspeed', domain, port, _poolSize)
+    this.pool = new Pool(login, password, 'alt.binaries.multimedia.anime.highspeed', domain, port, _poolSize, undefined, 2)
   }
 
   addedNZBs = new Set<string>()

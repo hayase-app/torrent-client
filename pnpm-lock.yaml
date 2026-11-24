@@ -42,8 +42,8 @@ importers:
         specifier: ^7.2.5
         version: 7.2.5
       nzb-file:
-        specifier: ^1.1.19
-        version: 1.1.19
+        specifier: ^1.1.20
+        version: 1.1.20
       nzb-parser:
         specifier: 1.0.4
         version: 1.0.4
@@ -61,8 +61,8 @@ importers:
         version: https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d(bare-url@2.4.6)
     devDependencies:
       '@types/node':
-        specifier: ^26.6.6
-        version: 26.6.6
+        specifier: ^26.6.7
+        version: 26.6.7
       eslint-config-standard-universal:
         specifier: ^1.0.10
         version: 1.0.10(@typescript-eslint/parser@8.60.0(eslint@9.39.4)(typescript@6.0.3))
@@ -252,8 +252,8 @@ packages:
   '@types/multicast-dns@7.2.4':
     resolution: {integrity: sha512-ib5K4cIDR4Ro5SR3Sx/LROkMDa0BHz0OPaCBL/OSPDsAXEGZ3/KQeS6poBKYVN7BfjXDL9lWNwzyHVgt/wkyCw==}
 
-  '@types/node@26.6.6':
-    resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
+  '@types/node@26.6.7':
+    resolution: {integrity: sha512-tovuRfrUILu6v46bMG+BgXxMvsqPBx2WO2as8Rpln+JTff1dbexMtAM4KFTejmL0axsnSWViCW7MecUQpLuBRA==}
 
   '@typescript-eslint/eslint-plugin@8.60.0':
     resolution: {integrity: sha512-QYb/sa74/s7OKMbACMjrYnGspj9Hs5YI5aaffSL65UfeBUzVzBJfVo3oWSpbzPurvm7yaCCo2Lk7lVj610HqKw==}
@@ -1465,8 +1465,8 @@ packages:
     resolution: {integrity: sha512-eonl3sLUha+S1GzTPxychyhnUzKyeQkZ7jLjKrBagJgPla13F+uQ71HgpFefyHgqrjEbCPkDArxYsjY8/+gLKA==}
     engines: {node: '>= 0.4.0'}
 
-  nntp-js@1.0.6:
-    resolution: {integrity: sha512-syjqF4CISQM6vW/XagpAfuy8VBcDWdmgBw9ahtAoSpEhoYOllGIFe1I7rL0HHZMS9mLbnUvhm2ENTgi+3gE2pQ==}
+  nntp-js@1.0.7:
+    resolution: {integrity: sha512-SaFXUtVZK6b8wLW7uWyk9YnhnIpojAuxMhaLmd7RGD8Cd1Mdu1pCgkOUZa1OX6wnIt/LCgr1ujo/UfzTTp6wGg==}
 
   node-abi@3.94.0:
     resolution: {integrity: sha512-W5ZNO5KRPB5TkYmGVD9F6YqhsglXJzE6etpbmT+f6EQElhiX/UTG551cnsRGvLG3fyZEg9HwaDmNmj5nwJ4z9g==}
@@ -1497,8 +1497,8 @@ packages:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  nzb-file@1.1.19:
-    resolution: {integrity: sha512-wl6WaQE63p3bhn6Sd5PxRcOEfz1cPL4g1hqYo5EFUoltCV8PUyndBM9zUCqinSuB96vcmbSPJsPmJVzdcCyJbw==}
+  nzb-file@1.1.20:
+    resolution: {integrity: sha512-wWig195bwgr/ZEE4sbx6F4/ETUwq9k1JGhDpeXqa4VvLikeWHus2NDwM56TaKOyQt10K24Ca2wL8Yq2TE2FhDw==}
 
   nzb-parser@1.0.4:
     resolution: {integrity: sha512-MyN/NP+DUu6CUBzvUNbS2EDmpykyEoCRbnfOUZ7xR7SgHimGAZ9rh0fEyVGbbhzSQfv6wSVXSuYxtqe0x5QMnw==}
@@ -2298,7 +2298,7 @@ snapshots:
 
   '@types/dns-packet@5.6.5':
     dependencies:
-      '@types/node': 26.6.6
+      '@types/node': 26.6.7
 
   '@types/estree@1.0.9': {}
 
@@ -2318,9 +2318,9 @@ snapshots:
   '@types/multicast-dns@7.2.4':
     dependencies:
       '@types/dns-packet': 5.6.5
-      '@types/node': 26.6.6
+      '@types/node': 26.6.7
 
-  '@types/node@26.6.6':
+  '@types/node@26.6.7':
     dependencies:
       undici-types: 8.9.0
 
@@ -3757,7 +3757,7 @@ snapshots:
 
   netmask@2.1.1: {}
 
-  nntp-js@1.0.6: {}
+  nntp-js@1.0.7: {}
 
   node-abi@3.94.0:
     dependencies:
@@ -3788,11 +3788,11 @@ snapshots:
     dependencies:
       path-key: 4.0.0
 
-  nzb-file@1.1.19:
+  nzb-file@1.1.20:
     dependencies:
       '@thaunknown/yencode': 1.5.5
       mime: 4.1.2
-      nntp-js: 1.0.6
+      nntp-js: 1.0.7
       nzb-parser: 1.0.4
 
   nzb-parser@1.0.4:
