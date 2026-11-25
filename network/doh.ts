@@ -52,7 +52,8 @@ export const PROVIDERS = {
   'dns.quad9.net/dns-query': ['9.9.9.9', '149.112.112.112', '[2620:fe::fe]', '[2620:fe::9]'],
   'doh.quickline.ch/dns-query': ['212.60.61.246', '212.60.63.246', '[2001:1a88:10:ffff::1]', '[2001:1a88:10:ffff::2]'],
   'doh-01.spectrum.com/dns-query': ['209.18.47.61', '209.18.47.62', '[2001:1998:0f00:0001::1]', '[2001:1998:0f00:0002::1]'],
-  'doh-02.spectrum.com/dns-query': ['209.18.47.61', '209.18.47.62', '[2001:1998:0f00:0001::1]', '[2001:1998:0f00:0002::1]']
+  'doh-02.spectrum.com/dns-query': ['209.18.47.61', '209.18.47.62', '[2001:1998:0f00:0001::1]', '[2001:1998:0f00:0002::1]'],
+  'dns.nextdns.io': ['45.90.28.0', '45.90.30.0', '[2a07:a8c0::]', '[2a07:a8c1::]']
 } as const
 
 const globalDispatcher = Symbol.for('undici.globalDispatcher.1')
@@ -70,13 +71,38 @@ const LOCAL_ADDRESSES = new Set([
 ])
 
 export default class DoHResolver {
-  dohServers
-  pathname
+  dohServers: readonly string[]
+  pathname: string
+  host: string
 
-  constructor (dohServer: `https://${keyof typeof PROVIDERS}` = 'https://cloudflare-dns.com/dns-query') {
-    const key = dohServer.slice(8)
-    this.dohServers = key in PROVIDERS ? PROVIDERS[key as keyof typeof PROVIDERS] : PROVIDERS['cloudflare-dns.com/dns-query']
-    this.pathname = new URL(dohServer).pathname
+  constructor (dohServer: string = 'https://cloudflare-dns.com/dns-query') {
+    let url: URL
+    try {
+      url = new URL(dohServer)
+    } catch {
+      url = new URL('https://cloudflare-dns.com/dns-query')
+    }
+
+    const host = url.hostname
+    const fullPathKey = host + url.pathname
+
+    if (fullPathKey in PROVIDERS) {
+      this.dohServers = PROVIDERS[fullPathKey as keyof typeof PROVIDERS]
+      this.pathname = url.pathname
+      this.host = host
+    } else if (host in PROVIDERS) {
+      this.dohServers = PROVIDERS[host as keyof typeof PROVIDERS]
+      this.pathname = url.pathname && url.pathname !== '/' ? url.pathname : '/dns-query'
+      this.host = host
+    } else if (host === 'dns.nextdns.io' || host.endsWith('.nextdns.io')) {
+      this.dohServers = PROVIDERS['dns.nextdns.io']
+      this.pathname = url.pathname && url.pathname !== '/' ? url.pathname : '/dns-query'
+      this.host = 'dns.nextdns.io'
+    } else {
+      this.dohServers = PROVIDERS['cloudflare-dns.com/dns-query']
+      this.pathname = '/dns-query'
+      this.host = 'cloudflare-dns.com'
+    }
 
     const lookup = this._lookup
     // @ts-expect-error compat
@@ -188,6 +214,7 @@ export default class DoHResolver {
       method: 'GET',
       headers: {
         Accept: 'application/dns-json',
+        Host: this.host,
         'User-Agent': 'Node.js DoH Client'
       },
       signal: AbortSignal.timeout(5000)
