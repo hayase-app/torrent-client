@@ -42,8 +42,8 @@ importers:
         specifier: ^7.2.5
         version: 7.2.5
       nzb-file:
-        specifier: ^1.1.21
-        version: 1.1.21
+        specifier: ^1.1.22
+        version: 1.1.22
       nzb-parser:
         specifier: 1.0.4
         version: 1.0.4
@@ -58,7 +58,7 @@ importers:
         version: 2.3.2
       webtorrent:
         specifier: github:thaunknown/webtorrent#aio
-        version: https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d(bare-url@2.4.6)
+        version: https://codeload.github.com/thaunknown/webtorrent/tar.gz/298c5bdfe85873bd28924c80aca884a415050e4a(bare-url@2.4.6)
     devDependencies:
       '@types/node':
         specifier: ^26.6.7
@@ -1465,8 +1465,8 @@ packages:
     resolution: {integrity: sha512-eonl3sLUha+S1GzTPxychyhnUzKyeQkZ7jLjKrBagJgPla13F+uQ71HgpFefyHgqrjEbCPkDArxYsjY8/+gLKA==}
     engines: {node: '>= 0.4.0'}
 
-  nntp-js@1.0.8:
-    resolution: {integrity: sha512-usOxmlLACjkH+NcQRJeMW/ZiCTeQLM3ly6O/fkPVIOlsu9OfUfrDmA5VfAIPQ4tVK8DXRIdIudwJG9PFIq+QEA==}
+  nntp-js@1.0.9:
+    resolution: {integrity: sha512-HDxHQUjgJ55olSgL68OZCb0N21+ch9RNjX8WwtwnnrISrpukvdFpZNGIf/6FEvQVFXpek1r0CDFMedIF7VUOhQ==}
 
   node-abi@3.94.0:
     resolution: {integrity: sha512-W5ZNO5KRPB5TkYmGVD9F6YqhsglXJzE6etpbmT+f6EQElhiX/UTG551cnsRGvLG3fyZEg9HwaDmNmj5nwJ4z9g==}
@@ -1497,8 +1497,8 @@ packages:
     resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  nzb-file@1.1.21:
-    resolution: {integrity: sha512-/gKRnVWWLY2TaOifqzxpF+/NligJ9n1B/6Q8zQn1oKjcAKqvMmx1UFoosJqsqBciyXrsHGC5vDboh4WZazS+Jw==}
+  nzb-file@1.1.22:
+    resolution: {integrity: sha512-gdMALSsLpnoFLx5dLsFaX+QkJgOuLz4bxz7BKNwX/j8heo5Y8A570JnhN3hlnFlWpeU9bHybYmlowvHzOkr+WQ==}
 
   nzb-parser@1.0.4:
     resolution: {integrity: sha512-MyN/NP+DUu6CUBzvUNbS2EDmpykyEoCRbnfOUZ7xR7SgHimGAZ9rh0fEyVGbbhzSQfv6wSVXSuYxtqe0x5QMnw==}
@@ -2047,8 +2047,8 @@ packages:
     resolution: {integrity: sha512-t/H2OySa7lZSq2f5j4whmr+IWCl5TqF4daGotE8VhPP7U+E4x5x8MK1wqOkqlb4xxRlag4kBB9enU4oxNk//+g==}
     engines: {node: '>=16.0.0'}
 
-  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d:
-    resolution: {tarball: https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d}
+  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/298c5bdfe85873bd28924c80aca884a415050e4a:
+    resolution: {tarball: https://codeload.github.com/thaunknown/webtorrent/tar.gz/298c5bdfe85873bd28924c80aca884a415050e4a}
     version: 3.0.21
     engines: {node: '>=22'}
 
@@ -3757,7 +3757,7 @@ snapshots:
 
   netmask@2.1.1: {}
 
-  nntp-js@1.0.8: {}
+  nntp-js@1.0.9: {}
 
   node-abi@3.94.0:
     dependencies:
@@ -3788,11 +3788,11 @@ snapshots:
     dependencies:
       path-key: 4.0.0
 
-  nzb-file@1.1.21:
+  nzb-file@1.1.22:
     dependencies:
       '@thaunknown/yencode': 1.5.5
       mime: 4.1.2
-      nntp-js: 1.0.8
+      nntp-js: 1.0.9
       nzb-parser: 1.0.4
 
   nzb-parser@1.0.4:
@@ -4483,7 +4483,7 @@ snapshots:
     dependencies:
       node-datachannel: 0.32.3
 
-  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/3cbc0c425fcf885a1818092e9f9fe9c4b874ef9d(bare-url@2.4.6):
+  webtorrent@https://codeload.github.com/thaunknown/webtorrent/tar.gz/298c5bdfe85873bd28924c80aca884a415050e4a(bare-url@2.4.6):
     dependencies:
       '@silentbot1/nat-api': 0.4.9
       '@thaunknown/simple-peer': 10.1.2
